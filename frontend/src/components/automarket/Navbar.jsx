@@ -69,7 +69,7 @@ export default function Navbar() {
 
 
   return (
-    <nav className="bg-[hsl(var(--background))] sticky top-0 z-50" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <nav className="bg-[hsl(var(--background))] sticky top-0 z-50 border-b-4 border-blue-600" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16 relative">
           {/* Mobile: Back button (sub-pages) or spacer (root) */}
