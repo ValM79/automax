@@ -1,22 +1,22 @@
-# AutoGuide — automax.ie clone on AWS
+# automax — automax.ie, live on AWS
 
 ## What this project is
 
-A fully self-hosted, functionally identical rebuild of automax.ie (a
-Base44-built Irish car/vehicle marketplace, live app name "AutoMarket"),
-deployed to AWS under a separate hosting name so the live Base44 site is
-never touched. Base44's export only gives you the frontend — DB, auth, and
-backend functions stay on Base44's managed platform — so this is a full
-backend rebuild, not a re-host.
+The real `automax.ie` (Irish car/vehicle marketplace), rebuilt as a fully
+self-hosted AWS application. It replaces a prior Base44-hosted version — Base44
+gave you the frontend only; DB, auth, and backend functions stayed on Base44's
+managed platform, so this was a full backend rebuild, not a re-host. The
+Base44-hosted site is being retired; there are no real customers on it.
 
-- Live Base44 app: `https://app--auto-market-fa44f23a.base44.app/`
 - This repo consolidates two previously separate repos:
   - `github.com/ValM79/auto-max` — the original Base44 frontend export
   - `github.com/ValM79/automax-aws-migration` — the AWS backend package
     (CDK + Lambda), reverse-engineered directly from
     `base44/entities/*.jsonc` and `base44/functions/*/entry.ts` in the
     frontend export
-- Both source repos still exist standalone and are untouched by this work.
+- Both source repos still exist standalone but are superseded by this one.
+- This repo itself was renamed from `AutoGuide` to `automax` once the real
+  domain was cut over, to avoid the two names causing confusion going forward.
 
 ## Architecture decision: monorepo
 
@@ -25,57 +25,52 @@ where the two sides have to match exactly (API shape, entity fields, RLS
 rules) — one repo means atomic commits across both instead of version drift.
 See `README.md` for the full rationale and layout.
 
-## What's built and wired (this repo)
+## Current live status
 
-- `backend/cdk/` — Cognito, 5 DynamoDB tables, S3 + CloudFront, API Gateway,
-  Secrets Manager.
-- `backend/lambda/` — all 9 original Base44 functions ported to Node 20
-  Lambda, plus `entity-api` (generic CRUD + RLS) and `presignUpload`.
-- `frontend/` — the real `auto-max` app with the Base44 SDK actually wired to
-  the AWS backend (not just shim files sitting next to the old code):
-  - `src/api/base44Client.js` replaced, talking to API Gateway + Cognito.
-  - `src/lib/AuthContext.jsx` rewritten to drop the direct `@base44/sdk`
-    import it had for a platform-only "app public settings" check.
-  - `src/pages/AuthCallback.jsx` added + routed for Google/Apple OAuth.
-  - `src/pages/CreateAccount.jsx` wired to Cognito sign-up + email
-    confirmation (previously a dead no-op stub in the real repo — verified
-    by reading the code, not assumed).
-  - `src/pages/ForgotPassword.jsx` / `ResetPassword.jsx` fixed to use
-    Cognito's actual code-based reset flow instead of a link-token flow that
-    the shim never implemented.
-  - `@base44/sdk` and `@base44/vite-plugin` fully removed from
-    `package.json`/`vite.config.js`.
+- **Deployed to AWS** (`eu-west-1`), CloudFormation stack `AutomaxStack`.
+- **`automax.ie` and `www.automax.ie`** point at the CloudFront distribution
+  (DNS managed via Cloudflare, records set to DNS-only rather than proxied).
+- **`autoguide.ie`** was the staging domain used during development
+  (DNS at Register365) — now configured to redirect to `automax.ie` rather
+  than serve a second live copy.
+- **Signup verified working end-to-end** against the real Cognito pool
+  (confirmed via `aws cognito-idp list-users`, not just "it compiled").
+- **Stripe: live mode, in progress.** Same Stripe account as the original
+  Base44 site, so the 6 hardcoded Price IDs in
+  `backend/lambda/createCheckoutSession/index.mjs` already work as-is. A
+  *second*, separate webhook endpoint (alongside Base44's existing one —
+  never touched/removed) needs to be added in the Stripe Dashboard pointing
+  at `<ApiUrl>/webhooks/stripe` for `checkout.session.completed` and
+  `checkout.session.expired`. `stripeWebhook/index.mjs` uses a
+  `ConditionExpression` guard so events for ad IDs from the shared Base44
+  Stripe account (which fire to *every* webhook on the account, not just the
+  one that created the session) are safely ignored rather than creating
+  bogus records.
+- **Twilio/Resend/Irish NCR: intentionally deferred.** Both
+  `sendVerificationCode` and `submitContactForm` already fail cleanly (a
+  proper error response, not a crash) when these secrets are missing —
+  confirmed by reading the code. Phone/email OTP verification, the contact
+  form, and vehicle registration lookup won't work until these are added,
+  but nothing else breaks. `contactSeller`'s Resend call is also already
+  wrapped so messaging a seller still works even without it (message just
+  won't also trigger an email).
 
-## Open items — verify before treating this as done
+## Open items
 
-1. **Nothing deployed to AWS yet.** `backend/cdk` has never been `cdk deploy`'d.
-   This is a package ready to deploy, not a live environment.
-2. **Production data hasn't been migrated.** This repo has code, not the live
-   listings/users/messages. Need Base44 Builder/API access to export that
-   data, or a decision to launch fresh and let users re-register. See
-   `backend/README.md` § "Migrating your existing data".
-3. **Stripe/Twilio/Resend/Irish NCR API keys** are still placeholders — need
-   real values in Secrets Manager (`automax/app-secrets`) per
-   `backend/README.md`.
-4. **Google/Apple social login** needs your own OAuth app credentials
+1. **Google/Apple social login** needs your own OAuth app credentials
    registered in Cognito before "Continue with Google/Apple" will work —
    email/password works without it.
-5. **Signup flow is now wired but untested end-to-end** against a real
-   deployed Cognito pool (no backend has been deployed yet to test against).
-
-## Recommended sequence
-
-1. `cd backend/cdk && npm install && npx cdk bootstrap && cd ../lambda && npm install && cd ../cdk && npm run deploy`
-   — deploys to an auto-generated CloudFront domain by default (not
-   automax.ie), safe to test before cutover.
-2. Fill in real secrets, `cp frontend/.env.example frontend/.env.local` with
-   the `cdk deploy` output values, `npm run dev` and walk the testing
-   checklist in `backend/README.md`.
-3. Migrate production data (or decide to launch fresh).
-4. Test everything against the staging CloudFront domain, side-by-side with
-   the live Base44 app.
-5. Once verified identical, redeploy with `AUTOMAX_DOMAIN_NAME`/
-   `AUTOMAX_CERT_ARN` set and cut over DNS for the real hosting name.
+2. **Twilio/Resend/Irish NCR** — add real keys to Secrets Manager
+   (`automax/app-secrets`) when ready; see "Current live status" above for
+   what's degraded in the meantime.
+3. **Production data migration** — not done. Given no real customers were on
+   the Base44 site, this may not be needed at all; confirm before spending
+   effort on it. See `backend/README.md` § "Migrating your existing data" if
+   it turns out to matter.
+4. **Full testing checklist** (`backend/README.md`) — only signup, anonymous
+   browsing, and the live-deploy pipeline have been verified end-to-end so
+   far. Login, placing an ad through checkout, messaging, delete-account,
+   etc. still want walking through for real.
 
 ## A reusable skill exists for this class of task
 

@@ -1,10 +1,8 @@
-# AutoGuide
+# automax
 
-A fully self-hosted, functionally identical clone of **automax.ie** (currently
-live on Base44), rebuilt on AWS under a separate hosting name so the real
-Base44-hosted site is never touched during development. Once this is verified
-side-by-side against the live app, DNS can be cut over — see
-[`backend/README.md`](backend/README.md) for that step.
+The real **automax.ie** — Ireland's car/vehicle marketplace, rebuilt as a
+fully self-hosted AWS application. `automax.ie` is now live on this
+infrastructure; the site previously ran on Base44, which is being retired.
 
 ## Why a monorepo
 
@@ -17,13 +15,12 @@ sides atomically instead of risking the two drifting out of sync across
 separate repos with separate version histories.
 
 - `ValM79/auto-max` and `ValM79/automax-aws-migration` still exist standalone
-  and are untouched — this repo is the consolidated, wired-together version
-  going forward.
+  but are superseded — this repo is the live, wired-together version.
 
 ## Layout
 
 ```
-AutoGuide/
+automax/
 ├── frontend/    React + Vite + Tailwind + shadcn/ui app (from auto-max),
 │                with the Base44 SDK swapped for the AWS backend below
 └── backend/     AWS CDK stack + Lambda functions (from automax-aws-migration)
@@ -56,7 +53,7 @@ gaps that a file-by-file copy wouldn't have caught — fixed here:
 `frontend/package.json` and `frontend/vite.config.js` — nothing else in the
 app referenced them (checked via repo-wide search before removing).
 
-## Getting started
+## Local development
 
 ```bash
 # 1. Deploy the backend (see backend/README.md for full details/prereqs)
@@ -72,11 +69,12 @@ npm install
 npm run dev
 ```
 
-By default `cdk deploy` provisions an auto-generated CloudFront domain, not
-automax.ie — safe to test end-to-end before any DNS change. See
-[`backend/README.md`](backend/README.md) for the full deploy/testing
-checklist and the DNS cutover steps.
+See [`backend/README.md`](backend/README.md) for the full deploy/testing
+checklist.
 
 ## Status
 
-Not yet deployed to AWS. See [`CLAUDE.md`](CLAUDE.md) for open items.
+**Live** at `https://automax.ie`, deployed to AWS (`eu-west-1`). `autoguide.ie`
+was used as a staging domain during development and now redirects to
+`automax.ie`. See [`CLAUDE.md`](CLAUDE.md) for what's still open (Twilio/Resend/NCR
+secrets, production data migration).
