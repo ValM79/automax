@@ -27,24 +27,36 @@ export const handler = async (event) => {
       const adId = session.metadata?.ad_id;
       if (adId) {
         // Trust only verified Stripe metadata — never client-supplied values.
-        await ddb.send(
-          new UpdateCommand({
-            TableName: TABLES.UserAd,
-            Key: { id: adId },
-            UpdateExpression:
-              'SET #status = :status, packageName = :pkg, listingDays = :days, spotlight = :spotlight, paymentAmount = :amount, receiptUrl = :receipt',
-            ExpressionAttributeNames: { '#status': 'status' },
-            ExpressionAttributeValues: {
-              ':status': 'active',
-              ':pkg': session.metadata?.package_name || '',
-              ':days': parseInt(session.metadata?.listing_days || '0', 10),
-              ':spotlight': parseInt(session.metadata?.spotlight_days || '0', 10) > 0,
-              ':amount': session.amount_total || 0,
-              ':receipt': session.receipt_url || '',
-            },
-          })
-        );
-        console.log(`Ad ${adId} activated after payment ${session.id}, amount: ${session.amount_total}`);
+        // ConditionExpression guards against events for ad IDs from a different
+        // deployment sharing this same Stripe account (e.g. the live Base44 site) —
+        // without it, DynamoDB's default upsert would create a bogus partial record.
+        try {
+          await ddb.send(
+            new UpdateCommand({
+              TableName: TABLES.UserAd,
+              Key: { id: adId },
+              ConditionExpression: 'attribute_exists(id)',
+              UpdateExpression:
+                'SET #status = :status, packageName = :pkg, listingDays = :days, spotlight = :spotlight, paymentAmount = :amount, receiptUrl = :receipt',
+              ExpressionAttributeNames: { '#status': 'status' },
+              ExpressionAttributeValues: {
+                ':status': 'active',
+                ':pkg': session.metadata?.package_name || '',
+                ':days': parseInt(session.metadata?.listing_days || '0', 10),
+                ':spotlight': parseInt(session.metadata?.spotlight_days || '0', 10) > 0,
+                ':amount': session.amount_total || 0,
+                ':receipt': session.receipt_url || '',
+              },
+            })
+          );
+          console.log(`Ad ${adId} activated after payment ${session.id}, amount: ${session.amount_total}`);
+        } catch (err) {
+          if (err.name === 'ConditionalCheckFailedException') {
+            console.log(`Ignoring checkout.session.completed for unknown ad ${adId} (not from this deployment)`);
+          } else {
+            throw err;
+          }
+        }
       } else {
         console.error('No ad_id in session metadata for session', session.id);
       }
@@ -52,16 +64,25 @@ export const handler = async (event) => {
       const session = stripeEvent.data.object;
       const adId = session.metadata?.ad_id;
       if (adId) {
-        await ddb.send(
-          new UpdateCommand({
-            TableName: TABLES.UserAd,
-            Key: { id: adId },
-            UpdateExpression: 'SET #status = :status',
-            ExpressionAttributeNames: { '#status': 'status' },
-            ExpressionAttributeValues: { ':status': 'expired' },
-          })
-        );
-        console.log(`Ad ${adId} marked expired after checkout session expired`);
+        try {
+          await ddb.send(
+            new UpdateCommand({
+              TableName: TABLES.UserAd,
+              Key: { id: adId },
+              ConditionExpression: 'attribute_exists(id)',
+              UpdateExpression: 'SET #status = :status',
+              ExpressionAttributeNames: { '#status': 'status' },
+              ExpressionAttributeValues: { ':status': 'expired' },
+            })
+          );
+          console.log(`Ad ${adId} marked expired after checkout session expired`);
+        } catch (err) {
+          if (err.name === 'ConditionalCheckFailedException') {
+            console.log(`Ignoring checkout.session.expired for unknown ad ${adId} (not from this deployment)`);
+          } else {
+            throw err;
+          }
+        }
       }
     }
 
