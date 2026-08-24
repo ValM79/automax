@@ -7,17 +7,12 @@ import { Link } from 'react-router-dom';
 const sections = [
   {
     title: '1. Who We Are',
-    content: `AutoMax is Ireland's largest online vehicle marketplace, operated by AutoMax Ireland Ltd., a company registered in Ireland.
+    content: `AutoMax is an Irish online vehicle marketplace, currently operated by Don as an individual (not yet a registered company — this will be updated here if and when the business is incorporated).
 
-Registered address: AutoMax Ireland Ltd., 12 Motor House, Citywest Business Campus, Dublin 24, D24 XY12, Ireland.
-Company Registration No.: IE 654321
-Data Protection Registration No.: IE-DPC-2024-00123
+Don is the Data Controller for personal data collected through this website and mobile application.
 
-AutoMax Ireland Ltd. is the Data Controller for all personal data collected through this website and mobile application. We are registered with the Data Protection Commission (DPC) of Ireland.
-
-For all data protection enquiries, please contact our Data Protection Officer (DPO):
-Email: dpo@automax.ie
-Post: Data Protection Officer, AutoMax Ireland Ltd., 12 Motor House, Citywest Business Campus, Dublin 24.`
+For all data protection enquiries, please contact:
+Email: privacy@automax.ie`
   },
   {
     title: '2. What Data We Collect',
@@ -160,7 +155,7 @@ Website: dataprotection.ie
 Phone: +353 57 868 4800
 Post: Data Protection Commission, 21 Fitzwilliam Square South, Dublin 2, D02 RD28.
 
-To exercise any of these rights, contact us at: dpo@automax.ie
+To exercise any of these rights, contact us at: privacy@automax.ie
 We will respond within 30 days. We may ask you to verify your identity before processing your request.`
   },
   {
@@ -177,7 +172,7 @@ Despite these measures, no internet transmission is completely secure. In the ev
   },
   {
     title: '9. Children\'s Privacy',
-    content: `AutoMax is not directed at children under the age of 16. We do not knowingly collect personal data from children under 16. If you believe a child has provided us with personal data, please contact us at dpo@automax.ie and we will delete it promptly.`
+    content: `AutoMax is not directed at children under the age of 16. We do not knowingly collect personal data from children under 16. If you believe a child has provided us with personal data, please contact us at privacy@automax.ie and we will delete it promptly.`
   },
   {
     title: '10. Changes to This Privacy Policy',
@@ -187,15 +182,9 @@ Despite these measures, no internet transmission is completely secure. In the ev
     title: '11. Contact Us',
     content: `For any questions, concerns, or requests relating to this Privacy Policy or your personal data, please contact:
 
-Data Protection Officer
-AutoMax Ireland Ltd.
-12 Motor House, Citywest Business Campus
-Dublin 24, D24 XY12, Ireland
+Email: privacy@automax.ie
 
-Email: dpo@automax.ie
-Phone: +353 1 444 4444
-
-For general enquiries, visit our Contact Us page or email support@automax.ie.
+For general enquiries, visit our Contact Us page.
 
 Supervisory Authority:
 Data Protection Commission (DPC)
@@ -223,7 +212,7 @@ export default function PrivacyPolicy() {
           <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
           <p className="text-sm text-muted-foreground">Last updated: 18 June 2026 &nbsp;·&nbsp; Effective date: 18 June 2026</p>
           <p className="text-sm text-muted-foreground mt-3">
-            AutoMax Ireland Ltd. is committed to protecting your privacy and handling your personal data in full compliance with the{' '}
+            AutoMax is committed to protecting your privacy and handling your personal data in full compliance with the{' '}
             <strong>General Data Protection Regulation (GDPR)</strong>, the{' '}
             <strong>Data Protection Act 2018</strong>, and all applicable Irish and EU data protection law. This policy explains clearly what data we collect, why we collect it, how we use it, and what rights you have.
           </p>
