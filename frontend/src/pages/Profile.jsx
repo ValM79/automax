@@ -301,7 +301,7 @@ export default function Profile() {
             <h2 className="text-xl font-bold text-foreground mb-4">Change Your Email</h2>
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>
-                Please submit your request to <strong className="text-foreground">changemyemail@automax.ie</strong>
+                Please submit your request to <a href="mailto:changemyemail@automax.ie" className="text-foreground font-semibold hover:underline">changemyemail@automax.ie</a>
               </p>
               <p>
                 For security reasons, we ask that you contact us directly from the email address that is currently registered to your AutoMax account.

@@ -48,7 +48,7 @@ export default function DealersInformation() {
         <div className="bg-card border border-border rounded-2xl p-8 shadow-sm text-center">
           <h2 className="text-xl font-bold text-foreground mb-2">Want to become a dealer?</h2>
           <p className="text-muted-foreground text-sm mb-4">Contact our dealer team today and we'll find the right package for you.</p>
-          <span className="text-primary font-semibold">dealers@automax.ie</span>
+          <a href="mailto:dealers@automax.ie" className="text-primary font-semibold hover:underline">dealers@automax.ie</a>
         </div>
       </div>
       <ContactFormModal isOpen={showContactForm} onClose={() => setShowContactForm(false)} defaultReason="Dealer Inquiry" />

@@ -21,12 +21,12 @@ export default function Accessibility() {
             { title: 'Conformance Status', text: 'We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. Where we fall short, we are actively working to resolve issues.' },
             { title: 'Technical Accessibility Features', text: 'Our platform supports keyboard navigation throughout; all images include descriptive alt text; colour contrast meets WCAG AA standards; forms include clear labels and error messages; the site is fully responsive for mobile and tablet devices.' },
             { title: 'Known Limitations', text: 'Some older PDF documents and third-party embedded content may not fully meet accessibility standards. We are working to address these progressively.' },
-            { title: 'Feedback and Contact', text: 'We welcome your feedback on the accessibility of AutoMax. If you experience any barriers, please contact us at accessibility@automax.ie or call +353 1 4444444. We aim to respond within 2 business days.' },
+            { title: 'Feedback and Contact', content: <>We welcome your feedback on the accessibility of AutoMax. If you experience any barriers, please contact us at <a href="mailto:accessibility@automax.ie" className="text-primary hover:underline">accessibility@automax.ie</a>. We aim to respond within 2 business days.</> },
             { title: 'Formal Complaints', text: 'If you are not satisfied with our response, you may contact the Irish Human Rights and Equality Commission (IHREC) at ihrec.ie.' },
           ].map((s, i) => (
             <div key={i} className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <h2 className="text-lg font-bold text-foreground mb-2">{s.title}</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">{s.text}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{s.content || s.text}</p>
             </div>
           ))}
         </div>

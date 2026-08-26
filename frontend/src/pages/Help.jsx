@@ -78,7 +78,7 @@ export default function Help() {
               <Mail className="w-5 h-5 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">Reach us via email</p>
-            <span className="text-sm font-medium text-foreground">support@automax.ie</span>
+            <a href="mailto:support@automax.ie" className="text-sm font-medium text-foreground hover:underline">support@automax.ie</a>
           </div>
 
           <div className="bg-card rounded-xl border border-border shadow-sm p-6 hover:shadow-md transition-shadow">

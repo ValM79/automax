@@ -33,7 +33,7 @@ export default function ContactUs() {
               <div>
                 <h3 className="font-semibold text-foreground mb-1">Email</h3>
                 <p className="text-muted-foreground text-sm">We'll respond within 24 hours</p>
-                <span className="text-primary font-medium">support@automax.ie</span>
+                <a href="mailto:support@automax.ie" className="text-primary font-medium hover:underline">support@automax.ie</a>
               </div>
             </div>
             <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex items-start gap-4">

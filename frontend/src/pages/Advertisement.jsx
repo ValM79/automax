@@ -43,7 +43,7 @@ export default function Advertisement() {
           <h2 className="text-2xl font-bold mb-2">Get in Touch</h2>
           <p className="text-white/80 mb-5 text-sm">Our advertising team will put together a custom proposal tailored to your brand goals and budget.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <span className="bg-card text-primary font-bold px-6 py-3 rounded-xl">advertise@automax.ie</span>
+            <a href="mailto:advertise@automax.ie" className="bg-card text-primary font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">advertise@automax.ie</a>
           </div>
         </div>
       </div>

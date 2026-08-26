@@ -48,7 +48,7 @@ export default function Career() {
             </div>
           ))}
         </div>
-        <p className="text-center text-muted-foreground text-sm mt-8">Don't see a suitable role? Send your CV to <span className="text-primary">careers@automax.ie</span></p>
+        <p className="text-center text-muted-foreground text-sm mt-8">Don't see a suitable role? Send your CV to <a href="mailto:careers@automax.ie" className="text-primary hover:underline">careers@automax.ie</a></p>
       </div>
       <Footer />
     </div>
