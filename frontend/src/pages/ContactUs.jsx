@@ -3,7 +3,7 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ContactFormModal from '../components/automarket/ContactFormModal';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function ContactUs() {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -26,16 +26,6 @@ export default function ContactUs() {
                 <h3 className="font-semibold text-foreground mb-1">Email</h3>
                 <p className="text-muted-foreground text-sm">We'll respond within 24 hours</p>
                 <a href="mailto:support@automax.ie" className="text-primary font-medium hover:underline">support@automax.ie</a>
-              </div>
-            </div>
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex items-start gap-4">
-              <MapPin className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Office</h3>
-                <p className="text-muted-foreground text-sm">17 Hallwell Square.
-Adamstown
-Lucan
-Co Dublin</p>
               </div>
             </div>
           </div>
