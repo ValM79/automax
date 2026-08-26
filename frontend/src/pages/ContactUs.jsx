@@ -3,7 +3,7 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ContactFormModal from '../components/automarket/ContactFormModal';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 
 export default function ContactUs() {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -20,14 +20,6 @@ export default function ContactUs() {
         <h1 className="text-3xl font-bold text-foreground mb-8">Contact Us</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex items-start gap-4">
-              <Phone className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                <p className="text-muted-foreground text-sm">Mon–Fri, 9am–5:30pm</p>
-                <a href="tel:+35314444444" className="text-primary hover:underline font-medium">+353 1 0000000</a>
-              </div>
-            </div>
             <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex items-start gap-4">
               <Mail className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
               <div>

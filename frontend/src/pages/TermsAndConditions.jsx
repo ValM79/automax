@@ -97,9 +97,8 @@ export default function TermsAndConditions() {
           <Section title="11. Contact Us">
             <p>If you have any questions about these Terms & Conditions, please contact us:</p>
             <div className="mt-3 space-y-1 text-muted-foreground">
-              <p><strong className="text-foreground">AutoMax Ireland</strong></p>
+              <p><strong className="text-foreground">AutoMax</strong> — operated by Don</p>
               <p>Email: <a href="mailto:support@automax.ie" className="text-primary hover:underline">support@automax.ie</a></p>
-              <p>Phone: <a href="tel:+35314444444" className="text-primary hover:underline">+353 1 4444444</a></p>
             </div>
           </Section>
 
