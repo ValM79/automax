@@ -256,7 +256,7 @@ export class AutomaxStack extends cdk.Stack {
     const entryDir = path.join(__dirname, '..', '..', 'lambda');
 
     const nodeFnDefaults: Partial<lambdaNode.NodejsFunctionProps> = {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       architecture: lambda.Architecture.ARM_64,
       timeout: cdk.Duration.seconds(15),
       memorySize: 256,
@@ -265,9 +265,9 @@ export class AutomaxStack extends cdk.Stack {
       // lockfile — point it at lambda/'s lockfile explicitly.
       depsLockFilePath: path.join(entryDir, 'package-lock.json'),
       // Bundle the AWS SDK v3 packages ourselves rather than relying on whichever
-      // version happens to ship in the Lambda Node20 base image (safer, and
+      // version happens to ship in the Lambda Node24 base image (safer, and
       // @aws-sdk/s3-request-presigner specifically isn't guaranteed to be present).
-      bundling: { minify: true, sourceMap: false, target: 'node20' },
+      bundling: { minify: true, sourceMap: false, target: 'node24' },
       environment: {
         USERAD_TABLE: userAdTable.tableName,
         MESSAGE_TABLE: messageTable.tableName,
