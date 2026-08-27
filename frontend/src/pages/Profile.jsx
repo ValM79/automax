@@ -72,6 +72,12 @@ export default function Profile() {
       if (response.data?.error) {
         throw new Error(response.data.error);
       }
+      // Favorites, saved searches, and browsing history are stored client-side
+      // only (never sent to the backend) -- clear them here so "browsing logs
+      // and search history permanently cleared" is actually true.
+      localStorage.removeItem('automax_favorites');
+      localStorage.removeItem('automax_saved_searches');
+      localStorage.removeItem('automax_browsing_history');
       await base44.auth.logout(window.location.origin + '/');
     } catch (e) {
       setDeleting(false);
@@ -329,9 +335,9 @@ export default function Profile() {
             <p className="text-sm text-muted-foreground mb-4">This will permanently erase your account and all associated data. This action cannot be undone.</p>
             <ul className="text-sm text-muted-foreground mb-6 space-y-2 bg-secondary/50 rounded-lg p-4 border border-border">
               <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">live ads</strong> permanently removed from the database</li>
-              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">billing receipts</strong> and payment records scrubbed from Stripe and our database</li>
-              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">browsing logs</strong> and search history permanently cleared</li>
-              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">vehicle history records</strong> and saved listings permanently deleted</li>
+              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">listing and package records</strong> removed from our database. Stripe separately retains a record of completed transactions for its own legal and tax obligations, independent of your AutoMax account</li>
+              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">browsing history and search history</strong> stored on this device permanently cleared</li>
+              <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> All <strong className="text-foreground">saved listings and favorites</strong> stored on this device permanently cleared</li>
               <li className="flex items-start gap-2"><span className="text-destructive mt-0.5">✕</span> Your account, profile, and contact details irreversibly removed</li>
             </ul>
             {deleteError && (
