@@ -289,6 +289,22 @@ const functions = {
     if (!res.ok) throw new Error(`Failed to generate receipt (${res.status})`);
     return res.blob();
   },
+
+  /**
+   * Every call site in the real app (ContactFormModal, VerificationInput,
+   * PlaceAd, Profile, VehicleDetail, PaymentHistory) calls
+   * base44.functions.invoke('name', payload) and reads the result off
+   * `.data` -- matching Base44's original SDK shape, not this shim's plain
+   * direct-call functions above. This wraps them to match rather than
+   * requiring every call site to be rewritten.
+   */
+  async invoke(name, payload) {
+    if (typeof this[name] !== 'function') {
+      throw new Error(`Unknown function: ${name}`);
+    }
+    const data = await this[name](payload);
+    return { data };
+  },
 };
 
 // ---------------------------------------------------------------------------

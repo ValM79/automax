@@ -343,6 +343,7 @@ export class AutomaxStack extends cdk.Stack {
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
       downloadReceiptFn, sendVerificationCodeFn, stripeWebhookFn, verifyCodeFn, presignUploadFn,
+      submitContactFormFn, getVehicleDetailsFn,
     ]) {
       userAdTable.grantReadWriteData(fn);
       messageTable.grantReadWriteData(fn);

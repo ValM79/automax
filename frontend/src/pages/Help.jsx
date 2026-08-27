@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, ChevronDown, ChevronUp, Mail, Phone, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Mail, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import ContactFormModal from '../components/automarket/ContactFormModal';
 
 export default function Help() {
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   const faqs = [
     {
@@ -71,34 +73,23 @@ export default function Help() {
         <p className="text-muted-foreground mb-8">Find answers to common questions or get in touch with our support team</p>
 
         {/* Contact Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
           <div className="bg-card rounded-xl border border-border shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Email Support</h3>
               <Mail className="w-5 h-5 text-primary" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">Reach us via email</p>
-            <a href="mailto:support@automax.ie" className="text-sm font-medium text-foreground hover:underline">support@automax.ie</a>
+            <a href="mailto:support@automax.ie" className="text-sm font-medium text-primary hover:underline">support@automax.ie</a>
           </div>
 
           <div className="bg-card rounded-xl border border-border shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">Phone Support</h3>
-              <Phone className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">Call us during business hours</p>
-            <a href="tel:+353123456789" className="text-sm text-primary hover:underline font-medium">
-              +353 1 234 5678
-            </a>
-          </div>
-
-          <div className="bg-card rounded-xl border border-border shadow-sm p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">Live Chat</h3>
+              <h3 className="font-semibold text-foreground">Send a Message</h3>
               <MessageSquare className="w-5 h-5 text-primary" />
             </div>
-            <p className="text-sm text-muted-foreground mb-4">Chat with our team in real-time</p>
-            <button className="text-sm text-primary hover:underline font-medium">
+            <p className="text-sm text-muted-foreground mb-4">Submit a request and we'll get back to you</p>
+            <button onClick={() => setShowContactForm(true)} className="text-sm text-primary hover:underline font-medium">
               Start a conversation
             </button>
           </div>
@@ -137,11 +128,12 @@ export default function Help() {
           <p className="text-sm text-muted-foreground mb-4">
             Can't find what you're looking for? Our support team is ready to help. Contact us through any of the channels above and we'll get back to you within 24 hours.
           </p>
-          <button className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm">
+          <button onClick={() => setShowContactForm(true)} className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm">
             Contact Support
           </button>
         </div>
       </div>
+      <ContactFormModal isOpen={showContactForm} onClose={() => setShowContactForm(false)} defaultReason="Support / Help" />
       <Footer />
     </div>
   );
