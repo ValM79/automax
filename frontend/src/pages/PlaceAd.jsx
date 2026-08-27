@@ -104,7 +104,6 @@ const emptyForm = {
   description: '',
   price: '',
   youtubeUrl: '',
-  registration: '',
   mileage: '',
   mileageUnit: 'km',
   vehicleMake: '',
@@ -189,9 +188,6 @@ export default function PlaceAd() {
   const [step, setStep] = useState('form'); // 'form' | 'preview'
   const [categoryStarted, setCategoryStarted] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(null);
-  const [loadingVehicle, setLoadingVehicle] = useState(false);
-  const [vehicleError, setVehicleError] = useState('');
-  const [editingVehicle, setEditingVehicle] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [formErrors, setFormErrors] = useState({});
@@ -199,8 +195,6 @@ export default function PlaceAd() {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [vintageSuggestionDismissed, setVintageSuggestionDismissed] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
   const adSavedRef = useRef(false);
   const submittingRef = useRef(false);
 
@@ -406,44 +400,6 @@ export default function PlaceAd() {
       })
     );
     return uploaded.filter(Boolean);
-  };
-
-  const handleLookupVehicle = async () => {
-    if (!form.registration.trim()) {
-      setVehicleError('Please enter a registration number');
-      return;
-    }
-
-    setLoadingVehicle(true);
-    setVehicleError('');
-
-    try {
-      const response = await base44.functions.invoke('getVehicleDetails', {
-        registration: form.registration
-      });
-
-      if (response.data.success) {
-        const data = response.data.data;
-        const year = parseInt(data.year || '', 10);
-        if (year && year <= 2000) setVintageSuggestionDismissed(false);
-        setForm((f) => ({
-          ...f,
-          vehicleMake: data.make || '',
-          vehicleModel: data.model || '',
-          vehicleYear: data.year || '',
-          vehicleFuel: data.fuelType || '',
-          vehicleTransmission: data.transmission || '',
-          mileage: data.mileage || '',
-          ...data
-        }));
-      } else {
-        setVehicleError(response.data.error || 'Vehicle not found');
-      }
-    } catch (error) {
-      setVehicleError('Failed to retrieve vehicle details');
-    } finally {
-      setLoadingVehicle(false);
-    }
   };
 
   // While auth is resolving or the user is being redirected to login, don't render the form.
@@ -1077,7 +1033,7 @@ export default function PlaceAd() {
                   className={`w-full border rounded-lg px-4 py-3 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.phone ? 'border-destructive' : 'border-border'}`} />
                 </div>
                 {formErrors.phone && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.phone}</p>}
-                {form.phone && <div className="mt-2"><VerificationInput value={form.phone} type="sms" onVerified={() => setPhoneVerified(true)} /></div>}
+                {form.phone && <div className="mt-2"><VerificationInput value={form.phone} type="sms" /></div>}
               </div>
 
               <div id="field-email">
@@ -1088,7 +1044,7 @@ export default function PlaceAd() {
                   className={`w-full border rounded-lg px-4 py-3 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.email ? 'border-destructive' : 'border-border'}`} />
                 </div>
                 {formErrors.email && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.email}</p>}
-                {form.email && <div className="mt-2"><VerificationInput value={form.email} type="email" onVerified={() => setEmailVerified(true)} /></div>}
+                {form.email && <div className="mt-2"><VerificationInput value={form.email} type="email" /></div>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
