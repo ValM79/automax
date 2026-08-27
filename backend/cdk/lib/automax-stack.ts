@@ -339,11 +339,19 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'presignUpload', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Backs base44.auth.updateMe() -- lets a user edit their own profile
+    // fields without going through entity-api's admin-only User RLS (which
+    // exists specifically to stop self-role-promotion). See index.mjs.
+    const updateProfileFn = new lambdaNode.NodejsFunction(this, 'UpdateProfileFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'updateProfile', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     // Grant table access
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
       downloadReceiptFn, sendVerificationCodeFn, stripeWebhookFn, verifyCodeFn, presignUploadFn,
-      submitContactFormFn, getVehicleDetailsFn,
+      submitContactFormFn, getVehicleDetailsFn, updateProfileFn,
     ]) {
       userAdTable.grantReadWriteData(fn);
       messageTable.grantReadWriteData(fn);
@@ -410,6 +418,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);
     route('/functions/verifyCode', apigw.HttpMethod.POST, verifyCodeFn, false);
     route('/functions/submitContactForm', apigw.HttpMethod.POST, submitContactFormFn, false);
+    route('/functions/updateProfile', apigw.HttpMethod.POST, updateProfileFn, false);
     // Stripe webhook is called by Stripe's servers, never the browser — no CORS/auth needed
     route('/webhooks/stripe', apigw.HttpMethod.POST, stripeWebhookFn, false);
     route('/uploads/presign', apigw.HttpMethod.POST, presignUploadFn, false);

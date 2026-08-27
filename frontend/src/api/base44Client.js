@@ -109,14 +109,26 @@ const auth = {
       err.status = 401;
       throw err;
     }
-    // Merge Cognito identity claims with the app-specific profile (role) stored in DynamoDB
+    // Merge Cognito identity claims with the app-specific profile (role, plus
+    // the self-service fields updateMe() saves) stored in DynamoDB.
     const profile = await apiFetch(`/entities/User/${claims.sub}`).catch(() => ({}));
     return {
+      ...profile,
       id: claims.sub,
       email: claims.email,
       full_name: claims.name || claims.email,
       role: profile?.role || 'user',
     };
+  },
+
+  /**
+   * Backs Profile.jsx's "Save Changes" button. Goes through a dedicated
+   * function (not entities.User.update()) because entity-api's User RLS is
+   * deliberately admin-only, to stop a user setting role:'admin' on
+   * themselves -- see backend/lambda/updateProfile/index.mjs.
+   */
+  async updateMe(data) {
+    return apiFetch('/functions/updateProfile', { method: 'POST', body: JSON.stringify(data || {}) });
   },
 
   async loginViaEmailPassword(email, password) {
