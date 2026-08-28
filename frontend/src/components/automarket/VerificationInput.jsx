@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
@@ -15,6 +15,20 @@ export default function VerificationInput({ value, type, onVerified, disabled })
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [countdown]);
+
+  // If the phone/email being verified is edited, drop back to the unverified
+  // state so a stale "Verified" can't carry over to a different target.
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+    setStatus('idle');
+    setCode('');
+    setError('');
+    setCountdown(0);
+  }, [value]);
 
   const handleSend = async () => {
     if (!value || disabled) return;

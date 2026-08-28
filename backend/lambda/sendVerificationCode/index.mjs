@@ -78,15 +78,26 @@ export const handler = async (event) => {
     const secrets = await getSecrets();
 
     if (type === 'sms') {
-      const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER } = secrets;
-      if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+      const {
+        TWILIO_ACCOUNT_SID,
+        TWILIO_AUTH_TOKEN,
+        TWILIO_API_KEY_SID,
+        TWILIO_API_KEY_SECRET,
+        TWILIO_PHONE_NUMBER,
+      } = secrets;
+      // Basic-auth as either an API Key (Basic <SK.../secret>) or the account
+      // Auth Token (Basic <AC.../token>). Prefer an API key when both are present;
+      // the AC... Account SID always stays in the URL path.
+      const twilioUser = TWILIO_API_KEY_SID || TWILIO_ACCOUNT_SID;
+      const twilioPass = TWILIO_API_KEY_SECRET || TWILIO_AUTH_TOKEN;
+      if (!TWILIO_ACCOUNT_SID || !twilioUser || !twilioPass || !TWILIO_PHONE_NUMBER) {
         console.error('Twilio secrets missing');
         return json(500, { error: 'SMS service not configured' });
       }
       const twilioRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`, {
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64'),
+          Authorization: 'Basic ' + Buffer.from(`${twilioUser}:${twilioPass}`).toString('base64'),
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({ To: target, From: TWILIO_PHONE_NUMBER, Body: `Your AutoMax verification code is: ${code}` }),
@@ -105,7 +116,7 @@ export const handler = async (event) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'AutoMax <onboarding@resend.dev>',
+          from: 'AutoMax <verify@automax.ie>',
           to: target,
           subject: 'Your AutoMax Verification Code',
           html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;"><h2 style="color:#1d4ed8;">AutoMax</h2><p>Your verification code is:</p><p style="font-size:32px;font-weight:bold;letter-spacing:4px;color:#1d4ed8;">${code}</p><p style="color:#666;font-size:13px;">This code expires in 5 minutes. If you didn't request this, you can safely ignore this email.</p></div>`,
