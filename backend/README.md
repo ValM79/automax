@@ -114,6 +114,15 @@ aws secretsmanager put-secret-value \
   }'
 ```
 
+`sendVerificationCode` Basic-auths to Twilio as **either** an API Key or the
+account Auth Token: it uses `TWILIO_API_KEY_SID` / `TWILIO_API_KEY_SECRET`
+(`SK...`) when both are present, otherwise `TWILIO_ACCOUNT_SID` /
+`TWILIO_AUTH_TOKEN`. `TWILIO_ACCOUNT_SID` is always required — it forms the
+`/Accounts/<sid>/Messages.json` URL path. If you use an API Key, create it as
+type **Standard** (not Restricted) in region **US1** so it works against
+`api.twilio.com`. Resend sends from `verify@automax.ie` / `noreply@automax.ie`,
+so `automax.ie` must be a verified sending domain in Resend (DKIM + SPF + DMARC).
+
 Then in the Stripe Dashboard, add a webhook endpoint pointing at
 `<ApiUrl>/webhooks/stripe` (from the CDK output) and copy the new signing
 secret into `STRIPE_WEBHOOK_SECRET` above. The Stripe Price IDs hardcoded in
