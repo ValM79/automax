@@ -195,6 +195,8 @@ export default function PlaceAd() {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [vintageSuggestionDismissed, setVintageSuggestionDismissed] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const adSavedRef = useRef(false);
   const submittingRef = useRef(false);
 
@@ -339,6 +341,8 @@ export default function PlaceAd() {
     setFormErrors({});
     setSellError('');
     setSelectedPackage(null);
+    setPhoneVerified(false);
+    setEmailVerified(false);
   };
 
   const handleFiles = (files) => {
@@ -1029,22 +1033,22 @@ export default function PlaceAd() {
                 <label className="block text-sm font-medium text-foreground mb-1.5">Phone <span className="text-destructive">*</span></label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input type="tel" value={form.phone} onChange={(e) => {setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }));setFormErrors((err) => ({ ...err, phone: undefined }));}} placeholder="e.g. 086 123 4567"
+                  <input type="tel" value={form.phone} onChange={(e) => {setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }));setFormErrors((err) => ({ ...err, phone: undefined }));setPhoneVerified(false);}} placeholder="e.g. 086 123 4567"
                   className={`w-full border rounded-lg px-4 py-3 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.phone ? 'border-destructive' : 'border-border'}`} />
                 </div>
                 {formErrors.phone && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.phone}</p>}
-                {form.phone && <div className="mt-2"><VerificationInput value={form.phone} type="sms" /></div>}
+                {form.phone && <div className="mt-2"><VerificationInput value={form.phone} type="sms" onVerified={() => setPhoneVerified(true)} /></div>}
               </div>
 
               <div id="field-email">
                 <label className="block text-sm font-medium text-foreground mb-1.5">E-mail <span className="text-destructive">*</span></label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input type="email" value={form.email} onChange={(e) => {set('email')(e);setFormErrors((err) => ({ ...err, email: undefined }));}} placeholder="you@example.com"
+                  <input type="email" value={form.email} onChange={(e) => {set('email')(e);setFormErrors((err) => ({ ...err, email: undefined }));setEmailVerified(false);}} placeholder="you@example.com"
                   className={`w-full border rounded-lg px-4 py-3 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.email ? 'border-destructive' : 'border-border'}`} />
                 </div>
                 {formErrors.email && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.email}</p>}
-                {form.email && <div className="mt-2"><VerificationInput value={form.email} type="email" /></div>}
+                {form.email && <div className="mt-2"><VerificationInput value={form.email} type="email" onVerified={() => setEmailVerified(true)} /></div>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -1165,6 +1169,14 @@ export default function PlaceAd() {
                 if (!valid) {
                   submittingRef.current = false;
                   setSellError('Please complete all missing fields before continuing.');
+                  return;
+                }
+                if (!phoneVerified || !emailVerified) {
+                  submittingRef.current = false;
+                  const need = [!phoneVerified && 'phone number', !emailVerified && 'email address']
+                    .filter(Boolean)
+                    .join(' and ');
+                  setSellError(`Please verify your ${need} before continuing — use "Send verification code" next to the field, then enter the code you receive.`);
                   return;
                 }
                 if (!selectedPackage) {
