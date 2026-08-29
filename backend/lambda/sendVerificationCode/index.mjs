@@ -2,6 +2,22 @@
 import { QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, newId, nowIso, json, getUserFromEvent, getSecrets } from '../_lib/common.mjs';
 
+// The Place Ad form's phone field accepts local Irish input (e.g. "086 267
+// 1554" per its own placeholder), but Twilio's Messages API requires E.164
+// (+353862671554) and rejects anything else with a 400 (error 21211) --
+// discovered live when a real, non-pre-verified number failed here even
+// after upgrading off the Twilio trial plan. Only the "To" value sent to
+// Twilio is normalized; the `target` string stored/rate-limited/matched
+// against in DynamoDB stays exactly what the frontend sent, so verifyCode's
+// lookup by that same string is unaffected.
+function toE164Ireland(raw) {
+  const digitsAndPlus = String(raw).replace(/[^0-9+]/g, '');
+  if (digitsAndPlus.startsWith('+')) return digitsAndPlus;
+  if (digitsAndPlus.startsWith('00')) return `+${digitsAndPlus.slice(2)}`;
+  if (digitsAndPlus.startsWith('0')) return `+353${digitsAndPlus.slice(1)}`;
+  return `+353${digitsAndPlus}`;
+}
+
 export const handler = async (event) => {
   try {
     const user = await getUserFromEvent(event); // optional — verification can happen pre-signup
@@ -100,7 +116,7 @@ export const handler = async (event) => {
           Authorization: 'Basic ' + Buffer.from(`${twilioUser}:${twilioPass}`).toString('base64'),
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({ To: target, From: TWILIO_PHONE_NUMBER, Body: `Your AutoMax verification code is: ${code}` }),
+        body: new URLSearchParams({ To: toE164Ireland(target), From: TWILIO_PHONE_NUMBER, Body: `Your AutoMax verification code is: ${code}` }),
       });
       if (!twilioRes.ok) {
         console.error('Twilio error:', await twilioRes.text());
