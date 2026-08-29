@@ -123,6 +123,19 @@ type **Standard** (not Restricted) in region **US1** so it works against
 `api.twilio.com`. Resend sends from `verify@automax.ie` / `noreply@automax.ie`,
 so `automax.ie` must be a verified sending domain in Resend (DKIM + SPF + DMARC).
 
+**Twilio SMS to Irish numbers needs a registered Alphanumeric Sender ID, not
+a phone number.** Confirmed live (2026-08-29): a US long code `TWILIO_PHONE_NUMBER`
+sends successfully (Twilio accepts it, 200 from our Lambda) but never actually
+arrives — Twilio's own delivery log shows `undelivered` / error 30003
+"Unreachable destination handset" every time. Per Twilio's own Ireland
+guidelines, international long codes aren't supported by the Meteor and Three
+networks at all, and are unreliable elsewhere; the only real fix is
+registering an Alphanumeric Sender ID (e.g. "AutoMax") for Ireland, which
+takes about **2 weeks** to provision. Until that's done and confirmed working,
+`PlaceAd.jsx`'s "Sell Now" gate deliberately checks only `emailVerified`, not
+`phoneVerified` — restore `|| !phoneVerified` to that check once SMS is
+actually landing on real Irish phones, not just returning 200.
+
 Then in the Stripe Dashboard, add a webhook endpoint pointing at
 `<ApiUrl>/webhooks/stripe` (from the CDK output) and copy the new signing
 secret into `STRIPE_WEBHOOK_SECRET` above. The Stripe Price IDs hardcoded in

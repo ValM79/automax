@@ -1171,12 +1171,17 @@ export default function PlaceAd() {
                   setSellError('Please complete all missing fields before continuing.');
                   return;
                 }
-                if (!phoneVerified || !emailVerified) {
+                // Email-only for now: SMS delivery to Irish mobiles needs a
+                // registered Alphanumeric Sender ID in Twilio (~2 week
+                // provisioning, see backend/README.md) -- the current US long
+                // code is undeliverable to Meteor/Three and unreliable
+                // elsewhere, so hard-requiring phone verification would block
+                // real ad submissions in the meantime. Phone verification is
+                // still offered above and re-enable by restoring
+                // `|| !phoneVerified` here once the sender ID is live.
+                if (!emailVerified) {
                   submittingRef.current = false;
-                  const need = [!phoneVerified && 'phone number', !emailVerified && 'email address']
-                    .filter(Boolean)
-                    .join(' and ');
-                  setSellError(`Please verify your ${need} before continuing — use "Send verification code" next to the field, then enter the code you receive.`);
+                  setSellError('Please verify your email address before continuing — use "Send verification code" next to the field, then enter the code you receive.');
                   return;
                 }
                 if (!selectedPackage) {
