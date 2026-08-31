@@ -136,6 +136,22 @@ takes about **2 weeks** to provision. Until that's done and confirmed working,
 `phoneVerified` — restore `|| !phoneVerified` to that check once SMS is
 actually landing on real Irish phones, not just returning 200.
 
+**Cognito's own signup/password-reset emails are a separate email pathway from
+Resend** and needed their own fix. They defaulted to `COGNITO_DEFAULT`, a
+dev-only sender capped at ~50 emails/day shared across the whole user pool --
+discovered live 2026-08-30 when a real user's confirmation email silently
+never arrived, leaving them stuck ("user already exists" on re-signup, "user
+not confirmed" on login; fixed for that one account with
+`admin-confirm-sign-up`). The `AutomaxUserPool` construct now sets
+`email: cognito.UserPoolEmail.withSES(...)` sending from `accounts@automax.ie`.
+This needs `automax.ie` verified as an SES identity (DKIM only -- no MAIL FROM
+domain / SPF changes, unlike Resend's setup) in the **same region as the
+stack** (`eu-west-1`), and **SES production access requested** (Support Center
+-> Service limit increase -> "SES Sending Limits"; usually approved within a
+day, much lighter than Twilio's ComReg process) -- until that's granted, SES
+is in sandbox mode and can only deliver to individually pre-verified email
+addresses, which defeats the point for real signups.
+
 Then in the Stripe Dashboard, add a webhook endpoint pointing at
 `<ApiUrl>/webhooks/stripe` (from the CDK output) and copy the new signing
 secret into `STRIPE_WEBHOOK_SECRET` above. The Stripe Price IDs hardcoded in

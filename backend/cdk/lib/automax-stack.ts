@@ -157,6 +157,20 @@ export class AutomaxStack extends cdk.Stack {
       },
       accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      // COGNITO_DEFAULT (the implicit default before this was added) is a
+      // dev-only sender capped at ~50 emails/day shared across the whole
+      // pool -- signup confirmation, password reset, everything. Discovered
+      // live 2026-08-30: a real user's signup confirmation email silently
+      // never arrived, leaving them stuck between "user already exists" on
+      // re-signup and "user not confirmed" on login. automax.ie is verified
+      // in SES (DKIM only, no MAIL FROM domain / SPF changes needed) --
+      // requires SES production access to send to arbitrary real users, not
+      // just SES-sandbox-verified addresses; see backend/README.md.
+      email: cognito.UserPoolEmail.withSES({
+        fromEmail: 'accounts@automax.ie',
+        fromName: 'AutoMax',
+        sesVerifiedDomain: 'automax.ie',
+      }),
     });
 
     const userPoolClient = new cognito.UserPoolClient(this, 'AutomaxUserPoolClient', {
