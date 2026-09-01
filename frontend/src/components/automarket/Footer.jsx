@@ -58,7 +58,7 @@ export default function Footer() {
                 <a href="#" className="hover:opacity-80 transition-opacity w-full">
                   <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" className="h-12 w-full object-contain" />
                 </a>
-                <a href="#" className="hover:opacity-80 transition-opacity w-full">
+                <a href="https://play.google.com/store/apps/details?id=com.base69ceb6b4f41f5a2cee0c7016.app" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity w-full">
                   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="h-16 w-full object-contain" />
                 </a>
               </div>
