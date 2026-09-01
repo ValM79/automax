@@ -39,10 +39,7 @@ Usage & Technical Data
 • Referral sources (how you found AutoMax).
 
 Cookie & Tracking Data
-• Analytics data collected via Google Analytics (with your consent).
-• Advertising and remarketing data (with your consent).
-• Social media tracking pixels such as Facebook Pixel and TikTok Pixel (with your consent).
-Full details are in our Cookie Policy.`
+• We currently use only essential cookies required for the site to function (e.g. keeping you signed in, remembering your cookie preferences). We do not currently run analytics or advertising trackers. If this changes, we will update this policy and our Cookie Policy first, and request consent before any such cookie is set.`
   },
   {
     title: '3. Why We Collect It (Purposes of Processing)',
@@ -87,6 +84,8 @@ You may withdraw your consent at any time without affecting the lawfulness of pr
 
 Account Data: Retained for the duration of your account. If you delete your account, your personal data is deleted within 30 days, except where we are required to retain it by law.
 
+How to delete your account: go to your Profile page, scroll to the "Danger Zone" section, and click "Delete Account." Confirming this permanently and immediately removes your account, profile, and all of your active ad listings and reports from our systems. Messages you sent to other sellers are not deleted, since the recipient has a legitimate interest in keeping their own inbox intact. Transaction and payment records are retained for 7 years as required by Irish Revenue, as described below.
+
 Advertisement Data: Active ads are retained while your account is active. Expired or deleted ads are retained for 12 months for fraud prevention purposes, then deleted.
 
 Transaction & Payment Records: Retained for 7 years in accordance with Irish Revenue requirements.
@@ -94,8 +93,6 @@ Transaction & Payment Records: Retained for 7 years in accordance with Irish Rev
 Communication Data (Messages): Retained for 12 months after the last message in a conversation.
 
 Support Correspondence: Retained for 3 years after the matter is resolved.
-
-Usage & Analytics Data: Aggregated, anonymised analytics data may be retained indefinitely. Identifiable session data is deleted after 26 months (Google Analytics default).
 
 Cookie Data: See individual retention periods in our Cookie Policy.`
   },
@@ -105,13 +102,11 @@ Cookie Data: See individual retention periods in our Cookie Policy.`
 
 Service Providers (Data Processors):
 We share data with trusted third-party processors who act on our instructions:
+• Amazon Web Services (AWS) — cloud infrastructure and hosting provider.
 • Stripe — payment processing (stripe.com/ie/privacy).
-• Google Analytics — website analytics (with your consent).
-• Google Ads — advertising (with your consent).
-• Meta (Facebook) — social media advertising pixels (with your consent).
-• TikTok — advertising pixels (with your consent).
-• Base44 — cloud infrastructure and hosting provider.
-• Resend / email service provider — transactional email delivery.
+• Resend — transactional email delivery.
+
+We do not currently use any analytics or advertising services, and do not share data with any social media or ad-tracking companies.
 
 All processors are bound by Data Processing Agreements (DPAs) and are required to comply with GDPR.
 
@@ -122,7 +117,7 @@ Legal & Regulatory Authorities:
 We may disclose data to the Garda Síochána, the Data Protection Commission, Revenue Commissioners, or other competent authorities where required by law or court order.
 
 International Transfers:
-Some of our third-party processors (e.g. Google, Meta) may process data outside the European Economic Area (EEA). Where this occurs, we ensure appropriate safeguards are in place, such as Standard Contractual Clauses (SCCs) approved by the European Commission.`
+Our infrastructure is hosted in the AWS eu-west-1 (Ireland) region. Some processors (e.g. AWS, Stripe) are global companies that may process data outside the European Economic Area (EEA) as part of their own operations. Where this occurs, we ensure appropriate safeguards are in place, such as Standard Contractual Clauses (SCCs) approved by the European Commission.`
   },
   {
     title: '7. Your Rights Under GDPR',
@@ -210,7 +205,7 @@ export default function PrivacyPolicy() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-sm text-muted-foreground">Last updated: 18 June 2026 &nbsp;·&nbsp; Effective date: 18 June 2026</p>
+          <p className="text-sm text-muted-foreground">Last updated: 31 August 2026 &nbsp;·&nbsp; Effective date: 18 June 2026</p>
           <p className="text-sm text-muted-foreground mt-3">
             AutoMax is committed to protecting your privacy and handling your personal data in full compliance with the{' '}
             <strong>General Data Protection Regulation (GDPR)</strong>, the{' '}
