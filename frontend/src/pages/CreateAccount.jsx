@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 function PasswordInput({ id, label, placeholder, value, onChange, hint }) {
   const [show, setShow] = useState(false);
@@ -67,7 +67,7 @@ export default function CreateAccount() {
 
     setLoading(true);
     try {
-      await base44.auth.register(form.email, form.password, form.fullName);
+      await api.auth.register(form.email, form.password, form.fullName);
       setStep('confirm');
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
@@ -81,11 +81,11 @@ export default function CreateAccount() {
     setError('');
     setLoading(true);
     try {
-      await base44.auth.confirmRegistration(form.email, code);
+      await api.auth.confirmRegistration(form.email, code);
       // Log the new account straight in and land on the home page, same as
       // a normal email/password sign-in — see Login.jsx for why this is a
       // hard redirect rather than an SPA navigate.
-      await base44.auth.loginViaEmailPassword(form.email, form.password);
+      await api.auth.loginViaEmailPassword(form.email, form.password);
       window.location.replace('/');
     } catch (err) {
       setError(err.message || 'Invalid or expired code. Please try again.');
@@ -97,7 +97,7 @@ export default function CreateAccount() {
   const handleResend = async () => {
     setError('');
     try {
-      await base44.auth.resendConfirmationCode(form.email);
+      await api.auth.resendConfirmationCode(form.email);
     } catch (err) {
       setError(err.message || 'Failed to resend code.');
     }

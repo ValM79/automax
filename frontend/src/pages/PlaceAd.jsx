@@ -6,7 +6,7 @@ import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
 import AdPackageSelector, { packages } from '../components/automarket/AdPackageSelector';
 import AdPreview from '../components/automarket/AdPreview';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import keywordToCategory from '@/lib/keywordToCategory';
 import { modelsByMake } from '@/components/automarket/modelsData';
@@ -391,7 +391,7 @@ export default function PlaceAd() {
           const res = await fetch(p.preview);
           const blob = await res.blob();
           const file = new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' });
-          const result = await base44.integrations.Core.UploadFile({ file });
+          const result = await api.integrations.Core.UploadFile({ file });
           return result.file_url;
         } catch {
           return null;
@@ -1224,19 +1224,19 @@ export default function PlaceAd() {
                   // piling up when a user retries "Sell Now" after abandoning a
                   // previous checkout.
                   let createdAd;
-                  const existingPending = await base44.entities.UserAd.filter(
+                  const existingPending = await api.entities.UserAd.filter(
                     { title: form.title, status: 'pending' },
                     '-created_date',
                     1
                   );
                   if (existingPending && existingPending.length > 0) {
-                    await base44.entities.UserAd.update(existingPending[0].id, adData);
+                    await api.entities.UserAd.update(existingPending[0].id, adData);
                     createdAd = { id: existingPending[0].id };
                   } else {
-                    createdAd = await base44.entities.UserAd.create(adData);
+                    createdAd = await api.entities.UserAd.create(adData);
                   }
 
-                  const res = await base44.functions.invoke('createCheckoutSession', {
+                  const res = await api.functions.invoke('createCheckoutSession', {
                     packageName: selectedPackage.name,
                     listingDays: selectedPackage.listingDays,
                     maxPhotos: selectedPackage.maxPhotos,

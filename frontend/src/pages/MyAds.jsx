@@ -4,7 +4,7 @@ import { ArrowLeft, Edit2, Trash2, Plus, Megaphone, RefreshCw, Camera } from 'lu
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
@@ -20,7 +20,7 @@ export default function MyAds() {
     if (!user) {setLoading(false);return;}
     setLoading(true);
     try {
-      const results = await base44.entities.UserAd.filter({ created_by_id: user.id }, '-created_date', 100);
+      const results = await api.entities.UserAd.filter({ created_by_id: user.id }, '-created_date', 100);
       setAds(results);
     } catch (e) {
       setAds([]);
@@ -34,7 +34,7 @@ export default function MyAds() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this ad?')) return;
     setDeletingId(id);
-    await base44.entities.UserAd.delete(id);
+    await api.entities.UserAd.delete(id);
     setAds((prev) => prev.filter((a) => a.id !== id));
     setDeletingId(null);
   };

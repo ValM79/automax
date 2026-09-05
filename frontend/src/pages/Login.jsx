@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, X, AlertCircle } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function Login() {
@@ -31,8 +31,8 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
-      // Hard redirect (not SPA navigate) so the base44 client is re-initialized
+      await api.auth.loginViaEmailPassword(email, password);
+      // Hard redirect (not SPA navigate) so the api client is re-initialized
       // with the new token from localStorage. On real mobile WebViews the
       // client's token is a static snapshot from page load — SPA navigation
       // keeps the stale null token, so the user appears logged out.

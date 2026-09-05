@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Mail, KeyRound, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 // Cognito's ForgotPassword flow emails a 6-digit code, not a clickable magic
 // link, so this page collects email + code + new password directly instead
@@ -41,7 +41,7 @@ export default function ResetPassword() {
 
     setLoading(true);
     try {
-      await base44.auth.resetPassword({ email, code, newPassword: password });
+      await api.auth.resetPassword({ email, code, newPassword: password });
       setDone(true);
     } catch (err) {
       if (err.status === 400) {

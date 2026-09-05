@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
@@ -30,7 +30,7 @@ export default function PaymentHistory() {
   useEffect(() => {
     if (isLoadingAuth) return;
     if (!user) {
-      base44.auth.redirectToLogin('/payment-history');
+      api.auth.redirectToLogin('/payment-history');
       return;
     }
     loadPayments();
@@ -39,7 +39,7 @@ export default function PaymentHistory() {
   const loadPayments = async () => {
     try {
       setLoading(true);
-      const records = await base44.entities.UserAd.filter({ created_by_id: user.id }, '-created_date');
+      const records = await api.entities.UserAd.filter({ created_by_id: user.id }, '-created_date');
       // Only show ads with proof of genuine payment: paymentAmount > 0 and a
       // receiptUrl, both set exclusively by the Stripe webhook after a verified
       // checkout.session.completed event. This prevents ads that were never
@@ -72,7 +72,7 @@ export default function PaymentHistory() {
   const handleDownloadReceipt = async (payment) => {
     try {
       setDownloadingId(payment.id);
-      const res = await base44.functions.invoke('downloadReceipt', { adId: payment.id });
+      const res = await api.functions.invoke('downloadReceipt', { adId: payment.id });
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

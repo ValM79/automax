@@ -3,7 +3,7 @@
 // authorization code after a successful federated sign-in.
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function AuthCallback() {
       setError('Missing authorization code');
       return;
     }
-    base44.auth
+    api.auth
       .completeOAuthLogin(code)
       .then((redirectTo) => {
         window.location.replace(redirectTo);

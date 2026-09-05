@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ export default function ForgotPassword() {
     setError('');
     setLoading(true);
     try {
-      await base44.auth.resetPasswordRequest(email);
+      await api.auth.resetPasswordRequest(email);
       setDone(true);
     } catch (err) {
       // Don't reveal whether the email exists — show the same success state

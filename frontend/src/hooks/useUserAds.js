@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 /**
  * Fetches active user ads whose title or vehicleMake matches the given make keyword.
@@ -11,7 +11,7 @@ export function useUserAdsByMake(make) {
   useEffect(() => {
     if (!make) return;
     const keyword = make.replace('-', ' ').toLowerCase();
-    base44.entities.UserAd.filter({ status: 'active' }, '-created_date', 3000000)
+    api.entities.UserAd.filter({ status: 'active' }, '-created_date', 3000000)
       .then(ads => {
         const now = Date.now();
         const matched = ads.filter(ad => {
@@ -41,7 +41,7 @@ export function useUserAds(subsections, refetchKey = 0) {
   const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
-    base44.entities.UserAd.filter({ status: 'active' }, '-created_date', 3000000)
+    api.entities.UserAd.filter({ status: 'active' }, '-created_date', 3000000)
       .then(ads => {
         const now = Date.now();
         const filtered = ads.filter(ad => {

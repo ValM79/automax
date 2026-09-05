@@ -6,7 +6,7 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
 import SellerCard from '../components/automarket/SellerCard';
@@ -72,7 +72,7 @@ export default function VehicleDetail() {
   useEffect(() => {
     if (carFromState || !id) return;
     setFetchError(false);
-    base44.entities.UserAd.get(id)
+    api.entities.UserAd.get(id)
       .then((ad) => {
         if (ad) setFetchedCar(normalizeAd(ad));
         else setFetchError(true);
@@ -89,7 +89,7 @@ export default function VehicleDetail() {
   };
 
   const handleSendMessage = async (messageText) => {
-    await base44.functions.invoke('contactSeller', {
+    await api.functions.invoke('contactSeller', {
       ad_id: car.id,
       message: messageText
     });
@@ -106,7 +106,7 @@ export default function VehicleDetail() {
     if (!car) return;
     const sellerId = car.sellerId || car.created_by_id;
     if (sellerId) {
-      base44.entities.User.get(sellerId).
+      api.entities.User.get(sellerId).
       then((sellerUser) => {
         if (sellerUser?.display_name || sellerUser?.full_name) {
           setSellerName(sellerUser.display_name || sellerUser.full_name);

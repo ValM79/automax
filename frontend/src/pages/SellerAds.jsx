@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ListingCard from '../components/automarket/ListingCard';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 export default function SellerAds() {
   const { sellerId } = useParams();
@@ -15,7 +15,7 @@ export default function SellerAds() {
   useEffect(() => {
     if (!sellerId) return;
     setLoading(true);
-    base44.entities.UserAd.filter({ created_by_id: sellerId, status: 'active' }, '-created_date', 100)
+    api.entities.UserAd.filter({ created_by_id: sellerId, status: 'active' }, '-created_date', 100)
       .then(records => {
         const items = records.map(ad => ({
           id: ad.id,

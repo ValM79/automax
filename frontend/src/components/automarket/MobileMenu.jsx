@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, X, User, Megaphone, MessageSquare, ThumbsUp, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 
 const dealersMenuItems = [
@@ -94,7 +94,7 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
       // logout redirect — the page is navigating away regardless.
       statePushedRef.current = false;
       onClose();
-      base44.auth.logout(window.location.origin + '/');
+      api.auth.logout(window.location.origin + '/');
       return;
     }
     onClose();

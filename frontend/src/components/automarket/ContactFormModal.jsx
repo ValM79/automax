@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Paperclip, CheckCircle } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import MobileSelect from './MobileSelect';
 
 const reasonOptions = [
@@ -46,11 +46,11 @@ export default function ContactFormModal({ isOpen, onClose, defaultReason }) {
     try {
       const uploadedUrls = [];
       for (const file of attachments) {
-        const result = await base44.integrations.Core.UploadFile({ file });
+        const result = await api.integrations.Core.UploadFile({ file });
         uploadedUrls.push(result.file_url);
       }
 
-      const res = await base44.functions.invoke('submitContactForm', {
+      const res = await api.functions.invoke('submitContactForm', {
         ...form,
         attachments: uploadedUrls
       });

@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
@@ -27,7 +27,7 @@ export default function Messages() {
   const loadMessages = async () => {
     try {
       setLoading(true);
-      const records = await base44.entities.Message.list('-created_date', 100);
+      const records = await api.entities.Message.list('-created_date', 100);
       setMessages(records);
     } catch (err) {
       console.error('Failed to load messages:', err);
@@ -37,7 +37,7 @@ export default function Messages() {
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.Message.delete(id);
+    await api.entities.Message.delete(id);
     setMessages(prev => prev.filter(m => m.id !== id));
   };
 

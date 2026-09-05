@@ -1,4 +1,4 @@
-// Replaces the original @base44/sdk-backed client. Talks to the AWS API
+// Client for the AWS API Gateway + Cognito backend. Talks to the AWS API
 // Gateway + Cognito backend in ../../../backend instead of Base44's servers.
 //
 // Preserves the existing localStorage contract: src/lib/AuthContext.jsx and
@@ -237,7 +237,7 @@ const auth = {
 };
 
 // ---------------------------------------------------------------------------
-// entities.<Entity>.*  — matches base44's entity SDK surface
+// entities.<Entity>.*  — the entity SDK surface the app expects
 // ---------------------------------------------------------------------------
 
 function makeEntityClient(entityName) {
@@ -254,7 +254,7 @@ function makeEntityClient(entityName) {
     async delete(id) {
       return apiFetch(`/entities/${entityName}/${id}`, { method: 'DELETE' });
     },
-    /** filter(queryObject, sort = '-created_date', limit = 50) — same signature as base44 */
+    /** filter(queryObject, sort = '-created_date', limit = 50) — same signature as the original SDK */
     async filter(query = {}, sort = '-created_date', limit = 50) {
       const qs = new URLSearchParams({ filter: JSON.stringify(query), sort, limit: String(limit) });
       return apiFetch(`/entities/${entityName}?${qs.toString()}`);
@@ -305,7 +305,7 @@ const functions = {
   /**
    * Every call site in the real app (ContactFormModal, VerificationInput,
    * PlaceAd, Profile, VehicleDetail, PaymentHistory) calls
-   * base44.functions.invoke('name', payload) and reads the result off
+   * api.functions.invoke('name', payload) and reads the result off
    * `.data` -- matching Base44's original SDK shape, not this shim's plain
    * direct-call functions above. This wraps them to match rather than
    * requiring every call site to be rewritten.
@@ -336,4 +336,4 @@ const integrations = {
   },
 };
 
-export const base44 = { auth, entities, functions, integrations };
+export const api = { auth, entities, functions, integrations };

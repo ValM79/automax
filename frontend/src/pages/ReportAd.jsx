@@ -4,7 +4,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 const REPORT_REASONS = [
 'Misleading description or photos',
@@ -27,7 +27,7 @@ export default function ReportAd() {
   useEffect(() => {
     if (isLoadingAuth) return;
     if (!user) {
-      base44.auth.redirectToLogin(`/report-ad/${adId}`);
+      api.auth.redirectToLogin(`/report-ad/${adId}`);
     }
   }, [isLoadingAuth, user, adId]);
 
@@ -36,7 +36,7 @@ export default function ReportAd() {
     if (!reason) return;
     setSubmitting(true);
     try {
-      await base44.entities.ReportAd.create({
+      await api.entities.ReportAd.create({
         ad_id: adId,
         ad_title: '',
         reason,

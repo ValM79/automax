@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import { Link } from 'react-router-dom';
 import PlaceAdModal from './PlaceAdModal';
@@ -264,7 +264,7 @@ export default function Navbar() {
                   key={item.label}
                   onClick={() => {
                     setShowUserMenu(false);
-                    if (item.action === 'logout') base44.auth.logout(window.location.origin + '/');
+                    if (item.action === 'logout') api.auth.logout(window.location.origin + '/');
                   }}
                   className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-primary hover:bg-secondary transition-colors">
                           <item.icon className="w-4 h-4 text-primary" />

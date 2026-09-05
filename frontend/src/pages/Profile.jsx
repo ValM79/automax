@@ -3,7 +3,7 @@ import BackButton from '../components/automarket/BackButton';
 import { ArrowLeft, Info, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import PullToRefresh from '../components/automarket/PullToRefresh';
@@ -68,7 +68,7 @@ export default function Profile() {
     setDeleting(true);
     setDeleteError('');
     try {
-      const response = await base44.functions.invoke('deleteAccount', {});
+      const response = await api.functions.invoke('deleteAccount', {});
       if (response.data?.error) {
         throw new Error(response.data.error);
       }
@@ -78,7 +78,7 @@ export default function Profile() {
       localStorage.removeItem('automax_favorites');
       localStorage.removeItem('automax_saved_searches');
       localStorage.removeItem('automax_browsing_history');
-      await base44.auth.logout(window.location.origin + '/');
+      await api.auth.logout(window.location.origin + '/');
     } catch (e) {
       setDeleting(false);
       setDeleteError(e.message || 'Failed to delete account. Please try again.');
@@ -87,7 +87,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.auth.updateMe({
+    await api.auth.updateMe({
       display_name: form.name,
       county: form.county,
       area: form.area,

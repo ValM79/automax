@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useNavigationType } from 'react-router-dom';
 import { Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -69,7 +69,7 @@ export default function EditAd() {
     if (!id || !user) return;
     (async () => {
       try {
-        const ad = await base44.entities.UserAd.get(id);
+        const ad = await api.entities.UserAd.get(id);
         if (ad.created_by_id !== user.id) {
           setError('You do not have permission to edit this ad.');
           setLoading(false);
@@ -197,7 +197,7 @@ export default function EditAd() {
           const res = await fetch(p.preview);
           const blob = await res.blob();
           const file = new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' });
-          const result = await base44.integrations.Core.UploadFile({ file });
+          const result = await api.integrations.Core.UploadFile({ file });
           return result.file_url;
         } catch {
           return null;
@@ -232,7 +232,7 @@ export default function EditAd() {
     try {
       const uploadedNew = await uploadNewPhotos();
       const allPhotos = [...existingPhotos, ...uploadedNew];
-      await base44.entities.UserAd.update(id, {
+      await api.entities.UserAd.update(id, {
         title: form.title,
         description: form.description,
         price: form.price,
