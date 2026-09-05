@@ -1,0 +1,2 @@
+app_identifier("ie.automax.app")
+team_id(ENV["APPLE_TEAM_ID"])
