@@ -3,7 +3,6 @@ import { Construct } from 'constructs';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
@@ -259,10 +258,14 @@ export class AutomaxStack extends cdk.Stack {
       },
     });
 
-    new s3deploy.BucketDeployment(this, 'DeployPlaceholder', {
-      sources: [s3deploy.Source.data('placeholder.txt', 'Deploy the real frontend build with: npm run build && aws s3 sync dist/ s3://<bucket>')],
-      destinationBucket: frontendBucket,
-    });
+    // NOTE: the frontend bucket's *contents* are deliberately not managed by
+    // CDK. The site is built and pushed out-of-band -- `aws s3 sync dist/
+    // s3://<frontendBucket> --delete` plus a CloudFront invalidation, wired up
+    // in .github/workflows/deploy-frontend.yml. An earlier version of this
+    // stack had a BucketDeployment here that uploaded a placeholder file; with
+    // BucketDeployment's default `prune: true` that meant any later `cdk
+    // deploy` would wipe the real synced site. Removed on purpose -- CDK owns
+    // the bucket and distribution, the pipeline owns what's in the bucket.
 
     // ----------------------------------------------------------------------
     // Lambda — shared config + the 9 ported functions + entity CRUD API
