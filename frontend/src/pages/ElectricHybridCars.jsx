@@ -326,7 +326,7 @@ export default function ElectricHybridCars() {
         </div>
 
         <div className="z-0 relative">
-          <PromoBanner image="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/4a947c627_generated_image.png" />
+          <PromoBanner image="/img/4a947c627_generated_image.jpg" />
         </div>
 
         {/* Mobile: search + help text + filters */}

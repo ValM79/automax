@@ -2,7 +2,7 @@ import React from 'react';
 import { Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const REVIEW_IMG = 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/62c743992_generated_ff5e1a79.png';
+const REVIEW_IMG = '/img/62c743992_generated_ff5e1a79.jpg';
 
 const articles = [
   {

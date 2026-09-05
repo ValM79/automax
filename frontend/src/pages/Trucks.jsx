@@ -73,7 +73,7 @@ export default function Trucks() {
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44">
           <img
-            src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/cd2b5117c_generated_image.png"
+            src="/img/cd2b5117c_generated_image.jpg"
             alt="Trucks Banner"
             className="w-full h-full object-cover" />
           

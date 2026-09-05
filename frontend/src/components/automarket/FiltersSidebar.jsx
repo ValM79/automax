@@ -17,15 +17,15 @@ const mileageOptions = ['0 km', '5,000 km', '10,000 km', '20,000 km', '30,000 km
 const fuelTypes = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid', 'LPG', 'Other'];
 const transmissions = ['Manual', 'Automatic', 'Semi-Automatic'];
 const bodyTypeImages = {
-  SUV: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/3ec760ce2_generated_image.png',
-  Estate: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/cd2cf6c5c_generated_image.png',
-  Hatchback: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/2f0d7d7fc_generated_image.png',
-  Saloon: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/fbd551b69_generated_image.png',
-  MPV: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/e56235d3c_generated_image.png',
-  Coupe: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/0cb9c1f70_generated_image.png',
-  Van: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/e655d5475_generated_image.png',
-  Convertible: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/93eab3099_generated_image.png',
-  'Pick Up': 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/d65af73b5_generated_image.png'
+  SUV: '/img/3ec760ce2_generated_image.jpg',
+  Estate: '/img/cd2cf6c5c_generated_image.jpg',
+  Hatchback: '/img/2f0d7d7fc_generated_image.jpg',
+  Saloon: '/img/fbd551b69_generated_image.jpg',
+  MPV: '/img/e56235d3c_generated_image.jpg',
+  Coupe: '/img/0cb9c1f70_generated_image.jpg',
+  Van: '/img/e655d5475_generated_image.jpg',
+  Convertible: '/img/93eab3099_generated_image.jpg',
+  'Pick Up': '/img/d65af73b5_generated_image.jpg'
 };
 
 const bodyTypes = ['SUV', 'Estate', 'Hatchback', 'Saloon', 'MPV', 'Coupe', 'Van', 'Convertible', 'Pick Up', 'Other'];

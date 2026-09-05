@@ -341,7 +341,7 @@ export default function CarsForSale() {
 
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card z-0 relative">
-          <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/99b14da02_generated_image.png" alt="All Cars For Sale Banner" className="w-full h-full object-cover" />
+          <img src="/img/99b14da02_generated_image.jpg" alt="All Cars For Sale Banner" className="w-full h-full object-cover" />
         </div>
 
         {/* Mobile: search + help text + filters below banner */}

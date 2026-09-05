@@ -31,7 +31,7 @@ export default function CarRent() {
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card">
           <img
-            src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/12a53ea6f_generated_image.png"
+            src="/img/12a53ea6f_generated_image.jpg"
             alt="Car Rental Banner"
             className="w-full h-full object-cover" />
         </div>

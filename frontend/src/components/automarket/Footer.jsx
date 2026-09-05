@@ -44,7 +44,7 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <span className="text-background text-xl font-extrabold tracking-tight">AutoMax</span>
               <img
-                src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/ca07bfd68_generated_image.png"
+                src="/img/ca07bfd68_generated_image.jpg"
                 alt="AutoMax Logo"
                 className="w-6 h-6 object-contain"
                 style={{ filter: 'invert(1) brightness(0.7)', mixBlendMode: 'screen' }} />

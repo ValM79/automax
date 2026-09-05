@@ -87,7 +87,7 @@ export default function NewCarListings() {
           </div>
         </div>
 
-        <PromoBanner image="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/b29eb1163_generated_image.png" />
+        <PromoBanner image="/img/b29eb1163_generated_image.jpg" />
 
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={handleSearchChange} placeholder="Search Cars">

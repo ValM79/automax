@@ -87,7 +87,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="inline-flex items-center gap-2 flex-none whitespace-nowrap w-fit relative z-20 cursor-pointer py-1">
             <span className="text-xl font-extrabold tracking-tight text-[hsl(var(--primary))]">AutoMax</span>
-            <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/ca07bfd68_generated_image.png" alt="AutoMax Logo" className="w-6 h-6 object-contain flex-shrink-0" />
+            <img src="/img/ca07bfd68_generated_image.jpg" alt="AutoMax Logo" className="w-6 h-6 object-contain flex-shrink-0" />
           </Link>
 
           {/* Desktop Nav */}

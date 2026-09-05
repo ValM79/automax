@@ -61,7 +61,7 @@ export default function OtherMotor() {
           </div>
         </div>
         <div className="mb-6 rounded-xl overflow-hidden h-36 sm:h-44 bg-card">
-          <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/55d7f6d5f_generated_image.png" alt="Other items" className="w-full h-full object-cover" />
+          <img src="/img/55d7f6d5f_generated_image.jpg" alt="Other items" className="w-full h-full object-cover" />
         </div>
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={(e) => setSearch(e.target.value)} placeholder="Search Other items">

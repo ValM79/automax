@@ -68,7 +68,7 @@ export default function PlantMachinery() {
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card">
           <img
-            src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/800664dcf_generated_image.png"
+            src="/img/800664dcf_generated_image.jpg"
             alt="Plant Machinery Banner"
             className="w-full h-full object-cover" />
           

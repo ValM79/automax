@@ -72,7 +72,7 @@ export default function CarParts() {
         </div>
 
         <div className="mb-5 rounded-xl overflow-hidden h-36 sm:h-44 bg-card">
-          <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/b998eab8f_generated_image.png" alt="Car Parts Banner" className="w-full h-full object-cover" />
+          <img src="/img/b998eab8f_generated_image.jpg" alt="Car Parts Banner" className="w-full h-full object-cover" />
         </div>
 
         {/* Mobile: search + help text + filters */}

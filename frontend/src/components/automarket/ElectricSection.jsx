@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Zap, Fuel } from 'lucide-react';
 
-const EV_BG = 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/037720c40_generated_4b3518d1.png';
+const EV_BG = '/img/037720c40_generated_4b3518d1.jpg';
 
 export default function ElectricSection() {
   return (

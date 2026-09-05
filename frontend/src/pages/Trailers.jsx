@@ -70,7 +70,7 @@ export default function Trailers() {
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card">
           <img
-            src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/1cf4ce53a_generated_image.png"
+            src="/img/1cf4ce53a_generated_image.jpg"
             alt="Trailers Banner"
             className="w-full h-full object-cover" />
           

@@ -68,7 +68,7 @@ export default function Campers() {
         </div>
 
         <div className="mb-6 rounded-xl overflow-hidden h-36 sm:h-44 bg-card">
-          <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/2106e76f6_generated_image.png" alt="Campers Banner" className="w-full h-full object-cover" />
+          <img src="/img/2106e76f6_generated_image.jpg" alt="Campers Banner" className="w-full h-full object-cover" />
         </div>
 
         {/* Mobile: search + help text + filters */}

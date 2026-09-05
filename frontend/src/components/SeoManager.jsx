@@ -148,7 +148,7 @@ export default function SeoManager() {
             '@type': 'Organization',
             name: 'AutoMax',
             url: origin,
-            logo: 'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/ca07bfd68_generated_image.png',
+            logo: '/img/ca07bfd68_generated_image.jpg',
             description: "Ireland's largest car marketplace for buying and selling vehicles.",
             areaServed: { '@type': 'Country', name: 'Ireland' }
           },

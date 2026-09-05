@@ -60,7 +60,7 @@ export default function Login() {
         {/* Header */}
         <div className="flex flex-col items-center mb-6">
           <img
-            src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/39fe51366_automax512png.png"
+            src="/img/39fe51366_automax512png.png"
             alt="AutoMax logo"
             className="w-20 h-20 object-contain mb-3"
           />

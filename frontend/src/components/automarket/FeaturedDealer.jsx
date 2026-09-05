@@ -3,9 +3,9 @@ import { MapPin, Building2, Star, ChevronLeft, ChevronRight } from 'lucide-react
 import { Button } from '@/components/ui/button';
 
 const CAR_IMAGES = [
-  'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/c66d362f5_generated_9b845e77.png',
-  'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/5c1b2099a_generated_c25137b3.png',
-  'https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/c5bb20e30_generated_9da92ea0.png',
+  '/img/c66d362f5_generated_9b845e77.jpg',
+  '/img/5c1b2099a_generated_c25137b3.jpg',
+  '/img/c5bb20e30_generated_9da92ea0.jpg',
 ];
 
 const cars = [

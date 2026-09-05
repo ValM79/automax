@@ -114,7 +114,7 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
         <div className="flex items-center justify-between px-4 h-16 border-b border-border bg-card flex-shrink-0">
           <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 cursor-pointer">
             <span className="text-xl font-extrabold tracking-tight text-[hsl(var(--primary))]">AutoMax</span>
-            <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/ca07bfd68_generated_image.png" alt="AutoMax" className="w-6 h-6 object-contain flex-shrink-0" />
+            <img src="/img/ca07bfd68_generated_image.jpg" alt="AutoMax" className="w-6 h-6 object-contain flex-shrink-0" />
           </Link>
           <button onClick={onClose} className="p-1.5 text-foreground hover:bg-secondary rounded-md transition-colors">
             <X className="w-6 h-6" />

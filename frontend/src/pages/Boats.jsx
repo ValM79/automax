@@ -64,7 +64,7 @@ export default function Boats() {
           </div>
         </div>
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card">
-          <img src="https://media.base44.com/images/public/69ceb6b4f41f5a2cee0c7016/87a17cb2c_generated_image.png" alt="Boats Banner" className="w-full h-full object-cover" />
+          <img src="/img/87a17cb2c_generated_image.jpg" alt="Boats Banner" className="w-full h-full object-cover" />
         </div>
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={(e) => setSearch(e.target.value)} placeholder="Search Boats & Jet Skis">
