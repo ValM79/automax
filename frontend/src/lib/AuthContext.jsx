@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { api } from '@/api/apiClient';
+import { api, ACCESS_TOKEN_KEY } from '@/api/apiClient';
 
 const AuthContext = createContext();
 
@@ -10,10 +10,10 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
   const [authError, setAuthError] = useState(null);
   // The old platform had an "app public settings" gate (auth_required /
-  // user_not_registered) doesn't exist in the AWS backend — every confirmed
-  // Cognito user is simply a user, there's no separate per-app membership
-  // check. Kept as null for API-shape compatibility with anything still
-  // reading it from context.
+  // user_not_registered) that doesn't exist in the AWS backend — every
+  // confirmed Cognito user is simply a user, there's no separate per-app
+  // membership check. Kept as null for API-shape compatibility with anything
+  // still reading it from context.
   const [appPublicSettings] = useState(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
     setIsLoadingPublicSettings(false);
 
-    const token = typeof window !== 'undefined' ? localStorage.getItem('base44_access_token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
     if (token) {
       await checkUserAuth();
     } else {

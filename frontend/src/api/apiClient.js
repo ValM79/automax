@@ -1,9 +1,9 @@
 // Client for the AWS API Gateway + Cognito backend in ../../../backend.
 //
-// Preserves the existing localStorage contract: src/lib/AuthContext.jsx and
-// src/lib/app-params.js already read the token from
-// `localStorage.getItem('base44_access_token')` — this file keeps writing to
-// that same key so AuthContext needs no changes on that front.
+// Session tokens live in localStorage. The key names were renamed off the
+// legacy `base44_` prefix; migrateLegacyKeys() below moves any old values
+// across on first load so existing sessions stay signed in. AuthContext.jsx
+// reads ACCESS_TOKEN_KEY too — keep them in sync via that export.
 //
 // Required Vite env vars (see .env.example):
 //   VITE_API_BASE_URL            e.g. https://abc123.execute-api.eu-west-1.amazonaws.com
@@ -19,9 +19,31 @@ const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN;
 const COGNITO_IDP_URL = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
 
-const TOKEN_KEY = 'base44_access_token'; // kept identical to the original app's key
-const REFRESH_KEY = 'base44_refresh_token';
-const EMAIL_KEY = 'base44_user_email';
+export const ACCESS_TOKEN_KEY = 'automax_access_token';
+const TOKEN_KEY = ACCESS_TOKEN_KEY;
+const REFRESH_KEY = 'automax_refresh_token';
+const EMAIL_KEY = 'automax_user_email';
+
+// One-time migration off the legacy `base44_`-prefixed key names. Runs on
+// module load; anyone with a live session stays signed in.
+(function migrateLegacyKeys() {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    const pairs = [
+      ['base44_access_token', TOKEN_KEY],
+      ['base44_refresh_token', REFRESH_KEY],
+      ['base44_user_email', EMAIL_KEY],
+    ];
+    for (const [legacyKey, currentKey] of pairs) {
+      const value = localStorage.getItem(legacyKey);
+      if (value === null) continue;
+      if (localStorage.getItem(currentKey) === null) localStorage.setItem(currentKey, value);
+      localStorage.removeItem(legacyKey);
+    }
+  } catch {
+    // storage unavailable (private mode etc.) — nothing to migrate
+  }
+})();
 
 // ---------------------------------------------------------------------------
 // Low-level Cognito helpers (raw fetch — no aws-amplify dependency needed)
