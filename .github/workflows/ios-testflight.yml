@@ -64,12 +64,17 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_CI_KEYCHAIN_PASSWORD }}
         run: |
+          set -euo pipefail
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          # Strip any stray whitespace/newlines from the secrets, then decode.
+          printf '%s' "$BUILD_CERTIFICATE_BASE64" | tr -d '[:space:]' | base64 -d > "$CERTIFICATE_PATH"
+          printf '%s' "$BUILD_PROVISION_PROFILE_BASE64" | tr -d '[:space:]' | base64 -d > "$PP_PATH"
+
+          echo "decoded cert:    $(wc -c < "$CERTIFICATE_PATH") bytes -> $(file -b "$CERTIFICATE_PATH")"
+          echo "decoded profile: $(wc -c < "$PP_PATH") bytes -> $(file -b "$PP_PATH")"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
@@ -86,7 +91,9 @@ jobs:
         env:
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
         run: |
-          echo -n "$ASC_KEY_P8_BASE64" | base64 --decode -o "$RUNNER_TEMP/AuthKey.p8"
+          set -euo pipefail
+          printf '%s' "$ASC_KEY_P8_BASE64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/AuthKey.p8"
+          echo "decoded API key: $(wc -c < "$RUNNER_TEMP/AuthKey.p8") bytes"
 
       - name: Build and upload to TestFlight
         working-directory: frontend/ios/App
