@@ -11,10 +11,13 @@ platform :ios do
     )
 
     build_app(
-      workspace: "App.xcworkspace",
+      project: "App.xcodeproj",
       scheme: "App",
+      configuration: "Release",
       export_method: "app-store",
       export_options: {
+        signingStyle: "manual",
+        teamID: ENV["APPLE_TEAM_ID"],
         provisioningProfiles: {
           "ie.automax.app" => ENV["IOS_PROVISIONING_PROFILE_NAME"]
         }
