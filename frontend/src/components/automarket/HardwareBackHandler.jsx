@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 /**
  * Ensures the Android hardware back button (the ◁ system back arrow) AND
  * any in-app "back" control (which calls navigate(-1) → history.back())
- * work inside the Base44 WebView on real devices (e.g. Galaxy A71).
+ * work inside the app WebView on real devices (e.g. Galaxy A71).
  *
  * Root cause: some Android WebViews change the browser URL on system back
  * but do NOT fire a `popstate` event, so React Router never notices the

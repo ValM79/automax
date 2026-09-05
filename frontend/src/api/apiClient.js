@@ -1,5 +1,4 @@
-// Client for the AWS API Gateway + Cognito backend. Talks to the AWS API
-// Gateway + Cognito backend in ../../../backend instead of Base44's servers.
+// Client for the AWS API Gateway + Cognito backend in ../../../backend.
 //
 // Preserves the existing localStorage contract: src/lib/AuthContext.jsx and
 // src/lib/app-params.js already read the token from
@@ -306,7 +305,7 @@ const functions = {
    * Every call site in the real app (ContactFormModal, VerificationInput,
    * PlaceAd, Profile, VehicleDetail, PaymentHistory) calls
    * api.functions.invoke('name', payload) and reads the result off
-   * `.data` -- matching Base44's original SDK shape, not this shim's plain
+   * `.data` -- matching the original SDK shape, not this shim's plain
    * direct-call functions above. This wraps them to match rather than
    * requiring every call site to be rewritten.
    */
@@ -320,7 +319,7 @@ const functions = {
 };
 
 // ---------------------------------------------------------------------------
-// Uploads photos directly to S3 (replaces Base44's built-in file storage).
+// Uploads photos directly to S3 (replaces the platform's built-in file storage).
 // ---------------------------------------------------------------------------
 
 const integrations = {

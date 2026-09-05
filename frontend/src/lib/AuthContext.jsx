@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
   const [authError, setAuthError] = useState(null);
-  // Base44's platform-level "app public settings" gate (auth_required /
+  // The old platform had an "app public settings" gate (auth_required /
   // user_not_registered) doesn't exist in the AWS backend — every confirmed
   // Cognito user is simply a user, there's no separate per-app membership
   // check. Kept as null for API-shape compatibility with anything still
