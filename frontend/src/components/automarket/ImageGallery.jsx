@@ -231,7 +231,11 @@ export default function ImageGallery({ images = [], title = '' }) {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
           onClick={closeLightbox}
         >
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-10" onClick={e => e.stopPropagation()}>
+          <div
+            className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pb-4 z-10"
+            style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+            onClick={e => e.stopPropagation()}
+          >
             <span className="text-white text-sm font-medium">
               {displayIndex + 1} / {photos.length}
             </span>
@@ -301,7 +305,10 @@ export default function ImageGallery({ images = [], title = '' }) {
           )}
 
           {zoom === 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card/10 text-white/80 text-xs px-3 py-1.5 rounded-full">
+            <div
+              className="absolute left-1/2 -translate-x-1/2 bg-card/10 text-white/80 text-xs px-3 py-1.5 rounded-full"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+            >
               Double-tap to zoom · Drag to pan · Esc to close
             </div>
           )}
