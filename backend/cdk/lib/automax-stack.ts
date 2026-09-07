@@ -389,22 +389,19 @@ export class AutomaxStack extends cdk.Stack {
     const httpApi = new apigw.HttpApi(this, 'AutomaxHttpApi', {
       apiName: 'automax-api',
       corsPreflight: {
-        // The web app runs at https://<domain>. The native iOS app (Capacitor)
-        // does NOT: `iosScheme: 'https'` in capacitor.config.ts is silently
-        // discarded because WebKit reserves the https scheme, so Capacitor
-        // serves the app from `capacitor://<hostname>` and that is the Origin
-        // the iOS build sends on every API call. Without it in this list, every
-        // fetch from the iOS app fails CORS preflight (204 with no
-        // Access-Control-Allow-Origin) and the app shows no data. Android is
-        // fine on https:// and needs nothing extra here.
-        allowOrigins: props?.domainName
-          ? [
-              `https://${props.domainName}`,
-              `https://www.${props.domainName}`,
-              `capacitor://${props.domainName}`,
-              'capacitor://localhost',
-            ]
-          : ['*'],
+        // Must be `*`. The web app's origin is https://<domain>, but the native
+        // iOS app (Capacitor) sends `Origin: capacitor://<domain>` on every API
+        // call -- `iosScheme: 'https'` in capacitor.config.ts is silently
+        // discarded because WebKit reserves the https scheme, so Capacitor runs
+        // the app from `capacitor://<domain>`. API Gateway HTTP APIs only accept
+        // `http(s)://...` or `*` in AllowOrigins and REJECT any custom scheme
+        // (`BadRequestException: Invalid format for origin capacitor://...`), so
+        // naming the capacitor origin explicitly is impossible -- the deploy
+        // fails. `*` is acceptable here: every write route is behind the Cognito
+        // JWT authorizer + per-item RLS in the Lambdas, and the only
+        // unauthenticated read (GET /entities/UserAd) returns just
+        // `status: "active"` public listings.
+        allowOrigins: ['*'],
         allowMethods: [apigw.CorsHttpMethod.GET, apigw.CorsHttpMethod.POST, apigw.CorsHttpMethod.PUT, apigw.CorsHttpMethod.DELETE],
         allowHeaders: ['Content-Type', 'Authorization'],
       },
