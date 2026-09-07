@@ -389,7 +389,22 @@ export class AutomaxStack extends cdk.Stack {
     const httpApi = new apigw.HttpApi(this, 'AutomaxHttpApi', {
       apiName: 'automax-api',
       corsPreflight: {
-        allowOrigins: props?.domainName ? [`https://${props.domainName}`, `https://www.${props.domainName}`] : ['*'],
+        // The web app runs at https://<domain>. The native iOS app (Capacitor)
+        // does NOT: `iosScheme: 'https'` in capacitor.config.ts is silently
+        // discarded because WebKit reserves the https scheme, so Capacitor
+        // serves the app from `capacitor://<hostname>` and that is the Origin
+        // the iOS build sends on every API call. Without it in this list, every
+        // fetch from the iOS app fails CORS preflight (204 with no
+        // Access-Control-Allow-Origin) and the app shows no data. Android is
+        // fine on https:// and needs nothing extra here.
+        allowOrigins: props?.domainName
+          ? [
+              `https://${props.domainName}`,
+              `https://www.${props.domainName}`,
+              `capacitor://${props.domainName}`,
+              'capacitor://localhost',
+            ]
+          : ['*'],
         allowMethods: [apigw.CorsHttpMethod.GET, apigw.CorsHttpMethod.POST, apigw.CorsHttpMethod.PUT, apigw.CorsHttpMethod.DELETE],
         allowHeaders: ['Content-Type', 'Authorization'],
       },

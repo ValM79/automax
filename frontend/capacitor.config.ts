@@ -8,11 +8,17 @@ const config: CapacitorConfig = {
   appId: 'ie.automax.app',
   appName: 'AutoMax',
   webDir: 'dist',
-  // Without this, the native WebView's origin is capacitor://localhost (iOS)
-  // or https://localhost (Android), which the API Gateway's CORS policy
-  // rejects -- it only allows https://automax.ie / https://www.automax.ie.
-  // Presenting the app's own origin as automax.ie avoids needing to loosen
-  // CORS to accept arbitrary native-app origins.
+  // Pin the WebView's origin to a known host so the API Gateway CORS allowlist
+  // can name it explicitly instead of accepting arbitrary native-app origins.
+  //   Android: `androidScheme: 'https'` works -> origin is https://automax.ie,
+  //            already covered by the web allowlist entry.
+  //   iOS:     `iosScheme: 'https'` is SILENTLY IGNORED by Capacitor -- WebKit
+  //            reserves the https scheme, so Capacitor falls back to its default
+  //            and the real origin is `capacitor://automax.ie`. That exact
+  //            string must be in the API's allowOrigins (see
+  //            backend/cdk/lib/automax-stack.ts corsPreflight) or every fetch
+  //            from the iOS app fails preflight. Keep it here as documentation
+  //            of intent even though iOS overrides it.
   server: {
     hostname: 'automax.ie',
     iosScheme: 'https',
