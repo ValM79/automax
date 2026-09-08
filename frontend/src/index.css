@@ -120,6 +120,17 @@ nav a, nav a:hover {
   display: none;
 }
 
+/* iOS zooms the whole page in when a focused form control has a font-size
+   below 16px, and does not zoom back out — which left long forms (Place Ad)
+   not fitting the screen. Force every text control to >=16px on phones. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
 /* Mobile bottom spacing for fixed BottomTabs */
 @media (max-width: 767px) {
   body {
