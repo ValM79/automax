@@ -94,7 +94,18 @@ export default function TermsAndConditions() {
             <p>These Terms & Conditions are governed by and construed in accordance with the laws of Ireland. Any disputes arising in connection with these Terms shall be subject to the exclusive jurisdiction of the Irish courts.</p>
           </Section>
 
-          <Section title="11. Contact Us">
+          <Section title="11. Objectionable Content and Conduct">
+            <p>AutoMax has zero tolerance for objectionable, abusive, harassing, hateful, or fraudulent content and conduct, whether in listings or in messages between users.</p>
+            <ul className="list-disc ml-5 mt-3 space-y-1.5 text-muted-foreground">
+              <li>Report a listing using the <strong>Report Ad</strong> link on any ad, or a message using the <strong>Report</strong> action in your Messages.</li>
+              <li>You can <strong>block</strong> any user from the Messages screen. A blocked user's messages are hidden from you and they can no longer contact you about your ads.</li>
+              <li>We review every report and act on it — removing content and suspending or terminating accounts as needed — <strong>within 24 hours</strong>.</li>
+              <li>To report abuse directly, or to appeal an action, contact <a href="mailto:support@automax.ie" className="text-primary hover:underline">support@automax.ie</a>.</li>
+            </ul>
+            <p className="mt-3">By using the Platform you agree not to post objectionable content or engage in abusive behaviour, and you accept that violations may result in immediate removal of content and permanent loss of access.</p>
+          </Section>
+
+          <Section title="12. Contact Us">
             <p>If you have any questions about these Terms & Conditions, please contact us:</p>
             <div className="mt-3 space-y-1 text-muted-foreground">
               <p><strong className="text-foreground">AutoMax</strong> — operated by Don</p>
