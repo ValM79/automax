@@ -88,16 +88,80 @@ function decodeJwt(token) {
   }
 }
 
+// Cognito ID tokens live 1 hour. Exchange the stored refresh token for a fresh
+// one via REFRESH_TOKEN_AUTH. A single shared in-flight promise means a burst
+// of parallel requests (e.g. uploading several photos) triggers one refresh,
+// not one per request. REFRESH_TOKEN_AUTH returns a new IdToken/AccessToken
+// but no new refresh token — the stored one keeps working until it expires
+// (30 days) or is revoked.
+let refreshInFlight = null;
+
+async function refreshSession() {
+  if (refreshInFlight) return refreshInFlight;
+  const refreshToken = localStorage.getItem(REFRESH_KEY);
+  if (!refreshToken) {
+    clearSession();
+    const err = new Error('Session expired');
+    err.status = 401;
+    throw err;
+  }
+  refreshInFlight = (async () => {
+    try {
+      const result = await cognitoRequest('InitiateAuth', {
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        ClientId: COGNITO_CLIENT_ID,
+        AuthParameters: { REFRESH_TOKEN: refreshToken },
+      });
+      const idToken = result.AuthenticationResult?.IdToken;
+      if (!idToken) throw new Error('No IdToken in refresh response');
+      localStorage.setItem(TOKEN_KEY, idToken);
+      return idToken;
+    } catch (e) {
+      // Refresh token itself is dead (expired, revoked, pool reset) — sign out.
+      clearSession();
+      const err = new Error('Session expired');
+      err.status = 401;
+      throw err;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+}
+
+// Returns a non-expired ID token, refreshing proactively when it's within two
+// minutes of expiry. Returns null only when the user was never signed in;
+// throws a 401 (and clears the session) when a refresh is needed but fails.
+async function getValidIdToken() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (!token) return null;
+  const claims = decodeJwt(token);
+  const expMs = claims?.exp ? claims.exp * 1000 : 0;
+  if (expMs - Date.now() > 120_000) return token;
+  return refreshSession();
+}
+
 // ---------------------------------------------------------------------------
 // API helper — attaches the Cognito ID token to entity/function calls
 // ---------------------------------------------------------------------------
 
-async function apiFetch(path, options = {}) {
-  const token = localStorage.getItem(TOKEN_KEY);
+async function apiFetch(path, options = {}, _retried = false) {
+  const token = await getValidIdToken();
   const headers = { 'Content-Type': 'application/json', ...options.headers };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+
+  // Token rejected despite the proactive check (clock skew, rotation mid-flight):
+  // refresh once and retry the same request before surfacing the error.
+  if (res.status === 401 && !_retried && localStorage.getItem(REFRESH_KEY)) {
+    try {
+      await refreshSession();
+      return await apiFetch(path, options, true);
+    } catch {
+      // fall through to the normal error path below
+    }
+  }
 
   const contentType = res.headers.get('content-type') || '';
   const payload = contentType.includes('application/json') ? await res.json() : await res.blob();
@@ -117,14 +181,17 @@ async function apiFetch(path, options = {}) {
 
 const auth = {
   async me() {
-    const token = localStorage.getItem(TOKEN_KEY);
+    // getValidIdToken() refreshes an expired token rather than forcing a
+    // sign-out; it returns null only when there was never a session, and
+    // throws a 401 (clearing the session) when the refresh token is also dead.
+    const token = await getValidIdToken();
     if (!token) {
       const err = new Error('Not authenticated');
       err.status = 401;
       throw err;
     }
     const claims = decodeJwt(token);
-    if (!claims || claims.exp * 1000 < Date.now()) {
+    if (!claims) {
       clearSession();
       const err = new Error('Session expired');
       err.status = 401;
