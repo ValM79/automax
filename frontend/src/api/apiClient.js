@@ -346,12 +346,18 @@ const functions = {
 
 const integrations = {
   Core: {
-    async UploadFile(file) {
+    // Call sites pass the Base44 SDK shape: UploadFile({ file }).
+    async UploadFile({ file }) {
       const { uploadUrl, publicUrl } = await apiFetch('/uploads/presign', {
         method: 'POST',
         body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
-      await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+      const put = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      if (!put.ok) throw new Error(`Upload failed (${put.status})`);
       return { file_url: publicUrl };
     },
   },

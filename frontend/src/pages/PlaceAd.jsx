@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams, useNavigationType } from 'react-router-dom';
-import { ArrowLeft, Upload, X, Youtube, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
+import { ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
@@ -102,7 +102,6 @@ const emptyForm = {
   title: '',
   description: '',
   price: '',
-  youtubeUrl: '',
   mileage: '',
   mileageUnit: 'km',
   vehicleMake: '',
@@ -182,7 +181,6 @@ export default function PlaceAd() {
     }
   }, [user]);
   const [photos, setPhotos] = useState([]);
-  const [video, setVideo] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [step, setStep] = useState('form'); // 'form' | 'preview'
   const [categoryStarted, setCategoryStarted] = useState(false);
@@ -333,7 +331,6 @@ export default function PlaceAd() {
   const handleReset = () => {
     setForm({ ...emptyForm, fullName: user?.full_name || '', email: user?.email || '' });
     setPhotos([]);
-    setVideo(null);
     setCategoryStarted(false);
     setFormErrors({});
     setSellError('');
@@ -538,7 +535,7 @@ export default function PlaceAd() {
           </Section>
 
           {/* Section 2: Photos */}
-          <Section id="photos-section" title="Photos and Video" icon={<Upload className="w-5 h-5" />} subtitle={`Up to ${packageLimits.maxPhotos} photos`}>
+          <Section id="photos-section" title="Photos" icon={<Upload className="w-5 h-5" />} subtitle={`Up to ${packageLimits.maxPhotos} photos`}>
             {/* Photo grid */}
             {photos.length > 0 &&
             <div className="mb-4">
@@ -590,41 +587,6 @@ export default function PlaceAd() {
                 <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
               </div>
             }
-
-            {/* Video upload */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-foreground mb-1.5">Upload Video <span className="text-muted-foreground font-normal">(1 video, max 100MB)</span></label>
-              {video ?
-              <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-secondary/50">
-                  <span className="text-sm text-foreground flex-1 truncate">{video.name}</span>
-                  <button onClick={() => setVideo(null)} className="text-muted-foreground hover:text-destructive">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div> :
-
-              <label className="cursor-pointer flex items-center gap-3 border border-dashed border-border rounded-lg px-4 py-3 hover:bg-secondary/50 transition-colors">
-                  <Upload className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-primary font-medium">Choose video file</span>
-                  <span className="text-sm text-muted-foreground">· .mp4, .mov, .avi</span>
-                  <input type="file" accept="video/*" className="hidden" onChange={(e) => e.target.files[0] && setVideo(e.target.files[0])} />
-                </label>
-              }
-            </div>
-
-            {/* YouTube */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-foreground mb-1.5">Optional YouTube Video</label>
-              <div className="relative">
-                <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" />
-                <input
-                  type="text"
-                  value={form.youtubeUrl}
-                  onChange={set('youtubeUrl')}
-                  placeholder="e.g. www.youtube.com/watch=0"
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-                
-              </div>
-            </div>
           </Section>
 
           {/* Section 3: Vehicle Details — only for specific categories */}
