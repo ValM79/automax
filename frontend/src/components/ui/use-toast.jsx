@@ -1,8 +1,13 @@
 // Inspired by react-hot-toast library
 import { useState, useEffect } from "react";
 
-const TOAST_LIMIT = 20;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_LIMIT = 3;
+// Time a dismissed toast lingers in the DOM before removal (just enough for a
+// fade). Auto-dismiss itself is scheduled in toast() below.
+const TOAST_REMOVE_DELAY = 250;
+// How long a toast stays visible before auto-dismissing. Pass
+// `duration: Infinity` to an individual toast() call to opt out.
+const TOAST_AUTO_DISMISS = 4000;
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -133,6 +138,13 @@ function toast({ ...props }) {
       },
     },
   });
+
+  // Auto-dismiss. Without this a toast stays forever — on mobile it's a
+  // full-width bar pinned over the status bar and blocks the whole UI.
+  const duration = props.duration ?? TOAST_AUTO_DISMISS;
+  if (duration !== Infinity) {
+    setTimeout(dismiss, duration);
+  }
 
   return {
     id,
