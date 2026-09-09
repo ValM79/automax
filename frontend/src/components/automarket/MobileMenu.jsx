@@ -109,7 +109,7 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 h-full w-full bg-card shadow-2xl flex flex-col overflow-y-auto scrollbar-hide" style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="absolute right-0 top-0 h-full w-full bg-card shadow-2xl flex flex-col overflow-y-auto scrollbar-hide" style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)', paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 1rem)' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-16 border-b border-border bg-card flex-shrink-0">
           <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 cursor-pointer">
