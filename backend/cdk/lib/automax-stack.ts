@@ -13,6 +13,7 @@ import * as apigwIntegrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import * as apigwAuthorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as cr from 'aws-cdk-lib/custom-resources';
 import * as path from 'path';
 
 export interface AutomaxStackProps extends cdk.StackProps {
@@ -171,6 +172,64 @@ export class AutomaxStack extends cdk.Stack {
         sesVerifiedDomain: 'automax.ie',
       }),
     });
+
+    // `UserPoolEmail.withSES()` above only sets the pool's EmailConfiguration
+    // SourceArn. It does NOT create the SES *sending authorization policy* that
+    // actually lets the Cognito service principal call ses:SendEmail on the
+    // automax.ie identity -- Cognito adds that policy as a runtime side-effect
+    // when the EmailConfiguration is first applied, so it lives only in SES,
+    // is invisible to CloudFormation, and is never reconciled by `cdk deploy`.
+    // On 2026-09-10 it went missing and every signup/reset email silently
+    // stopped sending: Cognito swallowed the SES AccessDenied and still
+    // returned success to the app, so nothing surfaced. Managing the policy
+    // explicitly here means a deploy always puts it back.
+    const sesIdentityArn = `arn:aws:ses:${this.region}:${this.account}:identity/automax.ie`;
+    const cognitoSesSendPolicy = new cr.AwsCustomResource(this, 'CognitoSesSendPolicy', {
+      resourceType: 'Custom::CognitoSesSendPolicy',
+      onUpdate: {
+        service: 'SES',
+        action: 'putIdentityPolicy',
+        parameters: {
+          Identity: sesIdentityArn,
+          PolicyName: 'AllowCognitoUserPoolSendEmail',
+          Policy: JSON.stringify({
+            Version: '2008-10-17',
+            Statement: [
+              {
+                Sid: 'AllowCognitoUserPoolSendEmail',
+                Effect: 'Allow',
+                Principal: {
+                  Service: ['email.cognito-idp.amazonaws.com', 'cognito-idp.amazonaws.com'],
+                },
+                Action: ['ses:SendEmail', 'ses:SendRawEmail'],
+                Resource: sesIdentityArn,
+                Condition: {
+                  StringEquals: { 'aws:SourceAccount': this.account },
+                  ArnLike: { 'aws:SourceArn': userPool.userPoolArn },
+                },
+              },
+            ],
+          }),
+        },
+        physicalResourceId: cr.PhysicalResourceId.of('AllowCognitoUserPoolSendEmail@automax.ie'),
+      },
+      onDelete: {
+        service: 'SES',
+        action: 'deleteIdentityPolicy',
+        parameters: {
+          Identity: sesIdentityArn,
+          PolicyName: 'AllowCognitoUserPoolSendEmail',
+        },
+      },
+      // ses:PutIdentityPolicy / DeleteIdentityPolicy don't support
+      // resource-level scoping, so the bootstrap Lambda's own policy is broad;
+      // the identity policy it writes (above) is tightly scoped to this pool.
+      policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
+        resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+      }),
+      installLatestAwsSdk: false,
+    });
+    cognitoSesSendPolicy.node.addDependency(userPool);
 
     const userPoolClient = new cognito.UserPoolClient(this, 'AutomaxUserPoolClient', {
       userPool,
