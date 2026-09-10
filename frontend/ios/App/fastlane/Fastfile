@@ -10,11 +10,27 @@ platform :ios do
       in_house: false
     )
 
+    # Auto-pick the next build number: (highest build already on TestFlight) + 1.
+    # This project isn't set up for Apple Generic Versioning (no
+    # VERSIONING_SYSTEM in project.pbxproj), so agvtool / increment_build_number
+    # don't apply -- instead we override CURRENT_PROJECT_VERSION at archive time
+    # via xcargs. Info.plist's CFBundleVersion is $(CURRENT_PROJECT_VERSION), so
+    # the value flows straight into the built binary. The number committed in
+    # project.pbxproj is now just a fallback for local Xcode builds.
+    build_number = latest_testflight_build_number(
+      api_key: api_key,
+      app_identifier: "ie.automax.app",
+      live: false,
+      initial_build_number: 0
+    ) + 1
+    UI.important("Building as TestFlight build #{build_number}")
+
     build_app(
       project: "App.xcodeproj",
       scheme: "App",
       configuration: "Release",
       export_method: "app-store",
+      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
       export_options: {
         signingStyle: "manual",
         teamID: ENV["APPLE_TEAM_ID"],
