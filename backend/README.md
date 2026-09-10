@@ -152,6 +152,23 @@ day, much lighter than Twilio's ComReg process) -- until that's granted, SES
 is in sandbox mode and can only deliver to individually pre-verified email
 addresses, which defeats the point for real signups.
 
+`withSES(...)` sets the pool's `EmailConfiguration.SourceArn` but the SES
+*sending-authorization policy* that lets the Cognito service principal call
+`ses:SendEmail` on the identity is added by Cognito as a runtime side-effect,
+so CloudFormation never reconciles it. On 2026-09-10 it vanished and every
+auth email silently stopped (Cognito returned success, SES got nothing). The
+`CognitoSesSendPolicy` `AwsCustomResource` in the stack now manages that
+policy explicitly, and the **`automax-no-auth-email-sent-24h`** CloudWatch
+alarm fires to the `automax-ops-alerts` SNS topic if SES sends zero email for
+24h. Set `AUTOMAX_OPS_ALERT_EMAIL` before `cdk deploy` to get notified, then
+click the SNS confirmation link. The 24h window is wide because SES `Send`
+counts only Cognito auth emails (contact-form / seller mail goes via Resend),
+so a young site can legitimately be quiet for hours; to detect a breakage
+within an hour instead, run an hourly canary (an EventBridge-scheduled Lambda
+that sends one probe via SES to `success@simulator.amazonses.com` and asserts
+the `AllowCognitoUserPoolSendEmail` identity policy still exists) so `Send` is
+never legitimately zero. Not built yet.
+
 Then in the Stripe Dashboard, add a webhook endpoint pointing at
 `<ApiUrl>/webhooks/stripe` (from the CDK output) and copy the new signing
 secret into `STRIPE_WEBHOOK_SECRET` above. The Stripe Price IDs hardcoded in

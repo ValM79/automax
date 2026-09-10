@@ -14,11 +14,22 @@ import * as apigwAuthorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cr from 'aws-cdk-lib/custom-resources';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cwActions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as path from 'path';
 
 export interface AutomaxStackProps extends cdk.StackProps {
   domainName?: string;
   certificateArn?: string;
+  /**
+   * Email address subscribed to the ops-alert SNS topic (currently the
+   * "no auth emails sent" alarm). If unset, the topic and alarm are still
+   * created but nobody is notified -- set AUTOMAX_OPS_ALERT_EMAIL and redeploy,
+   * then click the confirmation link SNS emails you.
+   */
+  opsAlertEmail?: string;
 }
 
 /**
@@ -230,6 +241,50 @@ export class AutomaxStack extends cdk.Stack {
       installLatestAwsSdk: false,
     });
     cognitoSesSendPolicy.node.addDependency(userPool);
+
+    // ----------------------------------------------------------------------
+    // Ops alerting -- "auth email delivery has silently died" detector
+    // ----------------------------------------------------------------------
+    // The 2026-09-10 outage (missing SES identity policy, above) produced no
+    // error anywhere: Cognito returned success, SES simply never got the send,
+    // and the only external symptom was SES's `Send` metric flatlining. This
+    // alarm turns that symptom into a notification instead of a bug report.
+    //
+    // SES `Send` here counts *only* Cognito's signup-confirmation and
+    // password-reset emails (contact-form / seller messages go through Resend,
+    // not SES), so a genuinely quiet stretch on a young site can legitimately
+    // be zero for a while -- hence the deliberately wide 24h window.
+    // `treatMissingData: BREACHING` because SES publishes no datapoint at all
+    // (not a zero) when nothing is sent. To detect faster, run an hourly SES
+    // canary so `Send` is never legitimately zero (see backend/README.md).
+    const opsAlertTopic = new sns.Topic(this, 'OpsAlertTopic', {
+      topicName: 'automax-ops-alerts',
+      displayName: 'AutoMax ops alerts',
+    });
+    if (props?.opsAlertEmail) {
+      opsAlertTopic.addSubscription(new snsSubscriptions.EmailSubscription(props.opsAlertEmail));
+    }
+
+    const noAuthEmailAlarm = new cloudwatch.Alarm(this, 'NoAuthEmailSentAlarm', {
+      alarmName: 'automax-no-auth-email-sent-24h',
+      alarmDescription:
+        'SES has sent no email for 24h. Cognito signup-confirmation and ' +
+        'password-reset emails go through SES, so if this is firing, new users ' +
+        'cannot confirm their accounts. Check the AllowCognitoUserPoolSendEmail ' +
+        'policy on the automax.ie SES identity, and SES account sending status.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/SES',
+        metricName: 'Send',
+        statistic: cloudwatch.Stats.SUM,
+        period: cdk.Duration.hours(6),
+      }),
+      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+      threshold: 1,
+      evaluationPeriods: 4, // 4 x 6h = 24h with zero sends -> ALARM
+      treatMissingData: cloudwatch.TreatMissingData.BREACHING,
+    });
+    noAuthEmailAlarm.addAlarmAction(new cwActions.SnsAction(opsAlertTopic));
+    noAuthEmailAlarm.addOkAction(new cwActions.SnsAction(opsAlertTopic));
 
     const userPoolClient = new cognito.UserPoolClient(this, 'AutomaxUserPoolClient', {
       userPool,
@@ -522,5 +577,6 @@ export class AutomaxStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'FrontendDistributionDomain', { value: frontendDistribution.distributionDomainName });
     new cdk.CfnOutput(this, 'PhotosBucketName', { value: photosBucket.bucketName });
     new cdk.CfnOutput(this, 'PhotosDistributionDomain', { value: photosDistribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'OpsAlertTopicArn', { value: opsAlertTopic.topicArn });
   }
 }

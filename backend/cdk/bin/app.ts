@@ -13,4 +13,5 @@ new AutomaxStack(app, 'AutomaxStack', {
   // and created a hosted zone for automax.ie in Route 53.
   domainName: process.env.AUTOMAX_DOMAIN_NAME, // e.g. 'automax.ie'
   certificateArn: process.env.AUTOMAX_CERT_ARN, // ACM cert ARN in us-east-1
+  opsAlertEmail: process.env.AUTOMAX_OPS_ALERT_EMAIL, // subscribed to the ops-alert SNS topic
 });
