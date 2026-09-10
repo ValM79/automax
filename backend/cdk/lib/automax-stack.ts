@@ -147,6 +147,26 @@ export class AutomaxStack extends cdk.Stack {
     // ----------------------------------------------------------------------
     // Cognito — replaces Base44's built-in auth
     // ----------------------------------------------------------------------
+    // Branded HTML for the sign-up / password-reset code email. Cognito's
+    // built-in default ("The verification code to your new account is {####}",
+    // plain text, no branding) is itself a spam-filter trigger from a young
+    // sending domain -- real users reported it landing in Junk (esp. Outlook/
+    // live.com). Table layout + inline styles + no remote images = email-safe.
+    // `{####}` is Cognito's code placeholder; this same template serves both
+    // email verification and forgot-password code delivery.
+    const verificationEmailBody = [
+      '<!DOCTYPE html>',
+      '<html lang="en"><body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 0;"><tr><td align="center">',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px;">',
+      '<tr><td style="padding:28px 32px 4px;font-size:18px;font-weight:700;color:#0f172a;">AutoMax</td></tr>',
+      '<tr><td style="padding:8px 32px 0;font-size:15px;line-height:1.5;color:#334155;">Enter this code to verify your email address:</td></tr>',
+      '<tr><td style="padding:12px 32px;"><div style="font-size:32px;font-weight:700;letter-spacing:6px;color:#0f172a;background:#f4f4f5;border-radius:8px;padding:16px 0;text-align:center;">{####}</div></td></tr>',
+      '<tr><td style="padding:0 32px 24px;font-size:13px;line-height:1.5;color:#64748b;">This code expires shortly. If you did not try to sign in or sign up at automax.ie, you can safely ignore this email.</td></tr>',
+      '<tr><td style="padding:16px 32px 28px;border-top:1px solid #f1f5f9;font-size:12px;line-height:1.5;color:#94a3b8;">AutoMax &middot; automax.ie &middot; Ireland\'s vehicle marketplace</td></tr>',
+      '</table></td></tr></table></body></html>',
+    ].join('');
+
     const userPool = new cognito.UserPool(this, 'AutomaxUserPool', {
       userPoolName: 'automax-users',
       selfSignUpEnabled: true,
@@ -176,12 +196,20 @@ export class AutomaxStack extends cdk.Stack {
       // re-signup and "user not confirmed" on login. automax.ie is verified
       // in SES (DKIM only, no MAIL FROM domain / SPF changes needed) --
       // requires SES production access to send to arbitrary real users, not
-      // just SES-sandbox-verified addresses; see backend/README.md.
+      // just SES-sandbox-verified addresses; see backend/README.md. A custom
+      // SES MAIL FROM (bounce.automax.ie) was added 2026-09-10 for SPF
+      // alignment -- managed in SES + Cloudflare DNS, not here.
       email: cognito.UserPoolEmail.withSES({
         fromEmail: 'accounts@automax.ie',
         fromName: 'AutoMax',
         sesVerifiedDomain: 'automax.ie',
       }),
+      userVerification: {
+        emailSubject: 'Your AutoMax verification code',
+        emailBody: verificationEmailBody,
+        emailStyle: cognito.VerificationEmailStyle.CODE,
+        smsMessage: 'Your AutoMax verification code is {####}',
+      },
     });
 
     // `UserPoolEmail.withSES()` above only sets the pool's EmailConfiguration

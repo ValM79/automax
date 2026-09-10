@@ -143,14 +143,30 @@ discovered live 2026-08-30 when a real user's confirmation email silently
 never arrived, leaving them stuck ("user already exists" on re-signup, "user
 not confirmed" on login; fixed for that one account with
 `admin-confirm-sign-up`). The `AutomaxUserPool` construct now sets
-`email: cognito.UserPoolEmail.withSES(...)` sending from `accounts@automax.ie`.
-This needs `automax.ie` verified as an SES identity (DKIM only -- no MAIL FROM
-domain / SPF changes, unlike Resend's setup) in the **same region as the
-stack** (`eu-west-1`), and **SES production access requested** (Support Center
+`email: cognito.UserPoolEmail.withSES(...)` sending from `accounts@automax.ie`,
+plus a branded HTML `userVerification` template. This needs `automax.ie`
+verified as an SES identity (DKIM) in the **same region as the stack**
+(`eu-west-1`), and **SES production access requested** (Support Center
 -> Service limit increase -> "SES Sending Limits"; usually approved within a
 day, much lighter than Twilio's ComReg process) -- until that's granted, SES
 is in sandbox mode and can only deliver to individually pre-verified email
 addresses, which defeats the point for real signups.
+
+**Deliverability (2026-09-10): signup codes were landing in spam** (Outlook/
+live.com especially). Two causes, two fixes:
+- *No SPF alignment.* The SES identity had no custom MAIL FROM, so the
+  Return-Path was `*.amazonses.com` -- SPF passed but didn't align with
+  `automax.ie` (only DKIM did). Fix: SES MAIL FROM domain set to
+  `bounce.automax.ie` (`aws sesv2 put-email-identity-mail-from-attributes
+  --behavior-on-mx-failure USE_DEFAULT_VALUE`) + two Cloudflare DNS records on
+  that subdomain: `MX 10 feedback-smtp.eu-west-1.amazonses.com` and
+  `TXT "v=spf1 include:amazonses.com ~all"`. Managed in SES + DNS, not CDK.
+  Also worth doing later: strengthen `_dmarc.automax.ie` from `p=none;` and
+  add `rua=`.
+- *Spammy content.* Cognito's default is one line of plain text with no
+  branding. Replaced with the `userVerification` HTML template in the stack
+  (table layout, inline CSS, no remote images; `{####}` is the code
+  placeholder; serves both signup verification and password-reset codes).
 
 `withSES(...)` sets the pool's `EmailConfiguration.SourceArn` but the SES
 *sending-authorization policy* that lets the Cognito service principal call
