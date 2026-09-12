@@ -174,13 +174,14 @@ live.com especially). Two causes, two fixes:
 so CloudFormation never reconciles it. On 2026-09-10 it vanished and every
 auth email silently stopped (Cognito returned success, SES got nothing). The
 `CognitoSesSendPolicy` `AwsCustomResource` in the stack now manages that
-policy explicitly, and the **`automax-no-auth-email-sent-24h`** CloudWatch
+policy explicitly, and the **`automax-no-auth-email-sent-72h`** CloudWatch
 alarm fires to the `automax-ops-alerts` SNS topic if SES sends zero email for
-24h. Set `AUTOMAX_OPS_ALERT_EMAIL` before `cdk deploy` to get notified, then
-click the SNS confirmation link. The 24h window is wide because SES `Send`
+72h. Set `AUTOMAX_OPS_ALERT_EMAIL` before `cdk deploy` to get notified, then
+click the SNS confirmation link. The window is wide because SES `Send`
 counts only Cognito auth emails (contact-form / seller mail goes via Resend),
-so a young site can legitimately be quiet for hours; to detect a breakage
-within an hour instead, run an hourly canary (an EventBridge-scheduled Lambda
+so a young site can legitimately be quiet for a day or more (widened from 24h
+to 72h on 2026-09-12 after it paged on a normal quiet stretch); to detect a
+breakage within an hour instead, run an hourly canary (an EventBridge-scheduled Lambda
 that sends one probe via SES to `success@simulator.amazonses.com` and asserts
 the `AllowCognitoUserPoolSendEmail` identity policy still exists) so `Send` is
 never legitimately zero. Not built yet.
