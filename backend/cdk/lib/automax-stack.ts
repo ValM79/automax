@@ -281,7 +281,8 @@ export class AutomaxStack extends cdk.Stack {
     // SES `Send` here counts *only* Cognito's signup-confirmation and
     // password-reset emails (contact-form / seller messages go through Resend,
     // not SES), so a genuinely quiet stretch on a young site can legitimately
-    // be zero for a while -- hence the deliberately wide 24h window.
+    // be zero for a while -- hence the deliberately wide 72h window (widened
+    // from 24h on 2026-09-12 after it paged on a normal quiet 24h stretch).
     // `treatMissingData: BREACHING` because SES publishes no datapoint at all
     // (not a zero) when nothing is sent. To detect faster, run an hourly SES
     // canary so `Send` is never legitimately zero (see backend/README.md).
@@ -294,9 +295,9 @@ export class AutomaxStack extends cdk.Stack {
     }
 
     const noAuthEmailAlarm = new cloudwatch.Alarm(this, 'NoAuthEmailSentAlarm', {
-      alarmName: 'automax-no-auth-email-sent-24h',
+      alarmName: 'automax-no-auth-email-sent-72h',
       alarmDescription:
-        'SES has sent no email for 24h. Cognito signup-confirmation and ' +
+        'SES has sent no email for 72h. Cognito signup-confirmation and ' +
         'password-reset emails go through SES, so if this is firing, new users ' +
         'cannot confirm their accounts. Check the AllowCognitoUserPoolSendEmail ' +
         'policy on the automax.ie SES identity, and SES account sending status.',
@@ -308,7 +309,7 @@ export class AutomaxStack extends cdk.Stack {
       }),
       comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
       threshold: 1,
-      evaluationPeriods: 4, // 4 x 6h = 24h with zero sends -> ALARM
+      evaluationPeriods: 12, // 12 x 6h = 72h with zero sends -> ALARM
       treatMissingData: cloudwatch.TreatMissingData.BREACHING,
     });
     noAuthEmailAlarm.addAlarmAction(new cwActions.SnsAction(opsAlertTopic));
