@@ -7,15 +7,19 @@ import { ddb, TABLES, json, getUserFromEvent, getSecrets } from '../_lib/common.
 // isBikeCategory flag; ALL paid properties are resolved here so they can't be
 // tampered with client-side. Replace these Stripe Price IDs with your own (create
 // them in the Stripe Dashboard after moving off Base44's Stripe integration).
+// Prices re-aligned 2026-09-27 to match Apple's fixed IAP price tiers (0.99/2.99/6.99
+// for car, 0.99/1.99/2.99 for bike) so web/Android and iOS customers see the same
+// price. The old €1/€3/€7 and €0.50/€1/€3 Price IDs are left in Stripe (never delete
+// a Price with past purchases attached) but are no longer referenced here.
 const PACKAGE_CONFIG = {
-  Basic: { priceId: 'price_1Tt1psLCaYSUWHrbcDdYqXfZ', listingDays: 60, maxPhotos: 12, bumps: 0, bumpIntervalWeeks: 0, spotlightDays: 0 },
-  Standard: { priceId: 'price_1Tt1psLCaYSUWHrb387Sse6E', listingDays: 72, maxPhotos: 12, bumps: 2, bumpIntervalWeeks: 4, spotlightDays: 0 },
-  Premium: { priceId: 'price_1Tt1psLCaYSUWHrbL4OVWgEl', listingDays: 90, maxPhotos: 12, bumps: 3, bumpIntervalWeeks: 3, spotlightDays: 5 },
+  Basic: { priceId: 'price_1UKQ8XLCaYSUWHrbxLP0dPCw', listingDays: 60, maxPhotos: 12, bumps: 0, bumpIntervalWeeks: 0, spotlightDays: 0 },
+  Standard: { priceId: 'price_1UKQAwLCaYSUWHrblYOkaxyQ', listingDays: 72, maxPhotos: 12, bumps: 2, bumpIntervalWeeks: 4, spotlightDays: 0 },
+  Premium: { priceId: 'price_1UKQDzLCaYSUWHrbdh5Arqie', listingDays: 90, maxPhotos: 12, bumps: 3, bumpIntervalWeeks: 3, spotlightDays: 5 },
 };
 const BIKE_PACKAGE_CONFIG = {
-  Basic: { priceId: 'price_1Tt2C2LCaYSUWHrbr90lNcHP', listingDays: 30, maxPhotos: 12, bumps: 0, bumpIntervalWeeks: 0, spotlightDays: 0 },
-  Standard: { priceId: 'price_1Tt1psLCaYSUWHrbnEu57cEf', listingDays: 60, maxPhotos: 12, bumps: 2, bumpIntervalWeeks: 4, spotlightDays: 0 },
-  Premium: { priceId: 'price_1Tt1psLCaYSUWHrbZM6RqiAG', listingDays: 90, maxPhotos: 12, bumps: 3, bumpIntervalWeeks: 3, spotlightDays: 5 },
+  Basic: { priceId: 'price_1UKQ9ZLCaYSUWHrbiUuY0P4Y', listingDays: 30, maxPhotos: 12, bumps: 0, bumpIntervalWeeks: 0, spotlightDays: 0 },
+  Standard: { priceId: 'price_1UKQC5LCaYSUWHrbhECPK1QX', listingDays: 60, maxPhotos: 12, bumps: 2, bumpIntervalWeeks: 4, spotlightDays: 0 },
+  Premium: { priceId: 'price_1UKQF7LCaYSUWHrbYGpX8TJ5', listingDays: 90, maxPhotos: 12, bumps: 3, bumpIntervalWeeks: 3, spotlightDays: 5 },
 };
 
 export const handler = async (event) => {
