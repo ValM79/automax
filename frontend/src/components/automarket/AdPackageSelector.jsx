@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 
 import { api } from '@/api/apiClient';
 
+// Prices re-aligned 2026-09-27 to match Apple's fixed IAP price tiers, so web/Android
+// and iOS customers see the same price (see [[backend/lambda/createCheckoutSession]]
+// for the server-side Price IDs that actually get charged -- these are display copy
+// only, but must stay in sync).
 const packages = [
 {
   name: "Basic",
-  price: '€1',
-  priceId: 'price_1Tt1psLCaYSUWHrbcDdYqXfZ',
+  price: '€0.99',
+  priceId: 'price_1UKQ8XLCaYSUWHrbxLP0dPCw',
+  iosProductId: 'ie.automax.app.listing.car.basic',
   listingDays: 60,
   maxPhotos: 12,
   bumps: 0,
@@ -18,8 +23,9 @@ const packages = [
 },
 {
   name: "Standard",
-  price: '€3',
-  priceId: 'price_1Tt1psLCaYSUWHrb387Sse6E',
+  price: '€2.99',
+  priceId: 'price_1UKQAwLCaYSUWHrblYOkaxyQ',
+  iosProductId: 'ie.automax.app.listing.car.standard',
   listingDays: 72,
   maxPhotos: 12,
   bumps: 2,
@@ -33,8 +39,9 @@ const packages = [
 },
 {
   name: 'Premium',
-  price: '€7',
-  priceId: 'price_1Tt1psLCaYSUWHrbL4OVWgEl',
+  price: '€6.99',
+  priceId: 'price_1UKQDzLCaYSUWHrbdh5Arqie',
+  iosProductId: 'ie.automax.app.listing.car.premium',
   listingDays: 90,
   maxPhotos: 12,
   bumps: 3,
@@ -52,8 +59,9 @@ const packages = [
 const bikePackages = [
 {
   name: "Basic",
-  price: '€0.50',
-  priceId: 'price_1Tt2C2LCaYSUWHrbr90lNcHP',
+  price: '€0.99',
+  priceId: 'price_1UKQ9ZLCaYSUWHrbiUuY0P4Y',
+  iosProductId: 'ie.automax.app.listing.bike.basic',
   listingDays: 30,
   maxPhotos: 12,
   bumps: 0,
@@ -65,8 +73,9 @@ const bikePackages = [
 },
 {
   name: "Standard",
-  price: '€1',
-  priceId: 'price_1Tt1psLCaYSUWHrbnEu57cEf',
+  price: '€1.99',
+  priceId: 'price_1UKQC5LCaYSUWHrbhECPK1QX',
+  iosProductId: 'ie.automax.app.listing.bike.standard',
   listingDays: 60,
   maxPhotos: 12,
   bumps: 2,
@@ -80,8 +89,9 @@ const bikePackages = [
 },
 {
   name: 'Premium',
-  price: '€3',
-  priceId: 'price_1Tt1psLCaYSUWHrbZM6RqiAG',
+  price: '€2.99',
+  priceId: 'price_1UKQF7LCaYSUWHrbYGpX8TJ5',
+  iosProductId: 'ie.automax.app.listing.bike.premium',
   listingDays: 90,
   maxPhotos: 12,
   bumps: 3,
@@ -95,7 +105,6 @@ const bikePackages = [
   'Spotlight',
   { text: '(5 days in the top spot)', note: true }]
 }];
-
 
 
 
