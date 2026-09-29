@@ -15,24 +15,23 @@ export default function AboutUs() {
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-6">About AutoMax</h1>
         <div className="prose max-w-none space-y-6 text-muted-foreground">
-          <p className="text-lg leading-relaxed">AutoMax is Ireland's largest online vehicle marketplace, connecting buyers and sellers of cars, motorbikes, trucks, boats, and much more since 2026.</p>
+          <p className="text-lg leading-relaxed">AutoMax is a new online vehicle marketplace built for Ireland, launched in 2026. Whether you're buying your first car, selling a motorbike, or listing a van for the business, we wanted a simple, modern place to do it — no clutter, no confusing pricing.</p>
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-foreground mb-3">Our Mission</h2>
-            <p>We make it easy, fast, and safe to buy or sell any vehicle in Ireland. With hundreds of thousands of listings and millions of monthly visitors, AutoMax is the go-to destination for motor enthusiasts and everyday drivers alike.</p>
+            <p>We're building AutoMax to make buying and selling any vehicle in Ireland as easy as it should be: post an ad in minutes, reach real buyers directly, and pay a fair, transparent listing fee — nothing hidden, nothing complicated.</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-foreground mb-3">What We Offer</h2>
             <ul className="list-disc ml-6 space-y-2">
-              <li>Over 100,000 live vehicle listings at any time</li>
-              <li>Trusted dealer network across all 32 counties</li>
-              <li>Vehicle history checks and NCT reminders</li>
-              <li>Car insurance and finance tools</li>
-              <li>Expert buying and selling guides</li>
+              <li>Listings across cars, motorbikes, vans, trucks, campers, boats, and more</li>
+              <li>Simple, affordable ad packages with no surprise fees</li>
+              <li>Direct messaging between buyers and sellers — no middleman</li>
+              <li>A clean, fast site that works just as well on your phone as your laptop</li>
             </ul>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-foreground mb-3">Our Team</h2>
-            <p>Based in Dublin, our team is passionate about motors and dedicated to providing the best marketplace experience in Ireland.</p>
+            <h2 className="text-xl font-bold text-foreground mb-3">Who's Behind It</h2>
+            <p>AutoMax is founder-led and based in Dublin. We're just getting started, and every piece of feedback shapes what we build next — if something's not working for you, tell us and we'll fix it.</p>
           </div>
         </div>
       </div>
