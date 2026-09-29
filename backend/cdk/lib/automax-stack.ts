@@ -47,21 +47,27 @@ export class AutomaxStack extends cdk.Stack {
     super(scope, id, props);
 
     // ----------------------------------------------------------------------
-    // Secrets — fill these in via `aws secretsmanager put-secret-value` (see README)
-    // ----------------------------------------------------------------------
-    const appSecrets = new secretsmanager.Secret(this, 'AutomaxAppSecrets', {
-      secretName: 'automax/app-secrets',
-      description: 'Stripe / Twilio / Resend / Irish NCR API credentials for AutoMax',
-      secretObjectValue: {
-        STRIPE_SECRET_KEY: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        STRIPE_WEBHOOK_SECRET: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        TWILIO_ACCOUNT_SID: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        TWILIO_AUTH_TOKEN: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        TWILIO_PHONE_NUMBER: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        RESEND_API_KEY: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-        IRISH_NCR_API_KEY: cdk.SecretValue.unsafePlainText('REPLACE_ME'),
-      },
-    });
+    // Secrets — imported by name, NOT created/managed here. Real values are
+    // set once via `aws secretsmanager put-secret-value` (see backend/README.md)
+    // and this stack never touches the secret's VALUE again.
+    //
+    // Why: a `secretObjectValue: { KEY: SecretValue.unsafePlainText(...) }`
+    // block here would make CloudFormation reassert those literal values on
+    // every single `cdk deploy` -- silently overwriting whatever real values
+    // were set afterward via put-secret-value. This happened for real on
+    // 2026-09-28: an unrelated pricing deploy reset STRIPE_SECRET_KEY back to
+    // 'REPLACE_ME' and killed checkout for over a day before anyone noticed.
+    // `fromSecretNameV2` only reads the secret's ARN (for IAM grants and the
+    // Lambda env var below) -- it never writes to it, so this can't recur.
+    //
+    // Bootstrapping a brand-new environment: the secret must already exist
+    // before the first `cdk deploy`, since this stack no longer creates it.
+    // Create it once with placeholders, then fill in real values:
+    //   aws secretsmanager create-secret --name automax/app-secrets \
+    //     --secret-string '{"STRIPE_SECRET_KEY":"REPLACE_ME", ...}'
+    const appSecrets = secretsmanager.Secret.fromSecretNameV2(
+      this, 'AutomaxAppSecrets', 'automax/app-secrets'
+    );
 
     // ----------------------------------------------------------------------
     // DynamoDB — one table per Base44 entity. PK = id (ULID/UUID generated on write).
