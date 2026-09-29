@@ -18,10 +18,10 @@ export default function CookiePolicy() {
         <div className="space-y-6">
           {[
             { title: 'What Are Cookies?', text: 'Cookies are small text files stored on your device when you visit a website. They help us remember your preferences, keep you logged in, and improve your overall experience on AutoMax.' },
-            { title: 'How We Use Cookies', text: 'We use cookies to: keep you logged in during your session, remember your search preferences, measure site traffic and performance, and personalise ads and content where applicable.' },
-            { title: 'Types of Cookies We Use', text: 'Essential cookies: Required for the site to function correctly. Analytical cookies: Help us understand how visitors use the site (e.g. Google Analytics). Preference cookies: Remember your settings and preferences. Marketing cookies: Used to show relevant advertisements.' },
-            { title: 'Third-Party Cookies', text: 'Some cookies on our site are set by third-party services such as Google Analytics, Stripe (for payments), and advertising partners. These parties have their own privacy policies.' },
-            { title: 'Managing Cookies', text: 'You can control and delete cookies through your browser settings. Note that disabling cookies may affect the functionality of some parts of AutoMax. You can also manage your preferences via our Manage Cookies page.' },
+            { title: 'How We Use Cookies', text: 'We use cookies only to keep the site working — for example, keeping you logged in during your session and remembering that you\'ve seen our cookie notice. We do not use cookies for analytics, advertising, or personalisation.' },
+            { title: 'Types of Cookies We Use', text: 'Essential cookies: Required for the site to function correctly, such as session management and authentication. That\'s the only category we currently use — we do not set analytics, marketing, or advertising cookies.' },
+            { title: 'Third-Party Cookies', text: 'When you make a payment, Stripe (our payment processor) may set its own cookies during checkout to process the transaction securely. See Stripe\'s privacy policy for details. We do not use any analytics or advertising cookies from third parties.' },
+            { title: 'Managing Cookies', text: 'You can control and delete cookies through your browser settings. Note that disabling essential cookies may affect the functionality of AutoMax, such as staying signed in.' },
             { title: 'Contact', text: 'If you have any questions about our cookie policy, please contact us at privacy@automax.ie.' },
           ].map((s, i) => (
             <div key={i} className="bg-card border border-border rounded-2xl p-6 shadow-sm">

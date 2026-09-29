@@ -378,6 +378,7 @@ const functions = {
   sendVerificationCode: makeFunctionClient('sendVerificationCode'),
   submitContactForm: makeFunctionClient('submitContactForm'),
   verifyCode: makeFunctionClient('verifyCode'),
+  verifyAppleTransaction: makeFunctionClient('verifyAppleTransaction'),
   // downloadReceipt returns a PDF blob, not JSON — call it directly (see below).
   async downloadReceipt(payload) {
     const token = localStorage.getItem(TOKEN_KEY);

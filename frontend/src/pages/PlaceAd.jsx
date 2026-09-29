@@ -12,6 +12,15 @@ import keywordToCategory from '@/lib/keywordToCategory';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
+import { Capacitor, registerPlugin } from '@capacitor/core';
+
+// Apple Guideline 3.1.1: paid ad packages go through In-App Purchase on iOS,
+// not Stripe. IAPPlugin is a local native plugin (frontend/ios/App/App/IAPPlugin.swift)
+// wrapping StoreKit 2 -- see verifyAppleTransaction in the backend for the
+// actual trust boundary (the purchase itself happens on-device; the backend
+// is what decides whether it's real before activating the ad).
+const IAPPlugin = registerPlugin('IAPPlugin');
+const isIOSApp = Capacitor.getPlatform() === 'ios';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
 
@@ -1131,9 +1140,14 @@ export default function PlaceAd() {
                   setSellError('Please select an ad package before proceeding.');
                   return;
                 }
-                if (window.self !== window.top) {
+                if (!isIOSApp && window.self !== window.top) {
                   submittingRef.current = false;
                   setSellError('Checkout is only available from the published app, not the preview.');
+                  return;
+                }
+                if (isIOSApp && !selectedPackage.iosProductId) {
+                  submittingRef.current = false;
+                  setSellError('This package is not available for purchase on iOS yet.');
                   return;
                 }
                 setCheckoutLoading(true);
@@ -1198,6 +1212,46 @@ export default function PlaceAd() {
                     createdAd = await api.entities.UserAd.create(adData);
                   }
 
+                  if (isIOSApp) {
+                    // On-device purchase via StoreKit (see IAPPlugin.swift). This
+                    // only tells us the purchase happened on-device -- it is not
+                    // trusted to activate anything by itself.
+                    let purchase;
+                    try {
+                      purchase = await IAPPlugin.purchase({ productId: selectedPackage.iosProductId });
+                    } catch (purchaseErr) {
+                      const msg = String(purchaseErr?.message || '');
+                      if (msg.includes('userCancelled')) {
+                        setSellError('');
+                      } else if (msg.includes('pending')) {
+                        setSellError('Your purchase needs approval (e.g. Ask to Buy) before it can complete.');
+                      } else {
+                        setSellError('Purchase failed. Please try again.');
+                      }
+                      return;
+                    }
+
+                    // The actual trust boundary: ask the backend to verify this
+                    // transaction with Apple's App Store Server API before it
+                    // will activate the ad. Never trust the on-device result alone.
+                    try {
+                      await api.functions.invoke('verifyAppleTransaction', {
+                        adId: createdAd.id,
+                        transactionId: purchase.transactionId
+                      });
+                      // Only finish the StoreKit transaction once the backend has
+                      // confirmed activation -- if this app dies before here,
+                      // StoreKit redelivers the transaction next launch instead
+                      // of losing the purchase.
+                      await IAPPlugin.finishTransaction({ transactionId: purchase.transactionId });
+                      navigate('/my-ads');
+                      return;
+                    } catch (verifyErr) {
+                      setSellError('We received your payment but could not activate the ad yet. Please check My Ads in a moment, or contact support.');
+                      return;
+                    }
+                  }
+
                   const res = await api.functions.invoke('createCheckoutSession', {
                     packageName: selectedPackage.name,
                     listingDays: selectedPackage.listingDays,
@@ -1222,7 +1276,7 @@ export default function PlaceAd() {
               }}
               disabled={checkoutLoading}
               className="w-full bg-foreground text-background font-bold py-4 rounded-xl text-base hover:opacity-90 transition-opacity disabled:opacity-60">
-              {checkoutLoading ? photos.length > 0 ? 'Uploading photos...' : 'Redirecting to payment...' : 'Sell Now'}
+              {checkoutLoading ? photos.length > 0 ? 'Uploading photos...' : isIOSApp ? 'Completing purchase...' : 'Redirecting to payment...' : 'Sell Now'}
             </button>
             <p className="text-xs text-muted-foreground text-center">
               By clicking "Sell Now", you agree to the AutoMax{' '}
