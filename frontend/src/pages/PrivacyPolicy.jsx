@@ -71,12 +71,7 @@ Legitimate Interests (Article 6(1)(f)):
 We process data to prevent fraud, improve platform security, and send relevant service communications. We have conducted a Legitimate Interests Assessment (LIA) and are satisfied that our interests do not override your rights.
 
 Consent (Article 6(1)(a)):
-We rely on your consent for:
-• Analytics and behavioural tracking cookies (Google Analytics).
-• Advertising and remarketing cookies.
-• Social media tracking pixels.
-• Direct marketing emails (where you opt in).
-You may withdraw your consent at any time without affecting the lawfulness of processing prior to withdrawal.`
+We rely on your consent for direct marketing emails (where you opt in). We do not currently use analytics, advertising, or social media tracking cookies — see our Cookie Policy for details. You may withdraw your consent at any time without affecting the lawfulness of processing prior to withdrawal.`
   },
   {
     title: '5. How Long We Keep Your Data',
