@@ -97,8 +97,34 @@ Save these — the frontend env file needs several of them.
 
 ## 2. Fill in the secrets
 
-Base44 was holding your Stripe, Twilio, Resend, and Irish NCR API keys. Put
-the real values into the secret CDK created:
+**The stack does not create or manage `automax/app-secrets` -- it only
+references it by name.** This is deliberate: CDK reasserting hardcoded
+secret values on every deploy is a footgun that silently wiped the real
+Stripe key back to a placeholder on 2026-09-28 and killed checkout for a
+day. Real values live only in Secrets Manager and `cdk deploy` never
+touches them.
+
+On a **brand-new environment**, create the secret once before the first
+`cdk deploy` (the stack will fail to synth/deploy otherwise):
+
+```bash
+aws secretsmanager create-secret \
+  --name automax/app-secrets \
+  --secret-string '{
+    "STRIPE_SECRET_KEY": "sk_live_...",
+    "STRIPE_WEBHOOK_SECRET": "whsec_...",
+    "TWILIO_ACCOUNT_SID": "AC...",
+    "TWILIO_AUTH_TOKEN": "...",
+    "TWILIO_PHONE_NUMBER": "+353...",
+    "RESEND_API_KEY": "re_...",
+    "IRISH_NCR_API_KEY": "..."
+  }'
+```
+
+To rotate or update values afterward (on this or any existing
+environment), use `put-secret-value` with the full JSON object -- it
+replaces the whole secret, so fetch the current value first if you're
+only changing one key:
 
 ```bash
 aws secretsmanager put-secret-value \
