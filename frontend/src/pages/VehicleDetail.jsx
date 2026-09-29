@@ -210,7 +210,7 @@ export default function VehicleDetail() {
       car.mileage ? `· ${car.mileage}` : '',
       car.fuel || car.engine ? `· ${car.fuel || car.engine}` : '',
     ].filter(Boolean).join(' ');
-    const description = `${descParts}. View photos, full specs and contact the seller on AutoMax — Ireland's largest car marketplace.`;
+    const description = `${descParts}. View photos, full specs and contact the seller on AutoMax.`;
     const image = galleryImages?.[0] || car.image;
     const url = window.location.origin + `/vehicle/${car.id}`;
 

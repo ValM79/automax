@@ -92,7 +92,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-background/10 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-background/40 text-center">© 2026 AutoMax. All rights reserved. Ireland's largest car marketplace.</p>
+            <p className="text-xs text-background/40 text-center">© 2026 AutoMax. All rights reserved.</p>
             
           </div>
         </div>
