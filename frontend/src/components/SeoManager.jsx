@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const DEFAULT_SEO = {
-  title: "AutoMax — Ireland's Largest Car Marketplace",
-  description: "Buy and sell cars, vans, motorbikes, boats and more on AutoMax — Ireland's largest motor marketplace. Thousands of new and used vehicles from dealers and private sellers."
+  title: "AutoMax — Buy and Sell Vehicles in Ireland",
+  description: "Buy and sell cars, vans, motorbikes, boats and more on AutoMax, a marketplace for vehicles of every kind in Ireland."
 };
 
 const routeSeo = {
@@ -34,21 +34,21 @@ const routeSeo = {
   '/other-motor': { title: 'Other Motor Vehicles For Sale | AutoMax', description: 'Browse other motor vehicles for sale in Ireland on AutoMax.' },
   '/motorbike-extras': { title: 'Motorbike Extras For Sale | AutoMax', description: 'Browse motorbike extras and accessories for sale in Ireland on AutoMax.' },
   '/bikes-bicycles': { title: 'Bikes & Bicycles For Sale | AutoMax', description: 'Browse bikes and bicycles for sale in Ireland on AutoMax.' },
-  '/place-ad': { title: 'Place an Ad — Sell Your Car | AutoMax', description: "Sell your car, van or motorbike on AutoMax — Ireland's largest car marketplace. Place your ad in minutes and reach thousands of buyers." },
+  '/place-ad': { title: 'Place an Ad — Sell Your Car | AutoMax', description: "Sell your car, van or motorbike on AutoMax. Place your ad in minutes and reach buyers across Ireland." },
   '/dealers': { title: 'Find Car Dealers in Ireland | AutoMax', description: 'Search trusted car dealers across Ireland. Browse dealership inventories and find your next vehicle on AutoMax.' },
   '/car-rent': { title: 'Car Rental in Ireland | AutoMax', description: 'Find car rental options across Ireland on AutoMax.' },
   '/recovery-service': { title: 'Vehicle Recovery Service | AutoMax', description: 'Find vehicle recovery services across Ireland on AutoMax.' },
   '/buying-tips': { title: 'Car Buying Tips & Guides | AutoMax', description: 'Expert tips and guides for buying a car in Ireland. Learn how to inspect, negotiate and buy safely on AutoMax.' },
   '/selling-tips': { title: 'Car Selling Tips & Guides | AutoMax', description: 'Learn how to sell your car fast and safely on AutoMax. Expert tips for creating great ads and closing deals.' },
   '/how-to-sell-my-car': { title: 'How To Sell My Car | AutoMax', description: 'Step-by-step guide to selling your car on AutoMax. List your vehicle, reach buyers and complete the sale safely.' },
-  '/about-us': { title: 'About AutoMax | AutoMax', description: "Learn about AutoMax, Ireland's largest car marketplace. Our mission is to make buying and selling vehicles simple and safe." },
+  '/about-us': { title: 'About AutoMax | AutoMax', description: "Learn about AutoMax, a new marketplace for buying and selling vehicles in Ireland." },
   '/contact-us': { title: 'Contact Us | AutoMax', description: "Get in touch with the AutoMax team. We're here to help with any questions about buying or selling vehicles." },
-  '/terms-and-conditions': { title: 'Terms & Conditions | AutoMax', description: 'Read the terms and conditions for using AutoMax — Ireland’s largest car marketplace.' },
+  '/terms-and-conditions': { title: 'Terms & Conditions | AutoMax', description: 'Read the terms and conditions for using AutoMax.' },
   '/privacy-policy': { title: 'Privacy Policy | AutoMax', description: 'Read the AutoMax privacy policy to understand how we handle your data.' },
   '/cookie-policy': { title: 'Cookie Policy | AutoMax', description: 'Read the AutoMax cookie policy to understand how we use cookies.' },
   '/help': { title: 'Help & Support | AutoMax', description: 'Find answers to common questions and get support for buying and selling on AutoMax.' },
-  '/reviews-gallery': { title: 'Reviews Gallery | AutoMax', description: 'Read customer reviews and testimonials about AutoMax — Ireland’s largest car marketplace.' },
-  '/career': { title: 'Careers at AutoMax | AutoMax', description: 'Explore career opportunities at AutoMax — Ireland’s largest car marketplace.' },
+  '/reviews-gallery': { title: 'Reviews Gallery | AutoMax', description: 'Read customer reviews and testimonials about AutoMax.' },
+  '/career': { title: 'Careers at AutoMax | AutoMax', description: 'Explore career opportunities at AutoMax.' },
   '/login': { title: 'Login | AutoMax', description: 'Log in to your AutoMax account to manage your ads, messages and favourites.' },
   '/create-account': { title: 'Create Account | AutoMax', description: 'Create a free AutoMax account to place ads, save favourites and message sellers.' },
 };
@@ -120,7 +120,7 @@ export default function SeoManager() {
       const make = decodeURIComponent(pathname.split('/cars-by-make/')[1]);
       seo = { title: `${make} Cars For Sale in Ireland | AutoMax`, description: `Browse ${make} cars for sale across Ireland. Find new and used ${make} vehicles from dealers and private sellers on AutoMax.` };
     } else if (pathname.startsWith('/vehicle/')) {
-      seo = { title: 'Vehicle Details | AutoMax', description: 'View vehicle details, photos, specs and seller information on AutoMax — Ireland’s largest car marketplace.' };
+      seo = { title: 'Vehicle Details | AutoMax', description: 'View vehicle details, photos, specs and seller information on AutoMax.' };
     } else if (pathname.startsWith('/seller-ads/')) {
       seo = { title: 'Seller Listings | AutoMax', description: 'Browse all vehicle listings from this seller on AutoMax.' };
     } else if (pathname.startsWith('/edit-ad/')) {
@@ -149,7 +149,7 @@ export default function SeoManager() {
             name: 'AutoMax',
             url: origin,
             logo: '/img/ca07bfd68_generated_image.jpg',
-            description: "Ireland's largest car marketplace for buying and selling vehicles.",
+            description: "A marketplace for buying and selling vehicles in Ireland.",
             areaServed: { '@type': 'Country', name: 'Ireland' }
           },
           {
