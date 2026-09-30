@@ -87,9 +87,11 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
 
       <div className={isGrid ? 'flex flex-col' : 'flex flex-col sm:flex-row'}>
 
-        {/* Image section */}
-        <div className={`flex-shrink-0 w-full ${isGrid ? '' : 'sm:w-48'}`}>
-          <div className="relative aspect-square">
+        {/* Image section -- sized/shaped to match DoneDeal's reference card
+            (measured live: 360x270, a 4:3 ratio) instead of the old 192x192
+            square, which made photos look cramped next to the info panel. */}
+        <div className={`flex-shrink-0 w-full ${isGrid ? '' : 'sm:w-80'}`}>
+          <div className="relative aspect-[4/3]">
             {/* Spotlight badge on image */}
             {item.spotlight &&
             <span className="absolute top-2 left-0 bg-secondary text-white text-xs font-semibold px-2.5 py-1 z-10" style={{ borderRadius: '0 4px 4px 0' }}>
@@ -98,7 +100,14 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
             }
 
             {item.image ?
-            <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> :
+            <>
+              {/* Same blurred-backdrop + contain treatment as the vehicle detail
+                  gallery (see ImageGallery.jsx) -- a plain object-cover here crops
+                  portrait/ultra-wide phone photos just as badly, just at a smaller
+                  size. Same src reused for the backdrop, so no extra request. */}
+              <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50" />
+              <img src={item.image} alt={item.title} className="relative w-full h-full object-contain" />
+            </> :
             <div className="w-full h-full bg-secondary flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo</span></div>
             }
             <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
