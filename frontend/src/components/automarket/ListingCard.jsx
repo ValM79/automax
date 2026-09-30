@@ -87,9 +87,11 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
 
       <div className={isGrid ? 'flex flex-col' : 'flex flex-col sm:flex-row'}>
 
-        {/* Image section */}
-        <div className={`flex-shrink-0 w-full ${isGrid ? '' : 'sm:w-48'}`}>
-          <div className="relative aspect-square">
+        {/* Image section -- sized/shaped to match DoneDeal's reference card
+            (measured live: 360x270, a 4:3 ratio) instead of the old 192x192
+            square, which made photos look cramped next to the info panel. */}
+        <div className={`flex-shrink-0 w-full ${isGrid ? '' : 'sm:w-80'}`}>
+          <div className="relative aspect-[4/3]">
             {/* Spotlight badge on image */}
             {item.spotlight &&
             <span className="absolute top-2 left-0 bg-secondary text-white text-xs font-semibold px-2.5 py-1 z-10" style={{ borderRadius: '0 4px 4px 0' }}>
