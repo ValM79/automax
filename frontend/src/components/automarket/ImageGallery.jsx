@@ -151,7 +151,7 @@ export default function ImageGallery({ images = [], title = '' }) {
 
   if (photos.length === 0) {
     return (
-      <div className="overflow-hidden bg-secondary h-72 sm:h-96 flex items-center justify-center">
+      <div className="overflow-hidden bg-secondary aspect-[4/3] flex items-center justify-center">
         <span className="text-muted-foreground">No photos available</span>
       </div>
     );
@@ -164,7 +164,7 @@ export default function ImageGallery({ images = [], title = '' }) {
       <div className="block">
       {/* Infinite carousel */}
       <div
-        className="relative overflow-hidden bg-foreground h-72 sm:h-[420px] cursor-pointer"
+        className="relative overflow-hidden bg-foreground aspect-[4/3] cursor-pointer"
         onClick={() => openLightbox(displayIndex)}
       >
         <div
@@ -173,13 +173,26 @@ export default function ImageGallery({ images = [], title = '' }) {
           onTransitionEnd={handleTransitionEnd}
         >
           {extendedPhotos.map((photo, i) => (
-            <img
-              key={i}
-              src={photo}
-              alt={`${title} - photo ${(i % photos.length) + 1}`}
-              className="w-full h-full object-cover flex-[0_0_100%]"
-              draggable={false}
-            />
+            <div key={i} className="relative w-full h-full flex-[0_0_100%] overflow-hidden">
+              {/* Blurred, scaled-up copy fills the box regardless of the photo's own
+                  aspect ratio -- phone photos range from ultra-wide to portrait, and
+                  cropping to fit a fixed box was the "doesn't reflect the original
+                  size" complaint. Same src as the real image below, so the browser
+                  serves it from cache -- no extra network request. */}
+              <img
+                src={photo}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"
+                draggable={false}
+              />
+              <img
+                src={photo}
+                alt={`${title} - photo ${(i % photos.length) + 1}`}
+                className="relative w-full h-full object-contain"
+                draggable={false}
+              />
+            </div>
           ))}
         </div>
 
