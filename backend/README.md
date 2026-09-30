@@ -302,6 +302,30 @@ Once you've tested the AWS-hosted version end-to-end on the CloudFront domain:
    addresses (already used as-is in `submitContactForm`/`downloadReceipt`) —
    no code change needed there, just DNS.
 
+## Staging environment
+
+A second, frontend-only S3 bucket + CloudFront distribution for testing
+polish/UI changes on a safe URL before they reach automax.ie. It shares
+production's API/Cognito/DynamoDB — cheap and quick to stand up, but not
+data-isolated: placing or editing an ad on staging still writes a real row.
+
+1. `cdk deploy` (no new env vars needed) creates `StagingFrontendBucketName`
+   and `StagingFrontendDistributionDomain` — usable immediately on their
+   `*.cloudfront.net` domain, no DNS/cert required to start testing.
+2. Deploy the same build to it: `npm run build` (same `.env.local` as prod —
+   staging talks to the same backend) then
+   ```bash
+   aws s3 sync dist/ s3://<StagingFrontendBucketName> --delete
+   aws cloudfront create-invalidation --distribution-id <staging-dist-id> --paths "/*"
+   ```
+3. Optional custom domain (`staging.automax.ie`): request an ACM cert in
+   us-east-1 for it, add the DNS validation CNAME on Cloudflare (DNS is on
+   Cloudflare, not Route 53, so this step is manual, not CDK-automated), then
+   once `ISSUED`, redeploy with
+   `AUTOMAX_STAGING_DOMAIN_NAME=staging.automax.ie` and
+   `AUTOMAX_STAGING_CERT_ARN=<cert arn>` set, and point `staging.automax.ie`
+   at `StagingFrontendDistributionDomain` (CNAME) on Cloudflare.
+
 ## Testing checklist before go-live
 
 - [ ] Sign up, confirm email, log in, log out (email/password)
