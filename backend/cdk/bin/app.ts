@@ -14,4 +14,6 @@ new AutomaxStack(app, 'AutomaxStack', {
   domainName: process.env.AUTOMAX_DOMAIN_NAME, // e.g. 'automax.ie'
   certificateArn: process.env.AUTOMAX_CERT_ARN, // ACM cert ARN in us-east-1
   opsAlertEmail: process.env.AUTOMAX_OPS_ALERT_EMAIL, // subscribed to the ops-alert SNS topic
+  stagingDomainName: process.env.AUTOMAX_STAGING_DOMAIN_NAME, // e.g. 'staging.automax.ie' -- optional, works on *.cloudfront.net without it
+  stagingCertificateArn: process.env.AUTOMAX_STAGING_CERT_ARN, // ACM cert ARN in us-east-1, only needed once stagingDomainName is set
 });

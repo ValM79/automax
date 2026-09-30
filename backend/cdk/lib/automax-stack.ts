@@ -30,6 +30,18 @@ export interface AutomaxStackProps extends cdk.StackProps {
    * then click the confirmation link SNS emails you.
    */
   opsAlertEmail?: string;
+  /**
+   * Staging frontend -- a second S3 bucket + CloudFront distribution serving
+   * the same build output, so polish/UI changes can be tested on a safe URL
+   * before they reach automax.ie. Deliberately frontend-only: it talks to the
+   * SAME API/Cognito/DynamoDB as production (see httpApi's `allowOrigins:
+   * ['*']` below), so it's free to stand up but isn't data-isolated -- actions
+   * like placing or editing an ad still write real rows. If left unset, the
+   * staging distribution is still created but serves only on its own
+   * *.cloudfront.net domain (no custom domain/cert needed to start testing).
+   */
+  stagingDomainName?: string;
+  stagingCertificateArn?: string;
 }
 
 /**
@@ -330,9 +342,11 @@ export class AutomaxStack extends cdk.Stack {
         scopes: [cognito.OAuthScope.EMAIL, cognito.OAuthScope.OPENID, cognito.OAuthScope.PROFILE],
         callbackUrls: [
           props?.domainName ? `https://${props.domainName}/auth/callback` : 'http://localhost:5173/auth/callback',
+          ...(props?.stagingDomainName ? [`https://${props.stagingDomainName}/auth/callback`] : []),
         ],
         logoutUrls: [
           props?.domainName ? `https://${props.domainName}/login` : 'http://localhost:5173/login',
+          ...(props?.stagingDomainName ? [`https://${props.stagingDomainName}/login`] : []),
         ],
       },
       // NOTE: Google/Apple sign-in ("Continue with Google/Apple" on the Login page)
@@ -405,6 +419,40 @@ export class AutomaxStack extends cdk.Stack {
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
+    });
+
+    // Staging frontend -- same build, deployed separately (see backend/README.md)
+    // so it never shares an origin/cache with production. See the prop doc
+    // comment above for why this is frontend-only (shared API/DB with prod).
+    const stagingFrontendBucket = new s3.Bucket(this, 'AutomaxStagingFrontendBucket', {
+      bucketName: `automax-frontend-staging-${this.account}-${this.region}`,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+    const stagingFrontendOai = new cloudfront.OriginAccessIdentity(this, 'StagingFrontendOAI');
+    stagingFrontendBucket.grantRead(stagingFrontendOai);
+
+    const stagingCertificate = props?.stagingCertificateArn
+      ? acm.Certificate.fromCertificateArn(this, 'StagingCert', props.stagingCertificateArn)
+      : undefined;
+
+    const stagingFrontendDistribution = new cloudfront.Distribution(this, 'StagingFrontendDistribution', {
+      defaultRootObject: 'index.html',
+      domainNames: props?.stagingDomainName ? [props.stagingDomainName] : undefined,
+      certificate: stagingCertificate,
+      defaultBehavior: {
+        origin: new origins.S3Origin(stagingFrontendBucket, { originAccessIdentity: stagingFrontendOai }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        // Staging needs to reflect a fresh deploy immediately, not wait out
+        // production's long cache TTLs -- CACHING_OPTIMIZED respects
+        // Cache-Control from S3 (same as prod), but every staging deploy also
+        // invalidates the distribution, same as prod's deploy step.
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+      },
+      errorResponses: [
+        { httpStatus: 403, responseHttpStatus: 200, responsePagePath: '/index.html' },
+        { httpStatus: 404, responseHttpStatus: 200, responsePagePath: '/index.html' },
+      ],
     });
 
     // NOTE: the frontend bucket's *contents* are deliberately not managed by
@@ -612,6 +660,8 @@ export class AutomaxStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'FrontendDistributionDomain', { value: frontendDistribution.distributionDomainName });
     new cdk.CfnOutput(this, 'PhotosBucketName', { value: photosBucket.bucketName });
     new cdk.CfnOutput(this, 'PhotosDistributionDomain', { value: photosDistribution.distributionDomainName });
+    new cdk.CfnOutput(this, 'StagingFrontendBucketName', { value: stagingFrontendBucket.bucketName });
+    new cdk.CfnOutput(this, 'StagingFrontendDistributionDomain', { value: stagingFrontendDistribution.distributionDomainName });
     new cdk.CfnOutput(this, 'OpsAlertTopicArn', { value: opsAlertTopic.topicArn });
   }
 }
