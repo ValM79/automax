@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link, useNavigationType } from 'react-router-do
 import { Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
+import { uploadPhotos } from '@/lib/photoUpload';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import MobileSelect from '../components/automarket/MobileSelect';
@@ -191,19 +192,8 @@ export default function EditAd() {
   };
 
   const uploadNewPhotos = async () => {
-    return await Promise.all(
-      newPhotos.map(async (p) => {
-        try {
-          const res = await fetch(p.preview);
-          const blob = await res.blob();
-          const file = new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' });
-          const result = await api.integrations.Core.UploadFile({ file });
-          return result.file_url;
-        } catch {
-          return null;
-        }
-      })
-    ).then(urls => urls.filter(Boolean));
+    if (newPhotos.length === 0) return [];
+    return uploadPhotos(newPhotos);
   };
 
   const validateForm = () => {
@@ -270,7 +260,7 @@ export default function EditAd() {
       });
       navigate('/my-ads');
     } catch (e) {
-      setError('Failed to save changes. Please try again.');
+      setError(e?.message || 'Failed to save changes. Please try again.');
     } finally {
       setSaving(false);
     }

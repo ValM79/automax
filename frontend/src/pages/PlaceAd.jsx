@@ -9,6 +9,7 @@ import AdPreview from '../components/automarket/AdPreview';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import keywordToCategory from '@/lib/keywordToCategory';
+import { uploadPhotos } from '@/lib/photoUpload';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
@@ -388,72 +389,6 @@ export default function PlaceAd() {
     e.preventDefault();
     setDragOver(false);
     handleFiles(e.dataTransfer.files);
-  };
-
-  // Phone cameras routinely produce 4000px+, multi-MB JPEGs. Uploading a
-  // dozen of those in parallel over a mobile connection reliably times some
-  // of them out -- capping the long edge at 2000px keeps photos sharp at any
-  // size we ever display (including the full-screen lightbox) while cutting
-  // typical file size by roughly 10x, so all uploads actually succeed.
-  const resizeImageForUpload = (file, maxDimension = 2000, quality = 0.85) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height / width) * maxDimension);
-            width = maxDimension;
-          } else {
-            width = Math.round((width / height) * maxDimension);
-            height = maxDimension;
-          }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { reject(new Error('Could not process image')); return; }
-            resolve(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
-          },
-          'image/jpeg',
-          quality
-        );
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
-      img.src = url;
-    });
-  };
-
-  const uploadPhotos = async (photoList) => {
-    const results = await Promise.all(
-      photoList.map(async (p) => {
-        try {
-          const resized = await resizeImageForUpload(p.file);
-          const result = await api.integrations.Core.UploadFile({ file: resized });
-          return { url: result.file_url };
-        } catch (err) {
-          return { error: err?.message || 'Upload failed' };
-        }
-      })
-    );
-    const failedCount = results.filter((r) => r.error).length;
-    if (failedCount > 0) {
-      // Fail the whole listing rather than silently publishing it with
-      // fewer photos than the seller actually chose -- that's the bug this
-      // replaces (12 uploaded, only 3 ever made it into the ad, with no
-      // indication anything had gone wrong).
-      throw new Error(
-        failedCount === photoList.length
-          ? 'All photos failed to upload. Please check your connection and try again.'
-          : `${failedCount} of ${photoList.length} photos failed to upload. Please try again.`
-      );
-    }
-    return results.map((r) => r.url);
   };
 
   // While auth is resolving or the user is being redirected to login, don't render the form.
