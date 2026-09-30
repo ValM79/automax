@@ -98,7 +98,14 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
             }
 
             {item.image ?
-            <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> :
+            <>
+              {/* Same blurred-backdrop + contain treatment as the vehicle detail
+                  gallery (see ImageGallery.jsx) -- a plain object-cover here crops
+                  portrait/ultra-wide phone photos just as badly, just at a smaller
+                  size. Same src reused for the backdrop, so no extra request. */}
+              <img src={item.image} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-50" />
+              <img src={item.image} alt={item.title} className="relative w-full h-full object-contain" />
+            </> :
             <div className="w-full h-full bg-secondary flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo</span></div>
             }
             <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
