@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
 
 /**
  * Ensures the Android hardware back button (the ◁ system back arrow) AND
  * any in-app "back" control (which calls navigate(-1) → history.back())
  * work inside the app WebView on real devices (e.g. Galaxy A71).
  *
- * Root cause: some Android WebViews change the browser URL on system back
+ * Root cause #1: some Android WebViews change the browser URL on system back
  * but do NOT fire a `popstate` event, so React Router never notices the
  * URL changed and the view stays on the old page.
  *
@@ -21,6 +23,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
  *   DOES fire a real popstate.
  * - If the divergence persists beyond `FORCE_SYNC_MS` we dispatch anyway,
  *   so a stuck guard flag can never permanently break back navigation.
+ *
+ * Root cause #2: Capacitor's own default Android back-button behavior asks
+ * the native WebView `canGoBack()` -- and exits the whole app the moment
+ * that's false. That native signal doesn't reliably track SPA (pushState)
+ * navigation on every device/WebView version, so a user several pages deep
+ * in the app can press back and have the app quit instead of navigating up,
+ * even though React Router itself still has plenty of history to go back
+ * through.
+ *
+ * Fix: register our own `backButton` listener (requires `@capacitor/app`)
+ * and stop trusting the native signal entirely -- decide purely from
+ * `history.state.idx`, which React Router's BrowserRouter sets on every
+ * entry it pushes. If we're not at the first entry since launch, go back
+ * one step in OUR history; only exit the app once we truly are.
  */
 const FORCE_SYNC_MS = 300;
 
@@ -31,6 +47,23 @@ export default function HardwareBackHandler() {
 
   // Update synchronously during render so the ref is always current.
   routerPathRef.current = location.pathname;
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const listenerPromise = CapacitorApp.addListener('backButton', () => {
+      const idx = window.history.state?.idx;
+      if (typeof idx === 'number' && idx > 0) {
+        navigate(-1);
+      } else {
+        CapacitorApp.exitApp();
+      }
+    });
+
+    return () => {
+      listenerPromise.then((listener) => listener.remove());
+    };
+  }, [navigate]);
 
   useEffect(() => {
     let routerNavigating = false;
