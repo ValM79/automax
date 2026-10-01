@@ -27,6 +27,14 @@
 	     App Store Connect / TestFlight. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Place Ad's photo picker (<input type="file" accept="image/*">) lets WebKit
+	     offer "Take Photo" / "Photo Library" in its native action sheet. Without
+	     these keys, choosing "Take Photo" crashes the app instead of prompting —
+	     iOS terminates apps that touch camera/photo APIs with no usage string. -->
+	<key>NSCameraUsageDescription</key>
+	<string>AutoMax needs camera access so you can take photos of your vehicle when placing an ad.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AutoMax needs photo library access so you can choose photos of your vehicle when placing an ad.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

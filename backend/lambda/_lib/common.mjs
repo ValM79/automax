@@ -18,6 +18,7 @@ export const TABLES = {
   ReportAd: process.env.REPORTAD_TABLE,
   VerificationCode: process.env.VERIFICATIONCODE_TABLE,
   User: process.env.USERPROFILE_TABLE,
+  ApplePurchase: process.env.APPLEPURCHASE_TABLE,
 };
 
 export function newId() {

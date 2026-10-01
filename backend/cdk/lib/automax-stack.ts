@@ -162,6 +162,19 @@ export class AutomaxStack extends cdk.Stack {
       pointInTimeRecovery: true,
     });
 
+    // Records every Apple IAP transaction ID that has activated a listing.
+    // verifyAppleTransaction does a conditional Put here (attribute_not_exists)
+    // as an atomic claim before activating an ad -- without it, the same
+    // StoreKit purchase could be replayed to activate multiple ads for free,
+    // exactly the outcome the whole IAP integration exists to prevent.
+    const applePurchaseTable = new dynamodb.Table(this, 'ApplePurchaseTable', {
+      tableName: 'Automax-ApplePurchase',
+      partitionKey: { name: 'transactionId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+    });
+
     // ----------------------------------------------------------------------
     // Cognito — replaces Base44's built-in auth
     // ----------------------------------------------------------------------
@@ -488,6 +501,7 @@ export class AutomaxStack extends cdk.Stack {
         REPORTAD_TABLE: reportAdTable.tableName,
         VERIFICATIONCODE_TABLE: verificationCodeTable.tableName,
         USERPROFILE_TABLE: userProfileTable.tableName,
+        APPLEPURCHASE_TABLE: applePurchaseTable.tableName,
         PHOTOS_BUCKET: photosBucket.bucketName,
         PHOTOS_CDN_DOMAIN: photosDistribution.distributionDomainName,
         APP_SECRETS_ARN: appSecrets.secretArn,
@@ -538,6 +552,14 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'stripeWebhook', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // iOS equivalent of stripeWebhook -- activates a paid ad after verifying a
+    // StoreKit purchase directly with Apple's App Store Server API (Guideline
+    // 3.1.1: paid content on iOS must go through In-App Purchase, not Stripe).
+    const verifyAppleTransactionFn = new lambdaNode.NodejsFunction(this, 'VerifyAppleTransactionFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'verifyAppleTransaction', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const submitContactFormFn = new lambdaNode.NodejsFunction(this, 'SubmitContactFormFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'submitContactForm', 'index.mjs'),
@@ -565,7 +587,7 @@ export class AutomaxStack extends cdk.Stack {
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
       downloadReceiptFn, sendVerificationCodeFn, stripeWebhookFn, verifyCodeFn, presignUploadFn,
-      submitContactFormFn, getVehicleDetailsFn, updateProfileFn,
+      submitContactFormFn, getVehicleDetailsFn, updateProfileFn, verifyAppleTransactionFn,
     ]) {
       userAdTable.grantReadWriteData(fn);
       messageTable.grantReadWriteData(fn);
@@ -574,6 +596,7 @@ export class AutomaxStack extends cdk.Stack {
       userProfileTable.grantReadWriteData(fn);
       appSecrets.grantRead(fn);
     }
+    applePurchaseTable.grantReadWriteData(verifyAppleTransactionFn);
     photosBucket.grantReadWrite(entityApiFn);
     photosBucket.grantPut(presignUploadFn);
     deleteAccountFn.addToRolePolicy(
@@ -645,6 +668,9 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/verifyCode', apigw.HttpMethod.POST, verifyCodeFn, false);
     route('/functions/submitContactForm', apigw.HttpMethod.POST, submitContactFormFn, false);
     route('/functions/updateProfile', apigw.HttpMethod.POST, updateProfileFn, false);
+    // Auth enforced inside the Lambda (getUserFromEvent), same as createCheckoutSession —
+    // it needs the caller's identity to check ad ownership before activating anything.
+    route('/functions/verifyAppleTransaction', apigw.HttpMethod.POST, verifyAppleTransactionFn, false);
     // Stripe webhook is called by Stripe's servers, never the browser — no CORS/auth needed
     route('/webhooks/stripe', apigw.HttpMethod.POST, stripeWebhookFn, false);
     route('/uploads/presign', apigw.HttpMethod.POST, presignUploadFn, false);
