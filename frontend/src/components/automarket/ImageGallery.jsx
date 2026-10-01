@@ -170,6 +170,34 @@ export default function ImageGallery({ images = [], title = '' }) {
     <>
       <div className="block">
       <div className="lg:flex lg:gap-2">
+      {/* Desktop thumbnail column -- placed before the main photo in both DOM
+          and visual order (lg:flex default), so it renders on the left. This
+          is deliberately mirrored from the common main-left/thumbs-right
+          pattern (e.g. DoneDeal) to keep our layout visually distinct rather
+          than a lookalike, while keeping the same functional benefit. */}
+      {photos.length > 1 && (
+        <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-2 flex-shrink-0">
+          {Array.from({ length: thumbSlots }).map((_, i) => {
+            const photoIndex = i + 1;
+            const isOverlayTile = showOverlay && i === thumbSlots - 1;
+            return (
+              <button
+                key={photoIndex}
+                onClick={() => isOverlayTile ? openLightbox(photoIndex) : selectPhoto(photoIndex)}
+                className="relative flex-1 min-h-0 overflow-hidden rounded-lg"
+              >
+                <img src={photos[photoIndex]} alt={`Thumbnail ${photoIndex + 1}`} className="w-full h-full object-cover" />
+                {isOverlayTile && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span className="text-white text-2xl font-bold">+{photos.length - 3}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Infinite carousel */}
       <div
         className="relative overflow-hidden bg-foreground aspect-[4/3] lg:aspect-auto lg:flex-1 lg:h-[420px] cursor-pointer"
@@ -209,6 +237,22 @@ export default function ImageGallery({ images = [], title = '' }) {
           <Camera className="w-3 h-3" /> {photos.length}
         </div>
 
+        {/* Dot pagination */}
+        {photos.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            {photos.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); selectPhoto(i); }}
+                aria-label={`Go to photo ${i + 1}`}
+                className={`rounded-full transition-all ${
+                  i === displayIndex ? 'w-2 h-2 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/75'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Nav arrows */}
         {photos.length > 1 && (
           <>
@@ -227,30 +271,6 @@ export default function ImageGallery({ images = [], title = '' }) {
           </>
         )}
       </div>
-
-      {/* Desktop thumbnail column */}
-      {photos.length > 1 && (
-        <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-2 flex-shrink-0">
-          {Array.from({ length: thumbSlots }).map((_, i) => {
-            const photoIndex = i + 1;
-            const isOverlayTile = showOverlay && i === thumbSlots - 1;
-            return (
-              <button
-                key={photoIndex}
-                onClick={() => isOverlayTile ? openLightbox(photoIndex) : selectPhoto(photoIndex)}
-                className="relative flex-1 min-h-0 overflow-hidden rounded-lg"
-              >
-                <img src={photos[photoIndex]} alt={`Thumbnail ${photoIndex + 1}`} className="w-full h-full object-cover" />
-                {isOverlayTile && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <span className="text-white text-2xl font-bold">+{photos.length - 3}</span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
       </div>
 
       {/* Horizontal thumbnails -- mobile/tablet only; lg+ uses the column above */}
