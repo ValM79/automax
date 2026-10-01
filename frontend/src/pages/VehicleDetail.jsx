@@ -318,7 +318,7 @@ export default function VehicleDetail() {
             </div>
 
             {/* Title + price */}
-            <div className="lg:order-3 lg:w-full px-4 pt-4 pb-4 relative bg-[hsl(var(--secondary))]">
+            <div className="lg:order-3 lg:w-full px-4 pt-4 pb-4 relative">
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-medium text-foreground capitalize text-lg">{car.title}</h1>
               </div>
@@ -377,7 +377,7 @@ export default function VehicleDetail() {
           </div>
 
         {/* Some information & Report Ad */}
-        <div className="bg-secondary max-w-5xl mx-auto px-4 pb-8">
+        <div className="max-w-5xl mx-auto px-4 pb-8">
           <hr className="border-border my-4" />
           <p className="text-xs text-muted-foreground leading-relaxed">
             Some information shown may come from third-party sources or be identified using AI. As a result, it may not always be accurate, complete, or up to date.{' '}
