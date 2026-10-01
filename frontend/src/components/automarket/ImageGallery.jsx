@@ -200,7 +200,7 @@ export default function ImageGallery({ images = [], title = '' }) {
 
       {/* Infinite carousel */}
       <div
-        className="relative overflow-hidden bg-white aspect-[4/3] lg:aspect-auto lg:flex-1 lg:h-[420px] cursor-pointer"
+        className="relative overflow-hidden bg-foreground aspect-[4/3] lg:aspect-auto lg:flex-1 lg:h-[420px] cursor-pointer"
         onClick={() => openLightbox(displayIndex)}
       >
         <div
@@ -213,7 +213,7 @@ export default function ImageGallery({ images = [], title = '' }) {
               <img
                 src={photo}
                 alt={`${title} - photo ${(i % photos.length) + 1}`}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 draggable={false}
               />
             </div>
