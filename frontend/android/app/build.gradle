@@ -18,7 +18,7 @@ android {
         applicationId "com.base69ceb6b4f41f5a2cee0c7016.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 32
+        versionCode 33
         versionName "2.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
