@@ -318,7 +318,7 @@ export default function VehicleDetail() {
             </div>
 
             {/* Title + price */}
-            <div className="lg:order-3 lg:w-full px-4 pt-4 pb-4 relative">
+            <div className="lg:order-3 lg:w-full px-4 pt-4 pb-4 relative border-t border-b border-border">
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-medium text-foreground capitalize text-lg">{car.title}</h1>
               </div>
