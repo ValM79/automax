@@ -305,15 +305,20 @@ export default function VehicleDetail() {
           <span className="text-foreground font-medium">{car.title}</span>
         </div>
 
-        <div className="flex flex-col gap-5">
+        {/* lg+: SellerCard sits beside the gallery (flex-wrap + order lets the
+            row hold just those two, while Title/Description still wrap onto
+            their own full-width rows below -- no DOM reordering needed, so
+            mobile keeps its original stacked order for free). */}
+        <div className="flex flex-col lg:flex-row lg:flex-wrap gap-5 lg:items-start">
             {/* Image Gallery */}
-            <ImageGallery
-            images={galleryImages}
-            title={car.title} />
-            
+            <div className="lg:order-2 lg:flex-1 lg:min-w-0">
+              <ImageGallery
+              images={galleryImages}
+              title={car.title} />
+            </div>
 
             {/* Title + price */}
-            <div className="px-4 pt-4 pb-4 relative bg-[hsl(var(--secondary))]">
+            <div className="lg:order-3 lg:w-full px-4 pt-4 pb-4 relative bg-[hsl(var(--secondary))]">
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-medium text-foreground capitalize text-lg">{car.title}</h1>
               </div>
@@ -352,9 +357,14 @@ export default function VehicleDetail() {
             </div>
 
             {/* Description */}
-            <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
+            <div className="lg:order-4 lg:w-full">
+              <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
+            </div>
 
-            {/* Seller info */}
+            {/* Seller info -- lg:order-1 puts it before the gallery visually,
+                mirrored from the common main-photo-first pattern so this page
+                doesn't read as a lookalike of any one reference site. */}
+            <div className="lg:order-1 lg:w-72 lg:flex-shrink-0">
             <SellerCard
             seller={{
               name: sellerName || car.fullName || car.sellerType || 'Private Seller',
@@ -364,7 +374,7 @@ export default function VehicleDetail() {
             }}
             onSendMessage={handleSendMessageClick}
             onViewAllAds={handleViewAllAds} />
-          
+            </div>
           </div>
 
         {/* Some information & Report Ad */}
