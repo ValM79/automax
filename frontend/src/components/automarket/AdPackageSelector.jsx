@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 
 import { api } from '@/api/apiClient';
 
-// Prices re-aligned 2026-09-27 to match Apple's fixed IAP price tiers, so web/Android
-// and iOS customers see the same price (see [[backend/lambda/createCheckoutSession]]
-// for the server-side Price IDs that actually get charged -- these are display copy
-// only, but must stay in sync).
+// Car prices raised 2026-10-01 (0.99/2.99/6.99 -> 2.99/6.99/14.99); bike prices
+// below are unaffected. This breaks the 2026-09-27 price parity with Apple's
+// fixed IAP tiers (still 0.99/2.99/6.99 in App Store Connect) -- fine for now
+// since iOS isn't live, but the IAP tiers need updating to match before iOS
+// ships (see the matching note in backend/lambda/createCheckoutSession).
+// Display copy only -- the server-side Price IDs in createCheckoutSession are
+// what actually gets charged, but must stay in sync with these.
 const packages = [
 {
   name: "Basic",
-  price: '€0.99',
-  priceId: 'price_1UKQ8XLCaYSUWHrbxLP0dPCw',
+  price: '€2.99',
+  priceId: 'price_1ULfXLLCaYSUWHrbtm9T8gW7',
   iosProductId: 'ie.automax.app.listing.car.basic',
   listingDays: 60,
   maxPhotos: 12,
@@ -23,8 +26,8 @@ const packages = [
 },
 {
   name: "Standard",
-  price: '€2.99',
-  priceId: 'price_1UKQAwLCaYSUWHrblYOkaxyQ',
+  price: '€6.99',
+  priceId: 'price_1ULfYNLCaYSUWHrbA4GGQM6s',
   iosProductId: 'ie.automax.app.listing.car.standard',
   listingDays: 72,
   maxPhotos: 12,
@@ -39,8 +42,8 @@ const packages = [
 },
 {
   name: 'Premium',
-  price: '€6.99',
-  priceId: 'price_1UKQDzLCaYSUWHrbdh5Arqie',
+  price: '€14.99',
+  priceId: 'price_1ULfZfLCaYSUWHrbZmyMqnLh',
   iosProductId: 'ie.automax.app.listing.car.premium',
   listingDays: 90,
   maxPhotos: 12,
