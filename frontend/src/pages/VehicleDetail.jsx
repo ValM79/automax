@@ -311,7 +311,7 @@ export default function VehicleDetail() {
             mobile keeps its original stacked order for free). */}
         <div className="flex flex-col lg:flex-row lg:flex-wrap gap-5 lg:items-start">
             {/* Image Gallery */}
-            <div className="lg:order-2 lg:flex-1 lg:min-w-0">
+            <div className="lg:order-1 lg:flex-1 lg:min-w-0">
               <ImageGallery
               images={galleryImages}
               title={car.title} />
@@ -361,10 +361,9 @@ export default function VehicleDetail() {
               <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
             </div>
 
-            {/* Seller info -- lg:order-1 puts it before the gallery visually,
-                mirrored from the common main-photo-first pattern so this page
-                doesn't read as a lookalike of any one reference site. */}
-            <div className="lg:order-1 lg:w-72 lg:flex-shrink-0">
+            {/* Seller info -- lg:order-2 puts it after the gallery visually,
+                so the row reads thumbnail column -> main photo -> seller card. */}
+            <div className="lg:order-2 lg:w-72 lg:flex-shrink-0">
             <SellerCard
             seller={{
               name: sellerName || car.fullName || car.sellerType || 'Private Seller',
