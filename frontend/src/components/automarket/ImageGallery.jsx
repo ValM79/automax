@@ -157,14 +157,22 @@ export default function ImageGallery({ images = [], title = '' }) {
     );
   }
 
-  const remaining = photos.length - 4;
+  // Desktop (lg+) swaps the below-strip layout for a DoneDeal-style side column:
+  // up to 3 slots next to the main photo, the last becoming a "+N" tile once
+  // there are more photos than fit. Below lg there's no room for a side column
+  // next to a full-width hero, so that breakpoint keeps the horizontal strip.
+  const extraCount = photos.length - 1;
+  const showOverlay = extraCount > 3;
+  const thumbSlots = showOverlay ? 2 : Math.min(extraCount, 3);
+  const selectPhoto = (i) => { setNoTransition(false); setActiveIndex(i); };
 
   return (
     <>
       <div className="block">
+      <div className="lg:flex lg:gap-2">
       {/* Infinite carousel */}
       <div
-        className="relative overflow-hidden bg-foreground aspect-[4/3] cursor-pointer"
+        className="relative overflow-hidden bg-foreground aspect-[4/3] lg:aspect-auto lg:flex-1 lg:h-[420px] cursor-pointer"
         onClick={() => openLightbox(displayIndex)}
       >
         <div
@@ -220,13 +228,38 @@ export default function ImageGallery({ images = [], title = '' }) {
         )}
       </div>
 
-      {/* Horizontal thumbnails */}
+      {/* Desktop thumbnail column */}
       {photos.length > 1 && (
-        <div ref={thumbnailRef} className="flex overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-2 flex-shrink-0">
+          {Array.from({ length: thumbSlots }).map((_, i) => {
+            const photoIndex = i + 1;
+            const isOverlayTile = showOverlay && i === thumbSlots - 1;
+            return (
+              <button
+                key={photoIndex}
+                onClick={() => isOverlayTile ? openLightbox(photoIndex) : selectPhoto(photoIndex)}
+                className="relative flex-1 min-h-0 overflow-hidden rounded-lg"
+              >
+                <img src={photos[photoIndex]} alt={`Thumbnail ${photoIndex + 1}`} className="w-full h-full object-cover" />
+                {isOverlayTile && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span className="text-white text-2xl font-bold">+{photos.length - 3}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+      </div>
+
+      {/* Horizontal thumbnails -- mobile/tablet only; lg+ uses the column above */}
+      {photos.length > 1 && (
+        <div ref={thumbnailRef} className="lg:hidden flex overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {photos.map((photo, i) => (
             <button
               key={i}
-              onClick={() => { setNoTransition(false); setActiveIndex(i); }}
+              onClick={() => selectPhoto(i)}
               className={`flex-shrink-0 w-20 h-16 sm:w-28 sm:h-[84px] overflow-hidden relative ${
                 i === displayIndex ? 'border-b-2 border-primary' : ''
               }`}
