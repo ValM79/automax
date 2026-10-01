@@ -18,7 +18,7 @@ export default function Description({ description, sellerName }) {
   if (lines.length === 0) return null;
 
   return (
-    <div className="bg-secondary px-4 py-4">
+    <div className="px-4 py-4">
       <h2 className="text-base font-bold text-foreground mb-4">Description</h2>
       <div className="flex flex-col gap-2.5">
         {visible.map((line, i) => (
