@@ -8,7 +8,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds }) {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
 
   return (
-    <div className="bg-secondary p-4">
+    <div className="p-4">
       <div className="mb-3">
         {location && <p className="font-semibold text-foreground text-base truncate">{location}</p>}
         <h3 className="font-semibold text-foreground text-base truncate">{name}</h3>
