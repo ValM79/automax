@@ -23,7 +23,17 @@ export default function AdPreview({ form, photos, selectedPackage, onClose, onBa
           {photos.length > 0 ?
           <div className="flex flex-col gap-2">
               <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-secondary">
-                <img src={coverPhoto.preview} alt="Cover" className="w-full h-full object-cover" style={{ transform: `rotate(${coverPhoto.rotation || 0}deg)` }} />
+                {/* Same blurred-backdrop + contain treatment as the live gallery/cards
+                    (see ImageGallery.jsx) -- this is literally the screen that prompted
+                    the "doesn't look right" complaint, since it's the last thing sellers
+                    see before publishing. */}
+                <img
+                  src={coverPhoto.preview}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-50"
+                  style={{ transform: `rotate(${coverPhoto.rotation || 0}deg) scale(1.1)` }} />
+                <img src={coverPhoto.preview} alt="Cover" className="relative w-full h-full object-contain" style={{ transform: `rotate(${coverPhoto.rotation || 0}deg)` }} />
                 <div className="absolute top-3 left-3 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
                   ★ COVER
                 </div>
