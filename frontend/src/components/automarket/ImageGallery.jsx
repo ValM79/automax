@@ -184,7 +184,7 @@ export default function ImageGallery({ images = [], title = '' }) {
               <button
                 key={photoIndex}
                 onClick={() => isOverlayTile ? openLightbox(photoIndex) : selectPhoto(photoIndex)}
-                className="relative flex-1 min-h-0 overflow-hidden rounded-lg"
+                className="relative flex-1 min-h-0 overflow-hidden"
               >
                 <img src={photos[photoIndex]} alt={`Thumbnail ${photoIndex + 1}`} className="w-full h-full object-cover" />
                 {isOverlayTile && (
