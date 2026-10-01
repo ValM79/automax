@@ -210,22 +210,10 @@ export default function ImageGallery({ images = [], title = '' }) {
         >
           {extendedPhotos.map((photo, i) => (
             <div key={i} className="relative w-full h-full flex-[0_0_100%] overflow-hidden">
-              {/* Blurred, scaled-up copy fills the box regardless of the photo's own
-                  aspect ratio -- phone photos range from ultra-wide to portrait, and
-                  cropping to fit a fixed box was the "doesn't reflect the original
-                  size" complaint. Same src as the real image below, so the browser
-                  serves it from cache -- no extra network request. */}
-              <img
-                src={photo}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"
-                draggable={false}
-              />
               <img
                 src={photo}
                 alt={`${title} - photo ${(i % photos.length) + 1}`}
-                className="relative w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 draggable={false}
               />
             </div>
