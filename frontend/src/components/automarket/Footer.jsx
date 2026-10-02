@@ -2,7 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 
-const isIOSApp = Capacitor.getPlatform() === 'ios';
+// Inside the Android/iOS apps the store badges are pointless (you're already in the
+// app); on the website, including mobile browsers, they stay so visitors can install it.
+const isNativeApp = Capacitor.isNativePlatform();
 
 const footerSections = [
 {
@@ -54,19 +56,19 @@ export default function Footer() {
               
             </div>
 
-            {/* Download our App */}
+            {/* Download our App -- website only */}
+            {!isNativeApp &&
             <div>
               <p className="text-background text-sm font-semibold mb-3">Download our App</p>
               <div className="flex flex-col gap-1 items-center justify-center w-full">
                 <a href="#" className="hover:opacity-80 transition-opacity w-full">
                   <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" className="h-12 w-full object-contain" />
                 </a>
-                {!isIOSApp &&
                 <a href="https://play.google.com/store/apps/details?id=com.base69ceb6b4f41f5a2cee0c7016.app" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity w-full">
                   <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="h-16 w-full object-contain" />
-                </a>}
+                </a>
               </div>
-            </div>
+            </div>}
           </div>
 
           {/* Nav link columns */}
