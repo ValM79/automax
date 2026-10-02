@@ -21,7 +21,10 @@ export default function OtherSelect({ value, onChange, options, placeholder = 'S
           value={value === '__other__' ? '' : value}
           onChange={(e) => onChange(e.target.value || '__other__')}
           placeholder={enterLabel}
-          autoFocus
+          // Only focus when the user has just picked "Other" and has nothing typed yet;
+          // an already-saved custom value (e.g. when editing an ad) must not steal
+          // focus and scroll the page to this field on load.
+          autoFocus={value === '__other__'}
           className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary pr-9"
         />
         <X
