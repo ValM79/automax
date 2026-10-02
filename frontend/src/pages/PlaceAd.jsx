@@ -578,14 +578,14 @@ export default function PlaceAd() {
                   <input key="initial" type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                 </label>
                 <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
                 {canTakePhoto &&
-                <div className="mt-3">
+                <div className="mt-4">
                   <label className="inline-flex items-center gap-2 cursor-pointer border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
                     <Camera className="w-4 h-4" /> Take Photo
                     <input key="camera-initial" type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                   </label>
                 </div>}
-                <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
               </div>
             }
           </Section>
