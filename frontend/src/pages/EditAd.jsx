@@ -358,14 +358,14 @@ export default function EditAd() {
                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                 <button onClick={() => fileInputRef.current?.click()} className="text-primary font-semibold hover:underline">Add Photos</button>
                 <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                <p className="text-xs text-muted-foreground mt-2">Up to {MAX_PHOTOS} images</p>
                 {canTakePhoto && (
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <button onClick={() => cameraInputRef.current?.click()} className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
                       <Camera className="w-4 h-4" /> Take Photo
                     </button>
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground mt-2">Up to {MAX_PHOTOS} images</p>
               </div>
             )}
             <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
