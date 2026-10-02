@@ -585,17 +585,18 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'updateProfile', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
-    // Daily sweep of ads that were saved as 'pending' pre-checkout and never
-    // paid for (see lambda/cleanupAbandonedAds). Needs only the UserAd table.
-    const cleanupAbandonedAdsFn = new lambdaNode.NodejsFunction(this, 'CleanupAbandonedAdsFn', {
+    // Daily sweep: deletes never-paid 'pending' drafts and marks paid ads
+    // 'expired' once their listing period ends (see lambda/adLifecycle).
+    // Needs only the UserAd table.
+    const adLifecycleFn = new lambdaNode.NodejsFunction(this, 'AdLifecycleFn', {
       ...nodeFnDefaults,
-      entry: path.join(entryDir, 'cleanupAbandonedAds', 'index.mjs'),
+      entry: path.join(entryDir, 'adLifecycle', 'index.mjs'),
       timeout: cdk.Duration.seconds(60),
     } as lambdaNode.NodejsFunctionProps);
-    userAdTable.grantReadWriteData(cleanupAbandonedAdsFn);
-    new events.Rule(this, 'CleanupAbandonedAdsSchedule', {
+    userAdTable.grantReadWriteData(adLifecycleFn);
+    new events.Rule(this, 'AdLifecycleSchedule', {
       schedule: events.Schedule.cron({ minute: '30', hour: '3' }),
-      targets: [new eventsTargets.LambdaFunction(cleanupAbandonedAdsFn)],
+      targets: [new eventsTargets.LambdaFunction(adLifecycleFn)],
     });
 
     // Grant table access
