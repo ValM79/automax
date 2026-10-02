@@ -4,7 +4,7 @@ import { ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarS
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
-import AdPackageSelector, { packages } from '../components/automarket/AdPackageSelector';
+import AdPackageSelector, { packages, isBikePackageSubsection } from '../components/automarket/AdPackageSelector';
 import AdPreview from '../components/automarket/AdPreview';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -13,15 +13,7 @@ import { uploadPhotos } from '@/lib/photoUpload';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
-import { Capacitor, registerPlugin } from '@capacitor/core';
-
-// Apple Guideline 3.1.1: paid ad packages go through In-App Purchase on iOS,
-// not Stripe. IAPPlugin is a local native plugin (frontend/ios/App/App/IAPPlugin.swift)
-// wrapping StoreKit 2 -- see verifyAppleTransaction in the backend for the
-// actual trust boundary (the purchase itself happens on-device; the backend
-// is what decides whether it's real before activating the ad).
-const IAPPlugin = registerPlugin('IAPPlugin');
-const isIOSApp = Capacitor.getPlatform() === 'ios';
+import { IAPPlugin, isIOSApp } from '@/lib/iap';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
 
@@ -254,7 +246,7 @@ export default function PlaceAd() {
     navigate('/my-ads');
   }, [isLoadingAuth, user]);
 
-  const isBikeCategory = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'].includes(form.subsection);
+  const isBikeCategory = isBikePackageSubsection(form.subsection);
 
   const vehicleDetailsCategories = ['Cars', 'New Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);

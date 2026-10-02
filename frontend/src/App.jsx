@@ -41,6 +41,7 @@ const OtherMotor = lazy(() => import('./pages/OtherMotor'));
 const SavedSearches = lazy(() => import('./pages/SavedSearches'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyAds = lazy(() => import('./pages/MyAds'));
+const RenewAd = lazy(() => import('./pages/RenewAd'));
 const Messages = lazy(() => import('./pages/Messages'));
 const BrowsingHistory = lazy(() => import('./pages/BrowsingHistory'));
 const HistoryChecks = lazy(() => import('./pages/HistoryChecks'));
@@ -125,6 +126,7 @@ const AnimatedRoutes = () => {
       <Route path="/saved-searches" element={<SavedSearches />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/my-ads" element={<MyAds />} />
+      <Route path="/renew-ad/:id" element={<RenewAd />} />
       <Route path="/messages" element={<Messages />} />
       <Route path="/browsing-history" element={<BrowsingHistory />} />
       <Route path="/history-checks" element={<HistoryChecks />} />

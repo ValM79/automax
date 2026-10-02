@@ -82,7 +82,9 @@ export const handler = async (event) => {
     const ad = adRes.Item;
     if (!ad) return json(404, { error: 'Ad not found' });
     if (ad.created_by_id !== user.id) return json(403, { error: 'Forbidden' });
-    if (ad.status !== 'pending') return json(400, { error: 'Ad is not in a payable state' });
+    if (!['pending', 'active', 'expired'].includes(ad.status)) return json(400, { error: 'Ad is not in a payable state' });
+    // A non-pending ad being paid for is a renewal ("Upload your Ad"): restarts its countdown.
+    const renewal = ad.status !== 'pending';
 
     const { APPLE_IAP_KEY_ID, APPLE_IAP_ISSUER_ID, APPLE_IAP_PRIVATE_KEY } = await getSecrets();
     const jwt = signAppleJwt({
@@ -133,13 +135,19 @@ export const handler = async (event) => {
       throw err;
     }
 
+    // Timestamp from Apple's own purchase date so the countdown start is deterministic.
+    const paidAt = new Date(Number(info.purchaseDate) || Date.now()).toISOString();
+
     await ddb.send(
       new UpdateCommand({
         TableName: TABLES.UserAd,
         Key: { id: adId },
         ConditionExpression: 'attribute_exists(id)',
         UpdateExpression:
-          'SET #status = :status, packageName = :pkg, listingDays = :days, spotlight = :spotlight, appleTransactionId = :txId',
+          'SET #status = :status, packageName = :pkg, listingDays = :days, spotlight = :spotlight, appleTransactionId = :txId, paymentHistory = list_append(if_not_exists(paymentHistory, :emptyList), :entry)' +
+          (renewal
+            ? ', originalCreatedDate = if_not_exists(originalCreatedDate, created_date), created_date = :paidAt, renewCount = if_not_exists(renewCount, :zero) + :one'
+            : ''),
         ExpressionAttributeNames: { '#status': 'status' },
         ExpressionAttributeValues: {
           ':status': 'active',
@@ -147,11 +155,22 @@ export const handler = async (event) => {
           ':days': pkg.listingDays,
           ':spotlight': pkg.spotlightDays > 0,
           ':txId': String(info.transactionId),
+          ':emptyList': [],
+          ':entry': [
+            {
+              date: paidAt,
+              packageName: pkg.packageName,
+              listingDays: pkg.listingDays,
+              appleTransactionId: String(info.transactionId),
+              renewal,
+            },
+          ],
+          ...(renewal ? { ':paidAt': paidAt, ':zero': 0, ':one': 1 } : {}),
         },
       })
     );
 
-    return json(200, { activated: true });
+    return json(200, { activated: true, renewed: renewal });
   } catch (error) {
     console.error('Apple transaction verification error:', error.message);
     return json(500, { error: error.message });
