@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams, useNavigationType } from 'react-router-dom';
-import { ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
+import { Camera, ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
@@ -14,6 +14,7 @@ import { modelsByMake } from '@/components/automarket/modelsData';
 import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
 import { IAPPlugin, isIOSApp } from '@/lib/iap';
+import { canTakePhoto } from '@/lib/camera';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
@@ -553,6 +554,13 @@ export default function PlaceAd() {
                       </label>
                     </div>
                 }
+                  {canTakePhoto && photos.length < packageLimits.maxPhotos &&
+                <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                      <Camera className="w-7 h-7 text-primary mb-1" />
+                      <span className="text-xs text-muted-foreground font-medium">Take Photo</span>
+                      <input key={`camera-${photos.length}`} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+                    </label>
+                }
                 </div>
               </div>
             }
@@ -570,6 +578,13 @@ export default function PlaceAd() {
                   <input key="initial" type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                 </label>
                 <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                {canTakePhoto &&
+                <div className="mt-3">
+                  <label className="inline-flex items-center gap-2 cursor-pointer border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
+                    <Camera className="w-4 h-4" /> Take Photo
+                    <input key="camera-initial" type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+                  </label>
+                </div>}
                 <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
               </div>
             }
