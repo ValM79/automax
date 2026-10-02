@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useNavigationType } from 'react-router-dom';
-import { Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import { uploadPhotos } from '@/lib/photoUpload';
@@ -10,6 +10,7 @@ import MobileSelect from '../components/automarket/MobileSelect';
 import OtherSelect from '../components/automarket/OtherSelect';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
+import { canTakePhoto } from '@/lib/camera';
 import ImageViewer from '../components/automarket/ImageViewer';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
@@ -45,6 +46,7 @@ export default function EditAd() {
   const [dragOver, setDragOver] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(null);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
   const navDepthRef = useRef(0);
   const navType = useNavigationType();
 
@@ -337,6 +339,14 @@ export default function EditAd() {
                     <span className="text-xs text-muted-foreground">Add</span>
                   </button>
                 )}
+                {canTakePhoto && totalPhotos < MAX_PHOTOS && (
+                  <button
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center hover:border-primary hover:bg-primary/5 transition-colors">
+                    <Camera className="w-6 h-6 text-primary mb-1" />
+                    <span className="text-xs text-muted-foreground">Take Photo</span>
+                  </button>
+                )}
               </div>
             )}
             {totalPhotos === 0 && (
@@ -348,10 +358,18 @@ export default function EditAd() {
                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                 <button onClick={() => fileInputRef.current?.click()} className="text-primary font-semibold hover:underline">Add Photos</button>
                 <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                {canTakePhoto && (
+                  <div className="mt-3">
+                    <button onClick={() => cameraInputRef.current?.click()} className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
+                      <Camera className="w-4 h-4" /> Take Photo
+                    </button>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground mt-2">Up to {MAX_PHOTOS} images</p>
               </div>
             )}
             <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
+            {canTakePhoto && <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handleFiles(e.target.files); e.target.value = ''; }} />}
           </Section>
 
           {/* Category Section */}
