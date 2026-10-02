@@ -11,6 +11,7 @@ import OtherSelect from '../components/automarket/OtherSelect';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 import { canTakePhoto } from '@/lib/camera';
+import { PHOTO_ACTION_TILE, PHOTO_ACTION_LABEL } from '@/lib/photoTile';
 import ImageViewer from '../components/automarket/ImageViewer';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
@@ -313,7 +314,7 @@ export default function EditAd() {
           {/* Photos Section */}
           <Section title="Photos" icon={<Upload className="w-5 h-5" />} subtitle={`${totalPhotos}/${MAX_PHOTOS} photos`}>
             {(existingPhotos.length > 0 || newPhotos.length > 0) && (
-              <div className="grid grid-cols-4 gap-3 mb-4">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-3 mb-4 -mx-4 sm:mx-0">
                 {existingPhotos.map((url, i) => (
                   <button
                     key={`ex-${i}`}
@@ -334,17 +335,17 @@ export default function EditAd() {
                 {totalPhotos < MAX_PHOTOS && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center hover:border-primary hover:bg-primary/5 transition-colors">
-                    <Plus className="w-6 h-6 text-primary mb-1" />
-                    <span className="text-xs text-muted-foreground">Add</span>
+                    className={PHOTO_ACTION_TILE}>
+                    <Plus className="w-7 h-7 text-primary" />
+                    <span className={PHOTO_ACTION_LABEL}>{totalPhotos}/{MAX_PHOTOS}</span>
                   </button>
                 )}
                 {canTakePhoto && totalPhotos < MAX_PHOTOS && (
                   <button
                     onClick={() => cameraInputRef.current?.click()}
-                    className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center hover:border-primary hover:bg-primary/5 transition-colors">
-                    <Camera className="w-6 h-6 text-primary mb-1" />
-                    <span className="text-xs text-muted-foreground">Take Photo</span>
+                    className={PHOTO_ACTION_TILE}>
+                    <Camera className="w-7 h-7 text-primary" />
+                    <span className={PHOTO_ACTION_LABEL}>Take Photo</span>
                   </button>
                 )}
               </div>
