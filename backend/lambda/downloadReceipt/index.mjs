@@ -3,15 +3,20 @@ import { jsPDF } from 'jspdf';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json, getUserFromEvent } from '../_lib/common.mjs';
 
-const PACKAGE_PRICES = { Basic: 1, Standard: 3, Premium: 7 };
-const BIKE_PACKAGE_PRICES = { Basic: 0.5, Standard: 1, Premium: 3 };
+// Fallback prices only (Apple purchases don't record an amount); Stripe payments
+// carry their own amount. Current list prices, see createCheckoutSession.
+const PACKAGE_PRICES = { Basic: 2.99, Standard: 6.99, Premium: 14.99 };
+const BIKE_PACKAGE_PRICES = { Basic: 0.99, Standard: 1.99, Premium: 2.99 };
 const BIKE_SUBSECTIONS = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'];
 
-function getPaymentAmount(ad) {
+// `entry` is one item of the ad's paymentHistory (a renewed ad has several); ads
+// paid before payment history existed fall back to the ad's own fields.
+function getPaymentAmount(ad, entry) {
+  if (entry?.amount != null) return entry.amount / 100;
   if (ad.paymentAmount != null) return ad.paymentAmount / 100;
   const isBike = BIKE_SUBSECTIONS.includes(ad.subsection);
   const prices = isBike ? BIKE_PACKAGE_PRICES : PACKAGE_PRICES;
-  return prices[ad.packageName] || 0;
+  return prices[entry?.packageName || ad.packageName] || 0;
 }
 
 export const handler = async (event) => {
@@ -19,7 +24,7 @@ export const handler = async (event) => {
     const user = await getUserFromEvent(event);
     if (!user) return json(401, { error: 'Unauthorized' });
 
-    const { adId } = JSON.parse(event.body || '{}');
+    const { adId, paymentIndex } = JSON.parse(event.body || '{}');
     if (!adId) return json(400, { error: 'Missing adId' });
 
     const adRes = await ddb.send(new GetCommand({ TableName: TABLES.UserAd, Key: { id: adId } }));
@@ -27,9 +32,12 @@ export const handler = async (event) => {
     if (!ad) return json(404, { error: 'Ad not found' });
     if (ad.created_by_id !== user.id) return json(403, { error: 'Forbidden' });
 
-    const amount = getPaymentAmount(ad);
-    const dateStr = ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : 'N/A';
-    const receiptId = `RCPT-${ad.id.slice(-8).toUpperCase()}`;
+    const entry = Number.isInteger(paymentIndex) ? ad.paymentHistory?.[paymentIndex] : undefined;
+    const amount = getPaymentAmount(ad, entry);
+    const receiptDate = entry?.date || ad.created_date;
+    const dateStr = receiptDate ? new Date(receiptDate).toLocaleDateString('en-IE') : 'N/A';
+    const receiptId = `RCPT-${ad.id.slice(-8).toUpperCase()}${entry ? `-${paymentIndex + 1}` : ''}`;
+    const paidPackage = entry?.packageName || ad.packageName;
 
     const doc = new jsPDF();
     doc.setFontSize(22);
@@ -63,7 +71,7 @@ export const handler = async (event) => {
     doc.line(20, 128, 190, 128);
 
     doc.setFont('helvetica', 'normal');
-    const packageName = ad.packageName ? `${ad.packageName} Ad Package` : 'Ad Listing';
+    const packageName = paidPackage ? `${paidPackage} Ad Package` : 'Ad Listing';
     doc.text(packageName, 20, 138);
     doc.text(`EUR ${amount.toFixed(2)}`, 160, 138);
 

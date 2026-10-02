@@ -4,6 +4,7 @@
 import Stripe from 'stripe';
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json, getSecrets } from '../_lib/common.mjs';
+import { sendAdLiveEmail } from '../_lib/adEmails.mjs';
 
 export const handler = async (event) => {
   try {
@@ -39,10 +40,11 @@ export const handler = async (event) => {
         const packageName = session.metadata?.package_name || '';
         const listingDays = parseInt(session.metadata?.listing_days || '0', 10);
         try {
-          await ddb.send(
+          const updated = await ddb.send(
             new UpdateCommand({
               TableName: TABLES.UserAd,
               Key: { id: adId },
+              ReturnValues: 'ALL_NEW',
               // lastStripeSessionId makes a replayed event for the same session a no-op
               // (it would otherwise append a duplicate paymentHistory entry).
               ConditionExpression:
@@ -77,6 +79,17 @@ export const handler = async (event) => {
             })
           );
           console.log(`Ad ${adId} ${renewal ? 'renewed' : 'activated'} after payment ${session.id}, amount: ${session.amount_total}`);
+          // Only reached when this session was newly processed (a replay fails the
+          // condition above), so the customer is emailed exactly once per payment.
+          await sendAdLiveEmail({
+            to: session.customer_details?.email || updated.Attributes?.email,
+            ad: updated.Attributes,
+            packageName,
+            listingDays,
+            amountCents: session.amount_total,
+            paidAt,
+            renewal,
+          });
         } catch (err) {
           if (err.name === 'ConditionalCheckFailedException') {
             console.log(`Ignoring checkout.session.completed ${session.id} for ad ${adId} (unknown ad from another deployment, or already processed)`);
