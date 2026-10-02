@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Download, CreditCard } from 'lucide-react';
+import { Download, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -8,18 +8,43 @@ import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
+import { isBikePackageSubsection } from '../components/automarket/AdPackageSelector';
 
-const PACKAGE_PRICES = { 'Basic': 1, 'Standard': 3, 'Premium': 7 };
-const BIKE_PACKAGE_PRICES = { 'Basic': 0.50, 'Standard': 1, 'Premium': 3 };
-const BIKE_SUBSECTIONS = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'];
+// Fallback list prices, only used where a payment recorded no amount (Apple purchases).
+const PACKAGE_PRICES = { 'Basic': 2.99, 'Standard': 6.99, 'Premium': 14.99 };
+const BIKE_PACKAGE_PRICES = { 'Basic': 0.99, 'Standard': 1.99, 'Premium': 2.99 };
 
-function getPaymentAmount(ad) {
-  if (ad.paymentAmount != null) {
-    return ad.paymentAmount / 100;
-  }
-  const isBike = BIKE_SUBSECTIONS.includes(ad.subsection);
-  const prices = isBike ? BIKE_PACKAGE_PRICES : PACKAGE_PRICES;
-  return prices[ad.packageName] || 0;
+function getPaymentAmount(ad, entry) {
+  if (entry?.amount != null) return entry.amount / 100;
+  if (ad.paymentAmount != null) return ad.paymentAmount / 100;
+  const prices = isBikePackageSubsection(ad.subsection) ? BIKE_PACKAGE_PRICES : PACKAGE_PRICES;
+  return prices[entry?.packageName || ad.packageName] || 0;
+}
+
+// One row per payment. Renewed ads carry a paymentHistory list; ads paid before it
+// existed get a single row built from the ad's own fields. An ad only counts if it
+// was actually activated by a verified payment (packageName is stamped by the Stripe
+// webhook / Apple verification), and it keeps counting after the listing expires.
+function paymentsFromAd(ad) {
+  if (!ad.packageName) return [];
+  const history = Array.isArray(ad.paymentHistory) ? ad.paymentHistory : [];
+  const entries = history.length > 0
+    ? history.map((entry, index) => ({ entry, index }))
+    : (ad.paymentAmount > 0 || ad.appleTransactionId)
+      ? [{ entry: { date: ad.created_date, packageName: ad.packageName }, index: null }]
+      : [];
+  return entries.map(({ entry, index }) => ({
+    id: `${ad.id}:${index ?? 'main'}`,
+    adId: ad.id,
+    paymentIndex: index,
+    type: `${entry.packageName || ad.packageName} Ad Package${entry.renewal ? ' (re-upload)' : ''}`,
+    description: ad.title,
+    amount: getPaymentAmount(ad, entry),
+    sortDate: entry.date || '',
+    date: entry.date ? new Date(entry.date).toLocaleDateString('en-IE') : '',
+    status: 'Completed',
+    method: entry.appleTransactionId || (index === null && ad.appleTransactionId) ? 'Apple' : 'Card',
+  }));
 }
 
 export default function PaymentHistory() {
@@ -40,25 +65,10 @@ export default function PaymentHistory() {
     try {
       setLoading(true);
       const records = await api.entities.UserAd.filter({ created_by_id: user.id }, '-created_date');
-      // Only show ads with proof of genuine payment: paymentAmount > 0 and a
-      // receiptUrl, both set exclusively by the Stripe webhook after a verified
-      // checkout.session.completed event. This prevents ads that were never
-      // actually paid for from appearing as "Completed" payments.
       const completed = records
-        .filter(ad => ad.packageName && ad.status === 'active' && ad.paymentAmount > 0 && ad.receiptUrl)
-        .map(ad => {
-          const amount = getPaymentAmount(ad);
-          return {
-            id: ad.id,
-            type: ad.packageName ? `${ad.packageName} Ad Package` : 'Ad Listing',
-            description: ad.title,
-            amount,
-            date: ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : '',
-            status: 'Completed',
-            method: 'Card',
-            receiptUrl: ad.receiptUrl || '',
-          };
-        });
+        .flatMap(paymentsFromAd)
+        .filter((p) => p.amount > 0)
+        .sort((a, b) => new Date(b.sortDate) - new Date(a.sortDate));
       setPayments(completed);
     } catch (err) {
       console.error('Failed to load payments:', err);
@@ -72,12 +82,12 @@ export default function PaymentHistory() {
   const handleDownloadReceipt = async (payment) => {
     try {
       setDownloadingId(payment.id);
-      const res = await api.functions.invoke('downloadReceipt', { adId: payment.id });
+      const res = await api.functions.invoke('downloadReceipt', { adId: payment.adId, paymentIndex: payment.paymentIndex });
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `automax-receipt-${payment.id.slice(-8).toUpperCase()}.pdf`;
+      a.download = `automax-receipt-${payment.adId.slice(-8).toUpperCase()}${payment.paymentIndex != null ? `-${payment.paymentIndex + 1}` : ''}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

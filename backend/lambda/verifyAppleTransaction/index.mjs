@@ -10,6 +10,7 @@
 import { GetCommand, PutCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { createSign } from 'node:crypto';
 import { ddb, TABLES, json, getUserFromEvent, getSecrets, nowIso } from '../_lib/common.mjs';
+import { sendAdLiveEmail } from '../_lib/adEmails.mjs';
 
 // Server-side product configuration, mirroring createCheckoutSession's
 // PACKAGE_CONFIG -- the client sends only a transaction ID; every paid
@@ -138,10 +139,11 @@ export const handler = async (event) => {
     // Timestamp from Apple's own purchase date so the countdown start is deterministic.
     const paidAt = new Date(Number(info.purchaseDate) || Date.now()).toISOString();
 
-    await ddb.send(
+    const updated = await ddb.send(
       new UpdateCommand({
         TableName: TABLES.UserAd,
         Key: { id: adId },
+        ReturnValues: 'ALL_NEW',
         ConditionExpression: 'attribute_exists(id)',
         UpdateExpression:
           'SET #status = :status, packageName = :pkg, listingDays = :days, spotlight = :spotlight, appleTransactionId = :txId, paymentHistory = list_append(if_not_exists(paymentHistory, :emptyList), :entry)' +
@@ -169,6 +171,15 @@ export const handler = async (event) => {
         },
       })
     );
+
+    await sendAdLiveEmail({
+      to: user.email || updated.Attributes?.email,
+      ad: updated.Attributes,
+      packageName: pkg.packageName,
+      listingDays: pkg.listingDays,
+      paidAt,
+      renewal,
+    });
 
     return json(200, { activated: true, renewed: renewal });
   } catch (error) {
