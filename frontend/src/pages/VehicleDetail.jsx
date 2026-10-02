@@ -313,6 +313,7 @@ export default function VehicleDetail() {
             {/* Image Gallery */}
             <div className="lg:order-1 lg:flex-1 lg:min-w-0">
               <ImageGallery
+              key={car.id}
               images={galleryImages}
               title={car.title} />
             </div>
