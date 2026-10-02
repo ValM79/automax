@@ -15,6 +15,7 @@ import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
 import { IAPPlugin, isIOSApp } from '@/lib/iap';
 import { canTakePhoto } from '@/lib/camera';
+import { PHOTO_ACTION_TILE, PHOTO_ACTION_LABEL } from '@/lib/photoTile';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
@@ -526,7 +527,9 @@ export default function PlaceAd() {
             {/* Photo grid */}
             {photos.length > 0 &&
             <div className="mb-4">
-                <div className="grid grid-cols-4 gap-3 items-start">
+                {/* 4 per row always; on phones the grid bleeds into the card padding and uses
+                    tight gaps so the tiles are as large as they can be. */}
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-3 items-start -mx-4 sm:mx-0">
                   {photos.map((p, i) =>
                 <button
                   key={i}
@@ -545,19 +548,19 @@ export default function PlaceAd() {
                   onDragOver={(e) => {e.preventDefault();setDragOver(true);}}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
-                  className={`aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-colors cursor-pointer ${dragOver ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                  
-                      <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
-                        <Plus className="w-8 h-8 text-primary mb-1" />
-                        <span className="text-sm text-muted-foreground font-medium">{photos.length}/{packageLimits.maxPhotos}</span>
+                  className={`${PHOTO_ACTION_TILE} ${dragOver ? 'ring-2 ring-primary' : ''}`}>
+
+                      <label className="cursor-pointer flex flex-col items-center justify-center gap-1 w-full h-full">
+                        <Plus className="w-7 h-7 text-primary" />
+                        <span className={PHOTO_ACTION_LABEL}>{photos.length}/{packageLimits.maxPhotos}</span>
                         <input key={photos.length} type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                       </label>
                     </div>
                 }
                   {canTakePhoto && photos.length < packageLimits.maxPhotos &&
-                <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
-                      <Camera className="w-7 h-7 text-primary mb-1" />
-                      <span className="text-xs text-muted-foreground font-medium">Take Photo</span>
+                <label className={PHOTO_ACTION_TILE}>
+                      <Camera className="w-7 h-7 text-primary" />
+                      <span className={PHOTO_ACTION_LABEL}>Take Photo</span>
                       <input key={`camera-${photos.length}`} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                     </label>
                 }
