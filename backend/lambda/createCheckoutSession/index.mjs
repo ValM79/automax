@@ -28,24 +28,36 @@ const BIKE_PACKAGE_CONFIG = {
   Premium: { priceId: 'price_1UKQF7LCaYSUWHrbYGpX8TJ5', listingDays: 90, maxPhotos: 12, bumps: 3, bumpIntervalWeeks: 3, spotlightDays: 5 },
 };
 
+// Subsections priced from the bike list; keep in sync with BIKE_PACKAGE_SUBSECTIONS
+// in frontend/src/components/automarket/AdPackageSelector.jsx.
+const BIKE_SUBSECTIONS = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'];
+
 export const handler = async (event) => {
   try {
     const user = await getUserFromEvent(event);
     if (!user) return json(401, { error: 'Unauthorized' });
 
-    const { packageName, adId, isBikeCategory } = JSON.parse(event.body || '{}');
-    const configMap = isBikeCategory ? BIKE_PACKAGE_CONFIG : PACKAGE_CONFIG;
-    if (!packageName || !configMap[packageName]) return json(400, { error: 'Invalid or missing package' });
+    const { packageName, adId, isBikeCategory: clientBikeFlag } = JSON.parse(event.body || '{}');
     if (!adId) return json(400, { error: 'adId is required' });
-
-    const pkg = configMap[packageName];
 
     // Ownership check — only the ad's creator may initiate checkout for it.
     const adRes = await ddb.send(new GetCommand({ TableName: TABLES.UserAd, Key: { id: adId } }));
     const ad = adRes.Item;
     if (!ad) return json(404, { error: 'Ad not found' });
     if (ad.created_by_id !== user.id) return json(403, { error: 'Forbidden' });
-    if (ad.status !== 'pending') return json(400, { error: 'Ad is not in a payable state' });
+    if (!['pending', 'active', 'expired'].includes(ad.status)) return json(400, { error: 'Ad is not in a payable state' });
+
+    // A non-pending ad being paid for is a renewal ("Upload your Ad"): the live ad
+    // is left untouched until payment succeeds, then the webhook restarts its
+    // countdown. The category (and so the price list) is derived from the stored
+    // ad rather than trusted from the client.
+    const isRenewal = ad.status !== 'pending';
+    const isBikeCategory = isRenewal ? BIKE_SUBSECTIONS.includes(ad.subsection) : clientBikeFlag;
+
+    const configMap = isBikeCategory ? BIKE_PACKAGE_CONFIG : PACKAGE_CONFIG;
+    if (!packageName || !configMap[packageName]) return json(400, { error: 'Invalid or missing package' });
+
+    const pkg = configMap[packageName];
 
     // Determine app origin for Stripe redirect URLs
     const originHeader = event.headers?.origin || event.headers?.Origin;
@@ -59,9 +71,12 @@ export const handler = async (event) => {
       payment_method_types: ['card'],
       line_items: [{ price: pkg.priceId, quantity: 1 }],
       mode: 'payment',
-      success_url: `${rawOrigin}/place-ad?payment=success&package=${encodeURIComponent(packageName)}&listingDays=${pkg.listingDays}&maxPhotos=${pkg.maxPhotos}`,
-      cancel_url: `${rawOrigin}/place-ad?payment=cancelled`,
+      success_url: isRenewal
+        ? `${rawOrigin}/my-ads?renewed=1`
+        : `${rawOrigin}/place-ad?payment=success&package=${encodeURIComponent(packageName)}&listingDays=${pkg.listingDays}&maxPhotos=${pkg.maxPhotos}`,
+      cancel_url: isRenewal ? `${rawOrigin}/my-ads` : `${rawOrigin}/place-ad?payment=cancelled`,
       metadata: {
+        renewal: isRenewal ? 'true' : 'false',
         package_name: packageName,
         listing_days: String(pkg.listingDays),
         max_photos: String(pkg.maxPhotos),

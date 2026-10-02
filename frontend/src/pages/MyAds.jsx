@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Edit2, Trash2, Plus, Megaphone, RefreshCw, Camera } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Megaphone, Camera } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { adDaysLeft } from '@/lib/adTimeLeft';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { api } from '@/api/apiClient';
@@ -16,9 +17,9 @@ export default function MyAds() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
 
-  const loadAds = async () => {
+  const loadAds = async (silent = false) => {
     if (!user) {setLoading(false);return;}
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const results = await api.entities.UserAd.filter({ created_by_id: user.id }, '-created_date', 100);
       // Ads are saved as 'pending' before checkout, and abandoned checkouts are
@@ -34,6 +35,16 @@ export default function MyAds() {
 
   useEffect(() => {loadAds();}, [user?.id]);
 
+  // Back from checkout (?renewed=1): the payment webhook can land a moment after the
+  // redirect, so show a notice and refresh the list a couple of times.
+  const [searchParams] = useSearchParams();
+  const justRenewed = searchParams.get('renewed') === '1';
+  useEffect(() => {
+    if (!justRenewed) return;
+    const timers = [3000, 8000].map((ms) => setTimeout(() => loadAds(true), ms));
+    return () => timers.forEach(clearTimeout);
+  }, [justRenewed, user?.id]);
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this ad?')) return;
     setDeletingId(id);
@@ -47,7 +58,7 @@ export default function MyAds() {
   };
 
   const handleRenew = (ad) => {
-    navigate(`/place-ad?renew=${ad.id}`);
+    navigate(`/renew-ad/${ad.id}`);
   };
 
   const getStatusColor = (status) => {
@@ -77,6 +88,12 @@ export default function MyAds() {
             <Plus className="w-4 h-4" /> Place New Ad
           </button>
         </div>
+
+        {justRenewed &&
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            Payment received. Your ad is being uploaded again with a fresh countdown. If it still shows the old time, give it a few seconds.
+          </div>
+        }
 
         {loading ?
           <div className="flex justify-center py-20">
@@ -123,27 +140,28 @@ export default function MyAds() {
                       <p className="text-xs text-muted-foreground">
                         Listed {ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : ''}{ad.subsection ? ` · ${ad.subsection}` : ''}
                       </p>
+                      {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
+                        <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
+                      }
                     </div>
                     <div className="flex items-end justify-between mt-4">
                       <p className="text-xl font-normal text-foreground">{ad.currency || '€'}{ad.price}</p>
-                      <div className="flex items-center gap-2">
-                        {ad.status === 'expired' &&
-                          <button
-                            onClick={() => handleRenew(ad)}
-                            className="flex items-center gap-1.5 border border-primary text-primary px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors">
-                            <RefreshCw className="w-3.5 h-3.5" /> Renew
-                          </button>
-                        }
+                      <div className="flex flex-col gap-2 w-40">
                         <button
                           onClick={() => handleEdit(ad)}
                           className="px-4 rounded-lg border border-border hover:bg-secondary transition-colors min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground">
-                          Edit
+                          Edit your Ad
+                        </button>
+                        <button
+                          onClick={() => handleRenew(ad)}
+                          className="px-4 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center justify-center text-sm font-medium">
+                          Upload your Ad
                         </button>
                         <button
                           onClick={() => handleDelete(ad.id)}
                           disabled={deletingId === ad.id}
-                          className="p-2 rounded-lg border border-foreground hover:bg-secondary transition-colors disabled:opacity-60 min-w-[44px] min-h-[44px] flex items-center justify-center">
-                          <Trash2 className="w-4 h-4 text-foreground" />
+                          className="px-4 rounded-lg border border-foreground hover:bg-secondary transition-colors disabled:opacity-60 min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground">
+                          Delete your Ad
                         </button>
                       </div>
                     </div>

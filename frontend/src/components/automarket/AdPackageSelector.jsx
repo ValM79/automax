@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-
-import { api } from '@/api/apiClient';
+import React from 'react';
 
 // Car prices raised 2026-10-01 (0.99/2.99/6.99 -> 2.99/6.99/14.99); bike prices
 // below are unaffected. This breaks the 2026-09-27 price parity with Apple's
@@ -112,9 +110,14 @@ const bikePackages = [
 
 
 
-export { packages };
+// Subsections priced from the bike list. Keep in sync with BIKE_SUBSECTIONS in
+// backend/lambda/createCheckoutSession, which re-derives this server-side for renewals.
+const BIKE_PACKAGE_SUBSECTIONS = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'];
+const isBikePackageSubsection = (subsection) => BIKE_PACKAGE_SUBSECTIONS.includes(subsection);
 
-export default function AdPackageSelector({ selectedPackage, onPackageSelected, isBikeCategory }) {
+export { packages, bikePackages, isBikePackageSubsection };
+
+export default function AdPackageSelector({ selectedPackage, onPackageSelected, isBikeCategory, actionLabel = 'Sell Now' }) {
   const activePackages = isBikeCategory ? bikePackages : packages;
   // isBikeCategory is true for: Bikes & Bicycles, Car Extras, Car Parts, Boat Extras, Other, Motorbike Extras
   return (
@@ -158,7 +161,7 @@ export default function AdPackageSelector({ selectedPackage, onPackageSelected, 
         })}
       </div>
       {!selectedPackage && (
-        <p className="text-xs text-muted-foreground text-center mt-3">Select a package above, then click "Sell Now" to proceed to payment.</p>
+        <p className="text-xs text-muted-foreground text-center mt-3">Select a package above, then click "{actionLabel}" to proceed to payment.</p>
       )}
     </div>
   );
