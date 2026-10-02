@@ -21,7 +21,10 @@ export default function MyAds() {
     setLoading(true);
     try {
       const results = await api.entities.UserAd.filter({ created_by_id: user.id }, '-created_date', 100);
-      setAds(results);
+      // Ads are saved as 'pending' before checkout, and abandoned checkouts are
+      // later flipped to 'expired'. Both activation paths (Stripe webhook, Apple
+      // verify) stamp packageName, so a non-active ad without one was never paid for.
+      setAds(results.filter((a) => a.status === 'active' || a.packageName));
     } catch (e) {
       setAds([]);
     } finally {
