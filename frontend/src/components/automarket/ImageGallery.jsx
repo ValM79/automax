@@ -3,7 +3,14 @@ import { Camera, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-re
 
 export default function ImageGallery({ images = [], title = '' }) {
   const photos = images.length > 0 ? images : [];
-  const extendedPhotos = photos.length > 1 ? [...photos, ...photos] : photos;
+  // Looping strip: [last, ...photos, first]. activeIndex is logical (0..n-1, or
+  // -1 / n for the one step onto a clone before it snaps back), so the strip
+  // position is activeIndex + 1.
+  const loops = photos.length > 1;
+  const extendedPhotos = loops ? [photos[photos.length - 1], ...photos, photos[0]] : photos;
+  const stripOffset = loops ? 1 : 0;
+  const photoCountRef = useRef(photos.length);
+  photoCountRef.current = photos.length;
   const [activeIndex, setActiveIndex] = useState(0);
   const [noTransition, setNoTransition] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -47,16 +54,18 @@ export default function ImageGallery({ images = [], title = '' }) {
     setPan({ x: 0, y: 0 });
   };
 
+  // Stepping is ignored while sitting on a clone (activeIndex -1 or n) so fast
+  // clicks can never run past the strip; the snap-back below clears it.
   const nextImage = useCallback(() => {
     setNoTransition(false);
-    setActiveIndex(prev => prev + 1);
+    setActiveIndex(prev => (prev >= 0 && prev < photoCountRef.current ? prev + 1 : prev));
     setZoom(1);
     setPan({ x: 0, y: 0 });
   }, []);
 
   const prevImage = useCallback(() => {
     setNoTransition(false);
-    setActiveIndex(prev => prev - 1);
+    setActiveIndex(prev => (prev >= 0 && prev < photoCountRef.current ? prev - 1 : prev));
     setZoom(1);
     setPan({ x: 0, y: 0 });
   }, []);
@@ -70,6 +79,14 @@ export default function ImageGallery({ images = [], title = '' }) {
       setActiveIndex(activeIndex + photos.length);
     }
   };
+
+  // transitionend isn't guaranteed (hidden tab, interrupted transition), and
+  // without the snap-back the carousel would stay stuck on a clone.
+  useEffect(() => {
+    if (!loops || (activeIndex >= 0 && activeIndex < photos.length)) return;
+    const id = setTimeout(handleTransitionEnd, 400);
+    return () => clearTimeout(id);
+  }, [activeIndex]);
 
   const zoomIn = () => setZoom(z => Math.min(z + 0.5, 4));
   const zoomOut = () => {
@@ -205,7 +222,7 @@ export default function ImageGallery({ images = [], title = '' }) {
       >
         <div
           className={`flex h-full ${noTransition ? '' : 'transition-transform duration-300 ease-in-out'}`}
-          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          style={{ transform: `translateX(-${(activeIndex + stripOffset) * 100}%)` }}
           onTransitionEnd={handleTransitionEnd}
         >
           {extendedPhotos.map((photo, i) => (
