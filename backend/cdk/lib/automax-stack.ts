@@ -14,6 +14,8 @@ import * as apigwAuthorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as cr from 'aws-cdk-lib/custom-resources';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cwActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as sns from 'aws-cdk-lib/aws-sns';
@@ -582,6 +584,19 @@ export class AutomaxStack extends cdk.Stack {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'updateProfile', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
+
+    // Daily sweep of ads that were saved as 'pending' pre-checkout and never
+    // paid for (see lambda/cleanupAbandonedAds). Needs only the UserAd table.
+    const cleanupAbandonedAdsFn = new lambdaNode.NodejsFunction(this, 'CleanupAbandonedAdsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'cleanupAbandonedAds', 'index.mjs'),
+      timeout: cdk.Duration.seconds(60),
+    } as lambdaNode.NodejsFunctionProps);
+    userAdTable.grantReadWriteData(cleanupAbandonedAdsFn);
+    new events.Rule(this, 'CleanupAbandonedAdsSchedule', {
+      schedule: events.Schedule.cron({ minute: '30', hour: '3' }),
+      targets: [new eventsTargets.LambdaFunction(cleanupAbandonedAdsFn)],
+    });
 
     // Grant table access
     for (const fn of [
