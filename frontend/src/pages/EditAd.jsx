@@ -9,6 +9,7 @@ import Footer from '../components/automarket/Footer';
 import MobileSelect from '../components/automarket/MobileSelect';
 import OtherSelect from '../components/automarket/OtherSelect';
 import { modelsByMake } from '@/components/automarket/modelsData';
+import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 import ImageViewer from '../components/automarket/ImageViewer';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
@@ -95,7 +96,7 @@ export default function EditAd() {
           vehicleTransmission: ad.vehicleTransmission || '',
           bodyType: ad.bodyType || '',
           colour: ad.colour || '',
-          engineSize: ad.engineSize || '',
+          engineSize: canonicalEngineSize(ad.engineSize || ''),
           enginePower: ad.enginePower || '',
           batteryRange: ad.batteryRange || '',
           batterySize: ad.batterySize || '',
@@ -239,7 +240,7 @@ export default function EditAd() {
         vehicleTransmission: form.vehicleTransmission === '__other__' ? '' : form.vehicleTransmission,
         bodyType: form.bodyType === '__other__' ? '' : form.bodyType,
         colour: form.colour,
-        engineSize: form.engineSize === '__other__' ? '' : form.engineSize,
+        engineSize: form.engineSize === '__other__' ? '' : canonicalEngineSize(form.engineSize),
         enginePower: form.enginePower,
         batteryRange: form.batteryRange,
         batterySize: form.batterySize,
@@ -450,7 +451,7 @@ export default function EditAd() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Engine Size</label>
                   <OtherSelect value={form.engineSize} onChange={(val) => setForm((f) => ({ ...f, engineSize: val }))}
-                    options={['1.0L', '1.2L', '1.4L', '1.6L', '1.8L', '2.0L', '2.5L', '3.0L+']} placeholder="Select..." enterLabel="Enter engine size..." />
+                    options={ENGINE_SIZE_OPTIONS} placeholder="Select..." enterLabel="Enter engine size..." />
                 </div>
                 {/* Fuel Type */}
                 <div>

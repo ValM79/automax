@@ -14,6 +14,7 @@ import { modelsByMake } from '@/components/automarket/modelsData';
 import OtherSelect from '../components/automarket/OtherSelect';
 import MobileSelect from '../components/automarket/MobileSelect';
 import { IAPPlugin, isIOSApp } from '@/lib/iap';
+import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
 
@@ -682,7 +683,7 @@ export default function PlaceAd() {
                 <OtherSelect
                   value={form.engineSize}
                   onChange={(val) => setForm((f) => ({ ...f, engineSize: val }))}
-                  options={['1.0L', '1.2L', '1.4L', '1.6L', '1.8L', '2.0L', '2.5L', '3.0L+']}
+                  options={ENGINE_SIZE_OPTIONS}
                   placeholder="Select..."
                   enterLabel="Enter engine size..." />
               </div>
@@ -1151,7 +1152,7 @@ export default function PlaceAd() {
                     vehicleTransmission: form.vehicleTransmission === '__other__' ? '' : form.vehicleTransmission,
                     bodyType: form.bodyType === '__other__' ? '' : form.bodyType,
                     colour: form.colour,
-                    engineSize: form.engineSize === '__other__' ? '' : form.engineSize,
+                    engineSize: form.engineSize === '__other__' ? '' : canonicalEngineSize(form.engineSize),
                     nctExpiry: form.nctExpiry,
                     taxExpiry: form.taxExpiry,
                     enginePower: form.enginePower,
