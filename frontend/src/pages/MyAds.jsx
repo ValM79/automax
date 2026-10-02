@@ -10,6 +10,9 @@ import { useAuth } from '@/lib/AuthContext';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
+// One style for all three card actions so they always look and behave the same.
+const AD_ACTION_BUTTON = 'px-4 rounded-lg border border-foreground hover:bg-secondary transition-colors disabled:opacity-60 min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground';
+
 export default function MyAds() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -149,18 +152,20 @@ export default function MyAds() {
                       <div className="flex flex-col gap-2 w-40">
                         <button
                           onClick={() => handleEdit(ad)}
-                          className="px-4 rounded-lg border border-border hover:bg-secondary transition-colors min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground">
+                          disabled={deletingId === ad.id}
+                          className={AD_ACTION_BUTTON}>
                           Edit your Ad
                         </button>
                         <button
                           onClick={() => handleRenew(ad)}
-                          className="px-4 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center justify-center text-sm font-medium">
+                          disabled={deletingId === ad.id}
+                          className={AD_ACTION_BUTTON}>
                           Upload your Ad
                         </button>
                         <button
                           onClick={() => handleDelete(ad.id)}
                           disabled={deletingId === ad.id}
-                          className="px-4 rounded-lg border border-foreground hover:bg-secondary transition-colors disabled:opacity-60 min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground">
+                          className={AD_ACTION_BUTTON}>
                           Delete your Ad
                         </button>
                       </div>
