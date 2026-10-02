@@ -29,7 +29,7 @@ export default function BrowsingHistory() {
   };
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen flex flex-col bg-muted">
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
@@ -105,7 +105,7 @@ export default function BrowsingHistory() {
           </div>
         )}
       </div>
-      <Footer />
+      <div className="mt-auto"><Footer /></div>
     </div>
   );
 }

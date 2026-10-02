@@ -57,7 +57,7 @@ export default function SavedSearches() {
   };
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen flex flex-col bg-muted">
       <Navbar />
       <PullToRefresh onRefresh={async () => { await queryClientInstance.invalidateQueries(); }}>
       <div className="max-w-6xl mx-auto px-4 py-4">
@@ -195,7 +195,7 @@ export default function SavedSearches() {
         )}
       </div>
       </PullToRefresh>
-      <Footer />
+      <div className="mt-auto"><Footer /></div>
     </div>
   );
 }
