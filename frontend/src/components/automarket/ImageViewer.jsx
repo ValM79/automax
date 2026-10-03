@@ -33,7 +33,9 @@ export default function ImageViewer({ photos, initialIndex, onClose, onSetCover,
   return (
     <div className="fixed inset-0 bg-black/90 z-[60] flex flex-col">
       {/* Header with counter */}
-      <div className="flex items-center justify-between p-4">
+      <div
+        className="flex items-center justify-between px-4 pb-4"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}>
         <div className="text-white text-sm font-medium">
           📷 {currentIndex + 1} / {photos.length}
         </div>
@@ -75,7 +77,9 @@ export default function ImageViewer({ photos, initialIndex, onClose, onSetCover,
       </div>
 
       {/* Footer with actions */}
-      <div className="flex items-center justify-center gap-4 p-6 border-t border-white/10">
+      <div
+        className="flex items-center justify-center gap-4 px-6 pt-6 border-t border-white/10"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}>
         <button
           onClick={() => onSetCover(currentIndex)}
           className="flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors"
