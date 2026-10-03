@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { MessageSquare, Trash2, Flag, Ban, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, Trash2, Flag, Ban, ChevronDown, ChevronUp, Reply } from 'lucide-react';
+import MessageModal from '../components/automarket/MessageModal';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -16,6 +17,7 @@ export default function Messages() {
   const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(() => getBlocked());
   const [showBlocked, setShowBlocked] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(null); // the received message being replied to
   const [reportTarget, setReportTarget] = useState(null); // the message being reported
   const [reportText, setReportText] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
@@ -42,6 +44,16 @@ export default function Messages() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const sendReply = async (text) => {
+    await api.functions.invoke('contactSeller', {
+      ad_id: replyTarget.ad_id,
+      message: text,
+      reply_to_message_id: replyTarget.id,
+    });
+    // Show the reply in the list straight away.
+    loadMessages();
   };
 
   const handleDelete = async (id) => {
@@ -160,6 +172,14 @@ export default function Messages() {
                       <p className="text-xs text-muted-foreground mt-2">
                         {msg.created_date ? new Date(msg.created_date).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
                       </p>
+                      {!isSentByMe && msg.ad_id && (
+                        <button
+                          onClick={() => setReplyTarget(msg)}
+                          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline min-h-[44px]"
+                        >
+                          <Reply className="w-4 h-4" /> Reply
+                        </button>
+                      )}
                     </div>
                     <div className="flex flex-col items-center flex-shrink-0">
                       {!isSentByMe && (
@@ -226,6 +246,14 @@ export default function Messages() {
         </div>
       </div>
       </PullToRefresh>
+
+      <MessageModal
+        open={!!replyTarget}
+        onClose={() => setReplyTarget(null)}
+        title="Reply"
+        sellerName={replyTarget?.sender_name || replyTarget?.sender_email}
+        adTitle={replyTarget?.ad_title}
+        onSend={sendReply} />
 
       {/* Report modal */}
       {reportTarget && (

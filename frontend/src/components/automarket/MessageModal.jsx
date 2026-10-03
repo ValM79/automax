@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, CheckCircle2 } from 'lucide-react';
 
-export default function MessageModal({ open, onClose, sellerName, adTitle, onSend }) {
+export default function MessageModal({ open, onClose, sellerName, adTitle, onSend, title = 'Send Message' }) {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -32,7 +32,7 @@ export default function MessageModal({ open, onClose, sellerName, adTitle, onSen
     <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-card rounded-xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-foreground">Send Message</h3>
+          <h3 className="text-lg font-bold text-foreground">{title}</h3>
           <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground">
             <X className="w-5 h-5" />
           </button>
@@ -62,7 +62,7 @@ export default function MessageModal({ open, onClose, sellerName, adTitle, onSen
               disabled={!message.trim() || sending}
               className="w-full mt-4 bg-primary text-primary-foreground py-2.5 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
-              {sending ? 'Sending...' : 'Send Message'}
+              {sending ? 'Sending...' : title}
             </button>
           </>
         )}
