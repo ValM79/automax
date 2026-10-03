@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Link } from 'react-router-dom';
 import PlaceAdModal from './PlaceAdModal';
 import MobileMenu from './MobileMenu';
+import { useMobileMenuOpen, setMobileMenuOpen, registerMenuHost } from '@/lib/mobileMenu';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const userMenuItems = [
@@ -27,7 +28,10 @@ const dealersMenuItems = [
 
 
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  // Shared with the bottom tab bar's Profile tab (see lib/mobileMenu.js).
+  const mobileOpen = useMobileMenuOpen();
+  const setMobileOpen = setMobileMenuOpen;
+  useEffect(() => registerMenuHost(), []);
   const [showPlaceAd, setShowPlaceAd] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showDealersMenu, setShowDealersMenu] = useState(false);
@@ -291,7 +295,6 @@ export default function Navbar() {
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        onPlaceAd={handlePlaceAd}
       />
     </nav>);
 }

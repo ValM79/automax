@@ -32,7 +32,7 @@ const userMenuItems = [
   { label: 'Log out', icon: LogOut, action: 'logout' }];
 
 
-export default function MobileMenu({ open, onClose, onPlaceAd }) {
+export default function MobileMenu({ open, onClose }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [expandedMenu, setExpandedMenu] = useState(null);
@@ -66,6 +66,15 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, [open]);
+
+  // Freeze the page behind the menu while it's open, so on iOS a swipe scrolls the
+  // menu instead of the page underneath. Restored on close and on unmount.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previous; };
   }, [open]);
 
   if (!open) return null;
@@ -109,7 +118,18 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Panel */}
-      <div className="absolute right-0 top-0 h-full w-full bg-card shadow-2xl flex flex-col overflow-y-auto scrollbar-hide" style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)', paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 1rem)' }}>
+      {/* The panel itself is the scroll container. The explicit touch-scrolling hints
+          (momentum scrolling, vertical pan only, no scroll-chaining into the page
+          behind) keep it scrollable inside iOS's WebView, where a fixed overlay can
+          otherwise swallow the swipe. */}
+      <div
+        className="absolute inset-y-0 right-0 w-full bg-card shadow-2xl flex flex-col overflow-y-auto overscroll-contain scrollbar-hide"
+        style={{
+          paddingTop: 'max(env(safe-area-inset-top), 24px)',
+          paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 1rem)',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y'
+        }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-16 border-b border-border bg-card flex-shrink-0">
           <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 cursor-pointer">
@@ -182,15 +202,6 @@ export default function MobileMenu({ open, onClose, onPlaceAd }) {
           )}
         </div>
 
-        {/* Bottom actions */}
-        <div className="px-4 py-4 border-t border-border flex items-center justify-center bg-card flex-shrink-0">
-          <button
-            onClick={() => {onClose();navigate(user ? '/place-ad' : '/login?next=/place-ad', { replace: true });}}
-            className="flex items-center gap-2 text-sm text-foreground font-semibold">
-            
-            Place Ad
-          </button>
-        </div>
       </div>
     </div>);
 
