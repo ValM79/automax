@@ -15,7 +15,7 @@ const AD_ACTION_BUTTON = 'px-4 rounded-lg border border-foreground hover:bg-seco
 
 export default function MyAds() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
@@ -37,6 +37,11 @@ export default function MyAds() {
   };
 
   useEffect(() => {loadAds();}, [user?.id]);
+
+  // My Ads is a main tab, so a signed-out visitor can land here: send them to sign in.
+  useEffect(() => {
+    if (!isLoadingAuth && !user) api.auth.redirectToLogin('/my-ads');
+  }, [isLoadingAuth, user]);
 
   // Back from checkout (?renewed=1): the payment webhook can land a moment after the
   // redirect, so show a notice and refresh the list a couple of times.
