@@ -133,13 +133,18 @@ export default function MobileMenu({ open, onClose }) {
         }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-border bg-card flex-shrink-0">
-          <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 cursor-pointer">
+          {/* Same three-part layout as the Navbar (spacer / logo / right-hand group) so the logo
+              sits exactly where it does on the home page. */}
+          <div className="w-6" />
+          <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 flex-none whitespace-nowrap cursor-pointer">
             <span className="text-xl font-extrabold tracking-tight text-[hsl(var(--primary))]">AutoMax</span>
             <img src="/img/ca07bfd68_generated_image.jpg" alt="AutoMax" className="w-6 h-6 object-contain flex-shrink-0" />
           </Link>
-          <button onClick={onClose} className="p-1.5 text-foreground hover:bg-secondary rounded-md transition-colors">
-            <X className="w-6 h-6" />
-          </button>
+          <div className="w-[131px] flex justify-end">
+            <button onClick={onClose} className="p-1.5 text-foreground hover:bg-secondary rounded-md transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
         {/* User account section — blue section */}
