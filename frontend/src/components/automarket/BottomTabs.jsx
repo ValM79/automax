@@ -70,7 +70,7 @@ export default function BottomTabs() {
 
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex items-stretch justify-around"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-[70] bg-card border-t border-border flex items-stretch justify-around"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)', height: 'calc(56px + env(safe-area-inset-bottom))' }}
     >
       {tabs.map((tab) => {
