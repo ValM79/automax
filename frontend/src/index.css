@@ -137,3 +137,11 @@ nav a, nav a:hover {
     padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
 }
+/* While the mobile menu is open, hide the page behind it so the menu becomes the document and
+   scrolls natively (see MobileMenu.jsx). Only below the `lg` breakpoint, where the menu exists;
+   the bottom tab bar is not inside .app-page, so it stays visible. */
+@media (max-width: 1023px) {
+  body.mobile-menu-open .app-page {
+    display: none;
+  }
+}
