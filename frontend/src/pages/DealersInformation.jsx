@@ -29,7 +29,6 @@ export default function DealersInformation() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {plans.map((plan, i) =>
           <div key={i} className={`bg-card border-2 rounded-2xl p-6 shadow-sm flex flex-col ${i === 1 ? 'border-primary' : 'border-border'}`}>
-              {i === 1 && <div className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full mb-3 self-start">Most Popular</div>}
               <h3 className="text-xl font-bold text-foreground mb-1">{plan.name}</h3>
               <p className="text-2xl font-bold text-primary mb-4">{plan.price}</p>
               <ul className="space-y-2 flex-1 mb-6">
