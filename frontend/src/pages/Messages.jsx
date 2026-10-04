@@ -9,6 +9,7 @@ import { api } from '@/api/apiClient';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 import { useToast } from '@/components/ui/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { getBlocked, isBlocked, blockUser, unblockUser } from '@/lib/blocklist';
 import { buildThreads, isReceivedByMe, isSentByMe, latestReceived } from '@/lib/conversations';
 
@@ -19,7 +20,7 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(() => getBlocked());
-  const [showBlocked, setShowBlocked] = useState(false);
+  const [showBlocked, setShowBlocked] = useState(true);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
@@ -124,15 +125,24 @@ export default function Messages() {
 
   const handleBlock = (email, name) => {
     if (!email) return;
-    if (!window.confirm(`Block ${name || email}? You will no longer see messages from this person, and they cannot contact you about your ads.`)) return;
+    if (!window.confirm(`Block ${name || email}? You will no longer see their messages on this device. You can unblock them any time from "Blocked users" at the top of Messages.`)) return;
     setBlocked(blockUser(email));
     closeThread();
-    toast({ title: 'User blocked', description: `You will no longer receive messages from ${name || email}.` });
+    toast({
+      title: `${name || email} blocked`,
+      description: 'Their messages are hidden. You can unblock them from "Blocked users" at the top of Messages.',
+      action: <ToastAction altText="Undo block" onClick={() => setBlocked(unblockUser(email))}>Undo</ToastAction>,
+    });
   };
 
   const handleUnblock = (email) => {
     setBlocked(unblockUser(email));
+    toast({ title: 'Unblocked', description: `${nameForBlocked(email)}'s messages are visible again.` });
   };
+
+  // Blocked senders are hidden from the list, so look their name up from the loaded messages.
+  const nameForBlocked = (email) =>
+    messages.find((m) => m.sender_email === email && m.sender_name)?.sender_name || email;
 
   const submitReport = async () => {
     const msg = reportTarget;
@@ -298,6 +308,42 @@ export default function Messages() {
           <>
             <h1 className="text-3xl font-bold text-foreground mb-6">Messages</h1>
 
+            {/* Blocked users: shown right under the heading (open by default) so unblocking is easy to find. */}
+            {blocked.length > 0 && (
+              <div className="mb-6 bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                <button
+                  onClick={() => setShowBlocked((v) => !v)}
+                  className="w-full flex items-center justify-between gap-2 p-4 text-left"
+                >
+                  <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Ban className="w-4 h-4 text-muted-foreground" /> Blocked users ({blocked.length})
+                  </span>
+                  {showBlocked ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {showBlocked && (
+                  <div className="border-t border-border divide-y divide-border">
+                    {blocked.map((email) => {
+                      const name = nameForBlocked(email);
+                      return (
+                        <div key={email} className="flex items-center justify-between gap-3 p-4">
+                          <span className="min-w-0">
+                            <span className="block text-sm font-medium text-foreground truncate">{name}</span>
+                            {name !== email && <span className="block text-xs text-muted-foreground truncate">{email}</span>}
+                          </span>
+                          <button
+                            onClick={() => handleUnblock(email)}
+                            className="flex-shrink-0 min-h-[44px] px-4 rounded-lg border border-foreground text-sm font-medium text-foreground hover:bg-secondary transition-colors"
+                          >
+                            Unblock
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             {threads.length === 0 ? (
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -339,35 +385,6 @@ export default function Messages() {
               </div>
             )}
 
-            {/* Blocked users */}
-            <div className="mt-8">
-              <button
-                onClick={() => setShowBlocked(v => !v)}
-                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Blocked users ({blocked.length})
-                {showBlocked ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              {showBlocked && (
-                <div className="mt-3 bg-card rounded-xl border border-border shadow-sm divide-y divide-border">
-                  {blocked.length === 0 ? (
-                    <p className="p-4 text-sm text-muted-foreground">You haven't blocked anyone.</p>
-                  ) : (
-                    blocked.map(email => (
-                      <div key={email} className="flex items-center justify-between gap-3 p-4">
-                        <span className="text-sm text-foreground truncate">{email}</span>
-                        <button
-                          onClick={() => handleUnblock(email)}
-                          className="text-sm font-medium text-primary hover:underline flex-shrink-0 min-h-[44px]"
-                        >
-                          Unblock
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
           </>
         )}
       </div>
