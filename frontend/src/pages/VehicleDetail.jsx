@@ -373,7 +373,9 @@ export default function VehicleDetail() {
               phone: car.phone || ''
             }}
             onSendMessage={handleSendMessageClick}
-            onViewAllAds={handleViewAllAds} />
+            onViewAllAds={handleViewAllAds}
+            isOwnAd={!!user && (car.sellerId || car.created_by_id) === user.id}
+            onManage={() => navigate('/my-ads')} />
             </div>
           </div>
 

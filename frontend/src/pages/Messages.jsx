@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { MessageSquare, Trash2, Flag, Ban, ChevronDown, ChevronUp, Reply } from 'lucide-react';
-import MessageModal from '../components/automarket/MessageModal';
-import { Link, useNavigate } from 'react-router-dom';
+import { MessageSquare, Trash2, Flag, Ban, ChevronDown, ChevronUp, ChevronLeft, Send } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
@@ -11,19 +10,28 @@ import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 import { useToast } from '@/components/ui/use-toast';
 import { getBlocked, isBlocked, blockUser, unblockUser } from '@/lib/blocklist';
+import { buildThreads, isReceivedByMe, isSentByMe, latestReceived } from '@/lib/conversations';
+
+const formatWhen = (iso) =>
+  iso ? new Date(iso).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
 
 export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [blocked, setBlocked] = useState(() => getBlocked());
   const [showBlocked, setShowBlocked] = useState(false);
-  const [replyTarget, setReplyTarget] = useState(null); // the received message being replied to
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const [reportTarget, setReportTarget] = useState(null); // the message being reported
   const [reportText, setReportText] = useState('');
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const { user, isLoadingAuth } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeKey = searchParams.get('thread');
+  const threadEndRef = useRef(null);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -34,10 +42,10 @@ export default function Messages() {
     loadMessages();
   }, [isLoadingAuth, user]);
 
-  const loadMessages = async () => {
+  const loadMessages = async (silent = false) => {
     try {
-      setLoading(true);
-      const records = await api.entities.Message.list('-created_date', 100);
+      if (!silent) setLoading(true);
+      const records = await api.entities.Message.list('-created_date', 200);
       setMessages(records);
     } catch (err) {
       console.error('Failed to load messages:', err);
@@ -46,25 +54,79 @@ export default function Messages() {
     }
   };
 
-  const sendReply = async (text) => {
-    await api.functions.invoke('contactSeller', {
-      ad_id: replyTarget.ad_id,
-      message: text,
-      reply_to_message_id: replyTarget.id,
-    });
-    // Show the reply in the list straight away.
-    loadMessages();
+  // Conversations, hiding anything from senders the user has blocked.
+  const threads = useMemo(() => {
+    if (!user) return [];
+    const visible = messages.filter((m) => m.sender_email === user.email || !isBlocked(m.sender_email));
+    return buildThreads(visible, user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, user, blocked]);
+
+  const activeThread = activeKey ? threads.find((t) => t.key === activeKey) : null;
+
+  // Opening a conversation marks what was sent to me as read.
+  useEffect(() => {
+    if (!activeThread || !user) return;
+    const unread = activeThread.messages.filter((m) => isReceivedByMe(m, user) && m.status !== 'read');
+    if (unread.length === 0) return;
+    const ids = new Set(unread.map((m) => m.id));
+    setMessages((prev) => prev.map((m) => (ids.has(m.id) ? { ...m, status: 'read' } : m)));
+    unread.forEach((m) => api.entities.Message.update(m.id, { status: 'read' }).catch(() => {}));
+  }, [activeKey, messages]);
+
+  useEffect(() => {
+    threadEndRef.current?.scrollIntoView({ block: 'end' });
+  }, [activeKey, activeThread?.messages.length]);
+
+  const openThread = (key) => {
+    setDraft('');
+    setSendError('');
+    setSearchParams({ thread: key });
+  };
+  const closeThread = () => setSearchParams({});
+
+  // A reply is attached to the newest message addressed to me; if the other person has not
+  // written yet, this is another message from me about the ad.
+  const sendInThread = async () => {
+    const text = draft.trim();
+    if (!text || !activeThread || sending) return;
+    setSending(true);
+    setSendError('');
+    try {
+      const received = latestReceived(activeThread, user);
+      await api.functions.invoke(
+        'contactSeller',
+        received
+          ? { ad_id: activeThread.adId, message: text, reply_to_message_id: received.id }
+          : { ad_id: activeThread.adId, message: text }
+      );
+      setDraft('');
+      await loadMessages(true);
+    } catch (err) {
+      setSendError(err?.message || 'Could not send your message. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
-  const handleDelete = async (id) => {
-    await api.entities.Message.delete(id);
-    setMessages(prev => prev.filter(m => m.id !== id));
+  const deleteConversation = async () => {
+    if (!activeThread) return;
+    if (!window.confirm('Delete this conversation? Its messages are removed for both of you.')) return;
+    const ids = activeThread.messages.map((m) => m.id);
+    try {
+      await Promise.all(ids.map((id) => api.entities.Message.delete(id)));
+      setMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
+      closeThread();
+    } catch {
+      toast({ title: 'Could not delete the conversation', description: 'Please try again.' });
+    }
   };
 
   const handleBlock = (email, name) => {
     if (!email) return;
     if (!window.confirm(`Block ${name || email}? You will no longer see messages from this person, and they cannot contact you about your ads.`)) return;
     setBlocked(blockUser(email));
+    closeThread();
     toast({ title: 'User blocked', description: `You will no longer receive messages from ${name || email}.` });
   };
 
@@ -98,17 +160,14 @@ export default function Messages() {
     setReportSubmitting(false);
     setReportTarget(null);
     setReportText('');
+    closeThread();
     toast({
       title: 'Report submitted',
       description: 'Thanks for flagging this. Our team reviews reports within 24 hours. This person has also been blocked.',
     });
   };
 
-  const visibleMessages = messages.filter(
-    m => m.sender_email === user?.email || !isBlocked(m.sender_email)
-  );
-
-  if (isLoadingAuth || loading) {
+  if (isLoadingAuth || loading || !user) {
     return (
       <div className="min-h-screen flex flex-col bg-muted">
         <Navbar />
@@ -120,17 +179,10 @@ export default function Messages() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col bg-muted">
-        <Navbar />
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-4 border-border border-t-slate-800 rounded-full animate-spin" />
-        </div>
-        <div className="mt-auto"><Footer /></div>
-      </div>
-    );
-  }
+  const received = activeThread ? latestReceived(activeThread, user) : null;
+  const lastFromThem = activeThread
+    ? [...activeThread.messages].reverse().find((m) => isReceivedByMe(m, user))
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-muted">
@@ -145,115 +197,181 @@ export default function Messages() {
           <span className="text-foreground font-medium">Messages</span>
         </div>
 
-        <h1 className="text-3xl font-bold text-foreground mb-8">Messages</h1>
+        {activeThread ? (
+          /* ------------------------------ One conversation ------------------------------ */
+          <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 p-3 border-b border-border">
+              <button
+                onClick={closeThread}
+                aria-label="Back to all messages"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center text-foreground hover:bg-secondary rounded-full transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-bold text-foreground truncate">{activeThread.other.name || activeThread.other.email || 'AutoMax user'}</p>
+                {activeThread.adTitle && (
+                  <Link to={`/vehicle/${activeThread.adId}`} className="text-xs text-primary hover:underline truncate block">
+                    Re: {activeThread.adTitle}
+                  </Link>
+                )}
+              </div>
+              {lastFromThem && (
+                <>
+                  <button
+                    onClick={() => { setReportText(''); setReportTarget(lastFromThem); }}
+                    title="Report this person"
+                    aria-label="Report this person"
+                    className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  >
+                    <Flag className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleBlock(lastFromThem.sender_email, lastFromThem.sender_name)}
+                    title="Block this person"
+                    aria-label="Block this person"
+                    className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  >
+                    <Ban className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+              <button
+                onClick={deleteConversation}
+                title="Delete conversation"
+                aria-label="Delete conversation"
+                className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
 
-        {visibleMessages.length === 0 ? (
-          <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
-            <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-2">No messages yet</p>
-            <p className="text-sm text-muted-foreground">Messages you send to sellers will appear here</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {visibleMessages.map(msg => {
-              const isSentByMe = msg.sender_email === user.email;
-              return (
-                <div key={msg.id} className="bg-card rounded-xl border border-border shadow-sm p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isSentByMe ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
-                          {isSentByMe ? 'Sent' : 'Received'}
-                        </span>
-                        <span className="text-sm font-medium text-foreground">{isSentByMe ? msg.seller_name : msg.sender_name}</span>
-                      </div>
-                      {msg.ad_title && <p className="text-xs text-muted-foreground mb-2">Re: {msg.ad_title}</p>}
-                      <p className="text-sm text-foreground">{msg.message}</p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {msg.created_date ? new Date(msg.created_date).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
-                      </p>
-                      {!isSentByMe && msg.ad_id && (
-                        <button
-                          onClick={() => setReplyTarget(msg)}
-                          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline min-h-[44px]"
-                        >
-                          <Reply className="w-4 h-4" /> Reply
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-center flex-shrink-0">
-                      {!isSentByMe && (
-                        <>
-                          <button
-                            onClick={() => { setReportText(''); setReportTarget(msg); }}
-                            title="Report this message"
-                            className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                          >
-                            <Flag className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleBlock(msg.sender_email, msg.sender_name)}
-                            title="Block this sender"
-                            className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                          >
-                            <Ban className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => handleDelete(msg.id)}
-                        title="Delete"
-                        className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Blocked users */}
-        <div className="mt-8">
-          <button
-            onClick={() => setShowBlocked(v => !v)}
-            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Blocked users ({blocked.length})
-            {showBlocked ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          {showBlocked && (
-            <div className="mt-3 bg-card rounded-xl border border-border shadow-sm divide-y divide-border">
-              {blocked.length === 0 ? (
-                <p className="p-4 text-sm text-muted-foreground">You haven't blocked anyone.</p>
-              ) : (
-                blocked.map(email => (
-                  <div key={email} className="flex items-center justify-between gap-3 p-4">
-                    <span className="text-sm text-foreground truncate">{email}</span>
-                    <button
-                      onClick={() => handleUnblock(email)}
-                      className="text-sm font-medium text-primary hover:underline flex-shrink-0 min-h-[44px]"
+            <div className="p-4 flex flex-col gap-3 bg-muted/40">
+              {activeThread.messages.map((m) => {
+                const mine = isSentByMe(m, user);
+                return (
+                  <div key={m.id} className={`flex flex-col max-w-[85%] ${mine ? 'self-end items-end' : 'self-start items-start'}`}>
+                    <div
+                      className={`px-3.5 py-2.5 rounded-2xl text-sm whitespace-pre-wrap break-words ${
+                        mine ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-card border border-border text-foreground rounded-bl-md'
+                      }`}
                     >
-                      Unblock
+                      {m.message}
+                    </div>
+                    <span className="text-[11px] text-muted-foreground mt-1">{formatWhen(m.created_date)}</span>
+                  </div>
+                );
+              })}
+              <div ref={threadEndRef} />
+            </div>
+
+            <div className="p-3 border-t border-border bg-card">
+              {activeThread.adId ? (
+                <>
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      rows={2}
+                      maxLength={2000}
+                      placeholder={received ? 'Write a reply…' : 'Write a message…'}
+                      className="flex-1 rounded-lg border border-border bg-background p-2.5 text-sm text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
+                    <button
+                      onClick={sendInThread}
+                      disabled={!draft.trim() || sending}
+                      aria-label="Send"
+                      className="min-w-[44px] min-h-[44px] rounded-lg bg-primary text-primary-foreground flex items-center justify-center gap-1.5 px-3 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      <Send className="w-4 h-4" /> {sending ? 'Sending…' : 'Send'}
                     </button>
                   </div>
-                ))
+                  {sendError && <p className="text-sm text-destructive mt-2">{sendError}</p>}
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">This conversation is no longer linked to an ad, so it can't be replied to.</p>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* ------------------------------ Conversation list ------------------------------ */
+          <>
+            <h1 className="text-3xl font-bold text-foreground mb-6">Messages</h1>
+
+            {threads.length === 0 ? (
+              <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
+                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-lg font-medium text-foreground mb-2">No messages yet</p>
+                <p className="text-sm text-muted-foreground">Your conversations with buyers and sellers will appear here</p>
+              </div>
+            ) : (
+              <div className="bg-card rounded-xl border border-border shadow-sm divide-y divide-border overflow-hidden">
+                {threads.map((t) => {
+                  const name = t.other.name || t.other.email || 'AutoMax user';
+                  const mine = isSentByMe(t.last, user);
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => openThread(t.key)}
+                      className="w-full text-left flex items-center gap-3 p-4 hover:bg-secondary/60 transition-colors"
+                    >
+                      <span className="w-11 h-11 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center flex-shrink-0">
+                        {name.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className={`text-sm truncate ${t.unread ? 'font-bold text-foreground' : 'font-medium text-foreground'}`}>{name}</span>
+                          <span className="text-[11px] text-muted-foreground flex-shrink-0">{formatWhen(t.last.created_date)}</span>
+                        </span>
+                        {t.adTitle && <span className="block text-xs text-muted-foreground truncate">Re: {t.adTitle}</span>}
+                        <span className={`block text-sm truncate ${t.unread ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                          {mine ? 'You: ' : ''}{t.last.message}
+                        </span>
+                      </span>
+                      {t.unread > 0 && (
+                        <span className="min-w-[22px] h-[22px] rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center px-1.5 flex-shrink-0">
+                          {t.unread}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Blocked users */}
+            <div className="mt-8">
+              <button
+                onClick={() => setShowBlocked(v => !v)}
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Blocked users ({blocked.length})
+                {showBlocked ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+              {showBlocked && (
+                <div className="mt-3 bg-card rounded-xl border border-border shadow-sm divide-y divide-border">
+                  {blocked.length === 0 ? (
+                    <p className="p-4 text-sm text-muted-foreground">You haven't blocked anyone.</p>
+                  ) : (
+                    blocked.map(email => (
+                      <div key={email} className="flex items-center justify-between gap-3 p-4">
+                        <span className="text-sm text-foreground truncate">{email}</span>
+                        <button
+                          onClick={() => handleUnblock(email)}
+                          className="text-sm font-medium text-primary hover:underline flex-shrink-0 min-h-[44px]"
+                        >
+                          Unblock
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
       </PullToRefresh>
-
-      <MessageModal
-        open={!!replyTarget}
-        onClose={() => setReplyTarget(null)}
-        title="Reply"
-        sellerName={replyTarget?.sender_name || replyTarget?.sender_email}
-        adTitle={replyTarget?.ad_title}
-        onSend={sendReply} />
 
       {/* Report modal */}
       {reportTarget && (
