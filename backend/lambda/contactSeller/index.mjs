@@ -104,6 +104,8 @@ export const handler = async (event) => {
         });
         emailSent = resendRes.ok;
         if (!resendRes.ok) console.error('Message notification email failed:', resendRes.status, await resendRes.text());
+        // The Resend id lets a missing email be traced in the Resend dashboard (Emails > search by id).
+        else console.log('Message notification email accepted by Resend:', JSON.stringify({ ...(await resendRes.json().catch(() => ({}))), to: recipientEmail }));
       }
     } catch (emailErr) {
       console.log('Email sending skipped:', emailErr.message);
