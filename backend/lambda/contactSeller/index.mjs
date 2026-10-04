@@ -40,6 +40,10 @@ export const handler = async (event) => {
       if (result.error) return json(result.status, { error: result.error });
       ({ userId: recipientUserId, name: recipientName, email: recipientEmail } = result.recipient);
     } else {
+      // Contacting yourself is never useful and just creates a one-person conversation.
+      if (ad.created_by_id && ad.created_by_id === user.id) {
+        return json(400, { error: "You can't send a message to your own ad" });
+      }
       recipientUserId = ad.created_by_id || '';
       recipientName = ad.fullName || '';
       recipientEmail = ad.email || '';
@@ -93,7 +97,9 @@ export const handler = async (event) => {
             subject: isReply
               ? `AutoMax: Reply about "${cleanAdTitle || 'your message'}"`
               : `AutoMax: New message about "${cleanAdTitle || 'your ad'}"`,
-            text: `Hi ${cleanRecipientName || 'there'},\n\n${intro}\n\nMessage:\n${cleanMessage}\n\nReply to this email to answer ${cleanSenderName || 'them'} directly, or reply in AutoMax: ${origin}/messages`,
+            // The conversation key matches the one the Messages page builds for the recipient
+            // (<adId>:<other person's user id>), so the link opens this exact conversation.
+            text: `Hi ${cleanRecipientName || 'there'},\n\n${intro}\n\nMessage:\n${cleanMessage}\n\nView the conversation and reply in AutoMax:\n${origin}/messages?thread=${encodeURIComponent(`${ad_id}:${user.id}`)}\n\nOr simply reply to this email to answer ${cleanSenderName || 'them'} directly.`,
           }),
         });
         emailSent = resendRes.ok;
