@@ -11,7 +11,7 @@ import { queryClientInstance } from '@/lib/query-client';
 import { useToast } from '@/components/ui/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { getBlocked, isBlocked, blockUser, unblockUser } from '@/lib/blocklist';
-import { buildThreads, isReceivedByMe, isSentByMe, latestReceived } from '@/lib/conversations';
+import { buildThreads, isReceivedByMe, isSentByMe, latestReceived, otherParty } from '@/lib/conversations';
 
 const formatWhen = (iso) =>
   iso ? new Date(iso).toLocaleString('en-IE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
@@ -58,9 +58,9 @@ export default function Messages() {
   // Conversations, hiding anything from senders the user has blocked.
   const threads = useMemo(() => {
     if (!user) return [];
-    const visible = messages.filter((m) => m.sender_email === user.email || !isBlocked(m.sender_email));
+    // Hide every conversation with a blocked person, whichever of you wrote first.
+    const visible = messages.filter((m) => !isBlocked(otherParty(m, user).email));
     return buildThreads(visible, user);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, user, blocked]);
 
   const activeThread = activeKey ? threads.find((t) => t.key === activeKey) : null;
@@ -142,7 +142,9 @@ export default function Messages() {
 
   // Blocked senders are hidden from the list, so look their name up from the loaded messages.
   const nameForBlocked = (email) =>
-    messages.find((m) => m.sender_email === email && m.sender_name)?.sender_name || email;
+    messages.find((m) => m.sender_email === email && m.sender_name)?.sender_name ||
+    messages.find((m) => m.seller_email === email && m.seller_name)?.seller_name ||
+    email;
 
   const submitReport = async () => {
     const msg = reportTarget;
@@ -193,6 +195,17 @@ export default function Messages() {
   const lastFromThem = activeThread
     ? [...activeThread.messages].reverse().find((m) => isReceivedByMe(m, user))
     : null;
+  // Report / Block work from either end of a conversation, including one where the other person
+  // hasn't written yet (the user started it): they act on the other person, not on a message.
+  const lastInThread = activeThread ? activeThread.messages[activeThread.messages.length - 1] : null;
+  const reportableMessage = activeThread
+    ? lastFromThem || {
+        sender_name: activeThread.other.name,
+        sender_email: activeThread.other.email,
+        ad_title: activeThread.adTitle,
+        message: lastInThread?.message || '',
+      }
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-muted">
@@ -226,10 +239,10 @@ export default function Messages() {
                   </Link>
                 )}
               </div>
-              {lastFromThem && (
+              {activeThread.other.email && (
                 <>
                   <button
-                    onClick={() => { setReportText(''); setReportTarget(lastFromThem); }}
+                    onClick={() => { setReportText(''); setReportTarget(reportableMessage); }}
                     title="Report this person"
                     aria-label="Report this person"
                     className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -237,7 +250,7 @@ export default function Messages() {
                     <Flag className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleBlock(lastFromThem.sender_email, lastFromThem.sender_name)}
+                    onClick={() => handleBlock(activeThread.other.email, activeThread.other.name)}
                     title="Block this person"
                     aria-label="Block this person"
                     className="text-muted-foreground hover:text-destructive transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
