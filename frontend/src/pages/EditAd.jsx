@@ -119,7 +119,10 @@ export default function EditAd() {
           county: ad.county || 'Dublin',
           area: ad.area || '',
           location: ad.location || '',
-          isTrader: ad.isTrader || false
+          isTrader: ad.isTrader || false,
+          businessName: ad.businessName || '',
+          businessAddress: ad.businessAddress || '',
+          vatNumber: ad.vatNumber || ''
         });
         setExistingPhotos(ad.photos || []);
       } catch {
@@ -209,6 +212,7 @@ export default function EditAd() {
     if (!form.fullName?.trim()) errors.fullName = 'Full name is required';
     if (!form.email?.trim()) errors.email = 'Email is required';
     if (!form.phone?.trim()) errors.phone = 'Phone is required';
+    if (form.isTrader && !form.businessName?.trim()) errors.businessName = 'Business name is required for trader ads';
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) {
       const firstKey = Object.keys(errors)[0];
@@ -260,6 +264,9 @@ export default function EditAd() {
         phone: form.phone,
         adType: form.adType,
         isTrader: form.isTrader,
+        businessName: form.isTrader ? form.businessName.trim() : '',
+        businessAddress: form.isTrader ? form.businessAddress.trim() : '',
+        vatNumber: form.isTrader ? form.vatNumber.trim() : '',
         photos: allPhotos
       });
       navigate('/my-ads');
@@ -670,9 +677,29 @@ export default function EditAd() {
                 <input type="checkbox" id="trader" checked={form.isTrader} onChange={toggle('isTrader')} className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" />
                 <div>
                   <label htmlFor="trader" className="text-sm font-medium cursor-pointer">Yes, I'm a trader</label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Generates a VAT receipt</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader and also listed in Dealership Cars. Your business details are printed on your receipts.</p>
                 </div>
               </div>
+              {form.isTrader &&
+              <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-secondary/30">
+                  <div id="field-businessName">
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Business Name <span className="text-destructive">*</span></label>
+                    <input type="text" value={form.businessName} onChange={set('businessName')} placeholder="Business Name"
+                    className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.businessName ? 'border-destructive' : 'border-border'}`} />
+                    {formErrors.businessName && <p className="text-xs text-destructive mt-1">{formErrors.businessName}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">Business Address</label>
+                    <textarea value={form.businessAddress} onChange={set('businessAddress')} placeholder="Business Address" rows={3}
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">VAT Number</label>
+                    <input type="text" value={form.vatNumber} onChange={set('vatNumber')} placeholder="e.g. 12343234"
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                  </div>
+                </div>
+              }
             </div>
           </Section>
 

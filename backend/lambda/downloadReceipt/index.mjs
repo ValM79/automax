@@ -59,40 +59,56 @@ export const handler = async (event) => {
     doc.text(`Date: ${dateStr}`, 20, 72);
     doc.text('Payment Method: Credit / Debit Card', 20, 79);
 
+    // Trader ads carry the business details entered on Place Ad / Edit Ad; the receipt shows
+    // them under "Billed To" for the trader's records.
+    const business = ad.isTrader && ad.businessName
+      ? { name: ad.businessName, address: ad.businessAddress, vat: ad.vatNumber }
+      : null;
     doc.setFont('helvetica', 'bold');
     doc.text('Billed To:', 20, 95);
     doc.setFont('helvetica', 'normal');
-    doc.text(user.full_name || user.email || 'Valued Customer', 20, 102);
-    if (user.email) doc.text(user.email, 20, 109);
+    let billedY = 102;
+    const billedLine = (text) => {
+      doc.text(String(text).slice(0, 90), 20, billedY);
+      billedY += 7;
+    };
+    if (business) {
+      billedLine(business.name);
+      String(business.address || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, 4).forEach(billedLine);
+      if (business.vat) billedLine(`VAT No: ${business.vat}`);
+    }
+    billedLine(user.full_name || user.email || 'Valued Customer');
+    if (user.email) billedLine(user.email);
 
+    const tableY = Math.max(125, billedY + 10);
     doc.setFont('helvetica', 'bold');
-    doc.text('Description', 20, 125);
-    doc.text('Amount', 160, 125);
-    doc.line(20, 128, 190, 128);
+    doc.text('Description', 20, tableY);
+    doc.text('Amount', 160, tableY);
+    doc.line(20, tableY + 3, 190, tableY + 3);
 
     doc.setFont('helvetica', 'normal');
     const packageName = paidPackage ? `${paidPackage} Ad Package` : 'Ad Listing';
-    doc.text(packageName, 20, 138);
-    doc.text(`EUR ${amount.toFixed(2)}`, 160, 138);
+    doc.text(packageName, 20, tableY + 13);
+    doc.text(`EUR ${amount.toFixed(2)}`, 160, tableY + 13);
 
     if (ad.title) {
       doc.setFontSize(9);
       doc.setTextColor(100);
-      doc.text(`Listing: ${ad.title}`, 20, 145);
+      doc.text(`Listing: ${ad.title}`, 20, tableY + 20);
       doc.setTextColor(0);
       doc.setFontSize(10);
     }
 
-    doc.line(20, 155, 190, 155);
+    doc.line(20, tableY + 30, 190, tableY + 30);
     doc.setFont('helvetica', 'bold');
-    doc.text('Total Paid:', 120, 163);
-    doc.text(`EUR ${amount.toFixed(2)}`, 160, 163);
+    doc.text('Total Paid:', 120, tableY + 38);
+    doc.text(`EUR ${amount.toFixed(2)}`, 160, tableY + 38);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(120);
-    doc.text('Thank you for your payment. This receipt was issued electronically by AutoMax.', 20, 185);
-    doc.text('For questions about this transaction, contact support@automax.ie', 20, 191);
+    doc.text('Thank you for your payment. This receipt was issued electronically by AutoMax.', 20, tableY + 60);
+    doc.text('For questions about this transaction, contact support@automax.ie', 20, tableY + 66);
 
     const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
 

@@ -37,7 +37,7 @@ export function useUserAdsByMake(make) {
  * sorted by newest first (to appear at the top of category pages).
  * Respects listingDays — ads older than their paid duration are excluded.
  */
-export function useUserAds(subsections, refetchKey = 0) {
+export function useUserAds(subsections, refetchKey = 0, traderSubsections = []) {
   const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
@@ -45,7 +45,9 @@ export function useUserAds(subsections, refetchKey = 0) {
       .then(ads => {
         const now = Date.now();
         const filtered = ads.filter(ad => {
-          if (!subsections.includes(ad.subsection)) return false;
+          // Trader ads in `traderSubsections` are also shown here (e.g. a dealer's car in Dealership Cars).
+          const listedHere = subsections.includes(ad.subsection) || (ad.isTrader && traderSubsections.includes(ad.subsection));
+          if (!listedHere) return false;
           // Check if listing has expired based on listingDays and created_date
           if (ad.listingDays && ad.created_date) {
             const createdAt = new Date(ad.created_date).getTime();
@@ -57,7 +59,7 @@ export function useUserAds(subsections, refetchKey = 0) {
         setUserAds(filtered);
       })
       .catch(() => setUserAds([]));
-  }, [subsections.join(','), refetchKey]);
+  }, [subsections.join(','), refetchKey, traderSubsections.join(',')]);
 
   return userAds;
 }
