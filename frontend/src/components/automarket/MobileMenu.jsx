@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 
 const dealersMenuItems = [
   { label: 'Find a dealer', route: '/dealers' },
-  { label: 'Information for dealers', route: '/dealers-information' }];
+  { label: 'Dealers information', route: '/dealers-information' }];
 
 const dropdownMap = {
   Dealers: dealersMenuItems
