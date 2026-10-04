@@ -148,8 +148,7 @@ export default function Messages() {
     const msg = reportTarget;
     if (!msg) return;
     setReportSubmitting(true);
-    // Best-effort forward to the AutoMax team. The block below is what actually
-    // protects the user, so a failed send is not surfaced as an error.
+    // Reporting only reports: the person is not blocked (the user can block separately).
     try {
       await api.functions.invoke('submitContactForm', {
         email: user?.email || 'unknown',
@@ -164,16 +163,17 @@ export default function Messages() {
           `Reporter note: ${reportText || '(none)'}`,
       });
     } catch {
-      /* ignore — the block still applies */
+      // Nothing else protects the user here, so don't pretend it worked; keep the dialog open.
+      setReportSubmitting(false);
+      toast({ title: 'Could not send your report', description: 'Please check your connection and try again.' });
+      return;
     }
-    if (msg.sender_email) setBlocked(blockUser(msg.sender_email));
     setReportSubmitting(false);
     setReportTarget(null);
     setReportText('');
-    closeThread();
     toast({
       title: 'Report submitted',
-      description: 'Thanks for flagging this. Our team reviews reports within 24 hours. This person has also been blocked.',
+      description: 'Thanks for flagging this. Our team reviews reports within 24 hours. You can also block this person from the conversation.',
     });
   };
 
@@ -400,7 +400,7 @@ export default function Messages() {
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               Report this message from <span className="font-medium text-foreground">{reportTarget.sender_name || reportTarget.sender_email}</span> to the AutoMax team.
-              The sender will also be blocked. Reports are reviewed within 24 hours.
+              Reports are reviewed within 24 hours. This doesn't block them; you can do that separately from the conversation.
             </p>
             <label className="text-sm font-semibold text-foreground mb-1 block">What's wrong? (optional)</label>
             <textarea
@@ -423,7 +423,7 @@ export default function Messages() {
                 disabled={reportSubmitting}
                 className="px-4 py-2 text-sm font-medium bg-destructive text-white rounded-lg hover:opacity-90 disabled:opacity-50 min-h-[44px]"
               >
-                {reportSubmitting ? 'Submitting…' : 'Report & block'}
+                {reportSubmitting ? 'Submitting…' : 'Report'}
               </button>
             </div>
           </div>
