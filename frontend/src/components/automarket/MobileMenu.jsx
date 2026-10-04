@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, X, User, Megaphone, MessageSquare, ThumbsUp, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -112,7 +113,10 @@ export default function MobileMenu({ open, onClose }) {
     }
   };
 
-  return (
+  // Rendered into <body> rather than inside the page's sticky <nav>: a scrollable panel nested
+  // in a sticky header is a known problem for touch scrolling on iOS (WebKit). It stays above
+  // the page and below the bottom tab bar (z-[70]) so the tabs remain usable.
+  return createPortal(
     <div className="fixed inset-0 z-[60] lg:hidden">
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
@@ -126,12 +130,12 @@ export default function MobileMenu({ open, onClose }) {
         className="absolute inset-y-0 right-0 w-full bg-card shadow-2xl flex flex-col overflow-y-auto overscroll-contain scrollbar-hide"
         style={{
           paddingTop: 'max(env(safe-area-inset-top), 24px)',
-          paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 1rem)',
+          paddingBottom: 'calc(56px + env(safe-area-inset-bottom))',
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-y'
         }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 h-16 border-b border-border bg-card flex-shrink-0">
+        <div className="flex items-center justify-between px-4 h-14 border-b border-border bg-card flex-shrink-0">
           <Link to="/" onClick={onClose} className="inline-flex items-center gap-2 cursor-pointer">
             <span className="text-xl font-extrabold tracking-tight text-[hsl(var(--primary))]">AutoMax</span>
             <img src="/img/ca07bfd68_generated_image.jpg" alt="AutoMax" className="w-6 h-6 object-contain flex-shrink-0" />
@@ -144,7 +148,7 @@ export default function MobileMenu({ open, onClose }) {
         {/* User account section — blue section */}
         {user ?
         <div className="px-4 py-2 flex-shrink-0 bg-[hsl(var(--muted))]">
-            <div className="py-3 mb-1">
+            <div className="py-2 mb-1">
               <p className="text-lg font-bold text-foreground">{user.full_name || user.email || 'User'}</p>
             </div>
             {userMenuItems.map((item, i) =>
@@ -154,7 +158,7 @@ export default function MobileMenu({ open, onClose }) {
           <button
             key={item.label}
             onClick={() => handleUserItemClick(item)}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 text-sm hover:bg-black/5 rounded-md transition-colors ${item.action === 'logout' ? 'text-primary' : 'text-foreground'}`}>
+            className={`flex items-center gap-3 w-full px-3 py-2 text-sm hover:bg-black/5 rounded-md transition-colors ${item.action === 'logout' ? 'text-primary' : 'text-foreground'}`}>
             
                   <item.icon className={`w-5 h-5 ${item.action === 'logout' ? 'text-primary' : 'text-muted-foreground'}`} />
                   {item.label}
@@ -179,7 +183,7 @@ export default function MobileMenu({ open, onClose }) {
           <div key={link.label}>
             <button
               onClick={() => handleNavClick(link)}
-              className="w-full text-left text-foreground px-3 py-3 text-sm font-medium flex items-center justify-between hover:bg-secondary rounded-md transition-colors">
+              className="w-full text-left text-foreground px-3 py-2.5 text-sm font-medium flex items-center justify-between hover:bg-secondary rounded-md transition-colors">
             
               {link.label}
               {link.hasDropdown && <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expandedMenu === link.label ? 'rotate-180' : ''}`} />}
@@ -203,6 +207,8 @@ export default function MobileMenu({ open, onClose }) {
         </div>
 
       </div>
-    </div>);
+    </div>,
+    document.body
+  );
 
 }
