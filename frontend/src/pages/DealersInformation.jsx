@@ -28,7 +28,7 @@ export default function DealersInformation() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {plans.map((plan, i) =>
-          <div key={i} className={`bg-card border-2 rounded-2xl p-6 shadow-sm flex flex-col ${i === 1 ? 'border-primary' : 'border-border'}`}>
+          <div key={i} className={`bg-card border-2 rounded-2xl p-6 shadow-sm flex flex-col border-border`}>
               <h3 className="text-xl font-bold text-foreground mb-1">{plan.name}</h3>
               <p className="text-2xl font-bold text-primary mb-4">{plan.price}</p>
               <ul className="space-y-2 flex-1 mb-6">
@@ -38,7 +38,7 @@ export default function DealersInformation() {
                   </li>
               )}
               </ul>
-              <button onClick={() => setShowContactForm(true)} className={`w-full text-center font-semibold py-2.5 rounded-xl transition-colors text-sm ${i === 1 ? 'bg-primary text-white hover:bg-primary/90' : 'border border-foreground text-foreground hover:bg-secondary'}`}>
+              <button onClick={() => setShowContactForm(true)} className={`w-full text-center font-semibold py-2.5 rounded-xl transition-colors text-sm border border-foreground text-foreground hover:bg-secondary`}>
                 Get Started
               </button>
             </div>
