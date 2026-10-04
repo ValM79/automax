@@ -69,13 +69,20 @@ export default function MobileMenu({ open, onClose }) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [open]);
 
-  // Freeze the page behind the menu while it's open, so on iOS a swipe scrolls the
-  // menu instead of the page underneath. Restored on close and on unmount.
+  // While the menu is open the page behind it is hidden (see `.app-page` in index.css), so the
+  // menu *is* the document and scrolls with ordinary page scrolling. An inner scrolling panel
+  // could not be swiped inside the iPhone app's WebView, which left the bottom items (e.g.
+  // Recovery Service once Dealers is expanded) unreachable. The page's scroll position is
+  // restored on close.
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = previous; };
+    const scrollY = window.scrollY;
+    document.body.classList.add('mobile-menu-open');
+    window.scrollTo(0, 0);
+    return () => {
+      document.body.classList.remove('mobile-menu-open');
+      requestAnimationFrame(() => window.scrollTo(0, scrollY));
+    };
   }, [open]);
 
   if (!open) return null;
@@ -113,26 +120,16 @@ export default function MobileMenu({ open, onClose }) {
     }
   };
 
-  // Rendered into <body> rather than inside the page's sticky <nav>: a scrollable panel nested
-  // in a sticky header is a known problem for touch scrolling on iOS (WebKit). It stays above
-  // the page and below the bottom tab bar (z-[70]) so the tabs remain usable.
+  // Rendered into <body>, in normal flow (not fixed): with the page hidden it is the only content,
+  // so the document scrolls. The bottom tab bar (fixed, z-[70]) stays on top and usable, and the
+  // bottom padding keeps the last item clear of it.
   return createPortal(
-    <div className="fixed inset-0 z-[60] lg:hidden">
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-
-      {/* Panel */}
-      {/* The panel itself is the scroll container. The explicit touch-scrolling hints
-          (momentum scrolling, vertical pan only, no scroll-chaining into the page
-          behind) keep it scrollable inside iOS's WebView, where a fixed overlay can
-          otherwise swallow the swipe. */}
+    <div className="relative z-[60] lg:hidden bg-card min-h-screen">
       <div
-        className="absolute inset-y-0 right-0 w-full bg-card shadow-2xl flex flex-col overflow-y-auto overscroll-contain scrollbar-hide"
+        className="flex flex-col w-full min-h-screen bg-card"
         style={{
           paddingTop: 'max(env(safe-area-inset-top), 24px)',
-          paddingBottom: 'calc(56px + env(safe-area-inset-bottom))',
-          WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-y'
+          paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 1rem)'
         }}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-border bg-card flex-shrink-0">
