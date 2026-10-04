@@ -12,6 +12,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, isOwnA
       <div className="mb-3">
         {location && <p className="font-semibold text-foreground text-base truncate">{location}</p>}
         <h3 className="font-semibold text-foreground text-base truncate">{name}</h3>
+        {seller?.isTrader && <span className="inline-block mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Trader</span>}
       </div>
 
       {/* You can't message or call yourself, so your own ad gets management actions instead. */}

@@ -370,7 +370,8 @@ export default function VehicleDetail() {
               name: sellerName || car.fullName || car.sellerType || 'Private Seller',
               location: locationShort,
               yearsOnPlatform: sellerTenure || 'New seller',
-              phone: car.phone || ''
+              phone: car.phone || '',
+              isTrader: car.sellerType === 'Trader'
             }}
             onSendMessage={handleSendMessageClick}
             onViewAllAds={handleViewAllAds}

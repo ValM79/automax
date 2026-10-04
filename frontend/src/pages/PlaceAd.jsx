@@ -264,6 +264,7 @@ export default function PlaceAd() {
     if (!form.email.trim()) errors.email = 'Please enter your email address';
     if (!form.phone.trim()) errors.phone = 'Please enter your phone number';
     if (!form.area || form.area === '__other__') errors.area = 'Please select an area';
+    if (form.isTrader && !form.businessName.trim()) errors.businessName = 'Please enter your business name';
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) {
       // Scroll to first error
@@ -1058,21 +1059,22 @@ export default function PlaceAd() {
                 className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" />
                 <div>
                   <label htmlFor="trader" className="text-sm font-medium cursor-pointer">Yes, I'm a trader</label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Generates a VAT receipt</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader and also listed in Dealership Cars. Your business details are printed on your receipts.</p>
                 </div>
               </div>
 
               {/* Trader details */}
               {form.isTrader &&
               <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-secondary/30">
-                  <div>
+                  <div id="field-businessName">
                     <label className="block text-sm font-medium text-foreground mb-1.5">Business Name <span className="text-destructive">*</span></label>
                     <input
                     type="text"
                     value={form.businessName}
                     onChange={set('businessName')}
                     placeholder="Business Name"
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                    className={`w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${formErrors.businessName ? 'border-destructive' : 'border-border'}`} />
+                    {formErrors.businessName && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.businessName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-1.5">Business Address</label>
@@ -1187,6 +1189,9 @@ export default function PlaceAd() {
                     phone: form.phone,
                     adType: form.adType,
                     isTrader: form.isTrader,
+                    businessName: form.isTrader ? form.businessName.trim() : '',
+                    businessAddress: form.isTrader ? form.businessAddress.trim() : '',
+                    vatNumber: form.isTrader ? form.vatNumber.trim() : '',
                     photos: uploadedPhotoUrls,
                     status: 'pending'
                   };

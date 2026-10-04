@@ -14,6 +14,9 @@ const ITEMS_PER_PAGE = 12;
 
 const dealerListings = [];
 
+// A trader's car ad (see the "I'm a trader" tick on Place Ad) is also listed here, whichever car category it was placed in.
+const TRADER_CAR_SUBSECTIONS = ['Cars', 'New Cars', 'Electric & Hybrid Cars', 'Modified Cars', 'Vintage Cars', 'Rally Cars'];
+
 
 
 
@@ -22,7 +25,7 @@ export default function DealershipCars() {
   const [savedIds, setSavedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState({});
-  const userAds = useUserAds(['Dealership Cars', 'Cars from Dealerships']);
+  const userAds = useUserAds(['Dealership Cars', 'Cars from Dealerships'], 0, TRADER_CAR_SUBSECTIONS);
 
   const toggleSave = (id) => setSavedIds((prev) =>
   prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
