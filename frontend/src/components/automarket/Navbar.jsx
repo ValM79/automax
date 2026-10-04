@@ -23,8 +23,8 @@ const userMenuItems = [
 
 
 const dealersMenuItems = [
-{ label: 'Find a dealer' },
-{ label: 'Information for dealers' }];
+{ label: 'Find a dealer', route: '/dealers' },
+{ label: 'Dealers information', route: '/dealers-information' }];
 
 
 export default function Navbar() {
@@ -121,21 +121,13 @@ export default function Navbar() {
                   {showDealersMenu &&
               <div className="absolute left-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-lg py-1 z-50">
                       {dealersMenuItems.map((item) =>
-                item.label === 'Find a dealer' ?
                 <Link
                   key={item.label}
-                  to="/dealers"
+                  to={item.route}
                   onClick={() => setShowDealersMenu(false)}
                   className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                             {item.label}
-                          </Link> :
-
-                <button
-                  key={item.label}
-                  onClick={() => setShowDealersMenu(false)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
-                            {item.label}
-                          </button>
+                          </Link>
 
                 )}
                     </div>
