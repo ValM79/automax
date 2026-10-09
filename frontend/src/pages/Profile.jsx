@@ -11,14 +11,8 @@ import { queryClientInstance } from '@/lib/query-client';
 
 import { IRISH_COUNTIES } from '@/lib/counties';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
-const areasByCounty = {
-  Dublin: ['Dublin City Centre', 'North Dublin', 'South Dublin', 'West County', 'East Dublin'],
-  Cork: ['Cork City', 'North Cork', 'South Cork', 'West Cork'],
-  Galway: ['Galway City', 'Connemara', 'East Galway'],
-  Limerick: ['Limerick City', 'North Limerick', 'South Limerick'],
-  default: ['North', 'South', 'East', 'West', 'City Centre']
-};
+import AreaSelect from '../components/automarket/AreaSelect';
+import { IRISH_TOWNS, OTHER_AREA } from '@/lib/irishTowns';
 
 export default function Profile() {
   const { user, isLoadingAuth, refreshUser } = useAuth();
@@ -64,7 +58,7 @@ export default function Profile() {
   }, [isLoadingAuth, user]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const areas = areasByCounty[form.county] || areasByCounty.default;
+  const areas = IRISH_TOWNS[form.county] || [];
 
   // Account deletion is handled by the support team, not instantly: this only emails the request to
   // support@automax.ie (via the contact form backend) so the request can be checked before anything is removed.
@@ -100,7 +94,8 @@ export default function Profile() {
       await api.auth.updateMe({
         display_name: form.name,
         county: form.county,
-        area: form.area,
+        // "Other" picked but nothing typed: save no area, never the placeholder value
+        area: form.area === OTHER_AREA ? '' : form.area.trim(),
         phone: form.phone,
         seller_type: sellerType,
         business_name: form.businessName,
@@ -327,13 +322,14 @@ export default function Profile() {
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
-                <Select value={form.area} onValueChange={(v) => setForm((f) => ({ ...f, area: v }))} disabled={!form.county}>
-                  <SelectTrigger className="h-10 bg-card"><SelectValue placeholder={form.county ? 'Select area...' : 'Select a county first'} /></SelectTrigger>
-                  <SelectContent>
-                    {areas.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Used so buyers can gauge collection distance. Items will appear under the county you choose.</p>
+                <AreaSelect
+                  value={form.area}
+                  onChange={(v) => setForm((f) => ({ ...f, area: v }))}
+                  options={areas}
+                  disabled={!form.county}
+                  placeholder={form.county ? 'Select your area or town' : 'Select a county first'}
+                />
+                <p className="text-xs text-muted-foreground">Pick your town from the list, or choose "Other" to type your own. Used so buyers can gauge collection distance.</p>
               </div>
             </div>
           </section>
