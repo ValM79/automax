@@ -32,7 +32,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [notify, setNotify] = useState({ messages: false, savedSearches: false, promotions: false });
+  const [notify, setNotify] = useState({ messages: true, savedSearches: false, promotions: false });
   const [memberSince, setMemberSince] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,7 +47,8 @@ export default function Profile() {
     }
     setSellerType(user.seller_type || 'private');
     setNotify({
-      messages: user.notify_messages === true,
+      // Message alerts are ON unless the user switched them off; the other two are OFF until opted in
+      messages: user.notify_messages !== false,
       savedSearches: user.notify_saved_searches === true,
       promotions: user.notify_promotions === true,
     });
