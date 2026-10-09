@@ -39,7 +39,6 @@ export default function Profile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
-  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -242,15 +241,7 @@ export default function Profile() {
                 />
               </div>
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-foreground">Email</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowEmailModal(true)}
-                    className="text-sm font-semibold text-primary hover:underline transition-colors">
-                    Edit email
-                  </button>
-                </div>
+                <label className="block text-sm font-medium text-foreground">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -260,6 +251,7 @@ export default function Profile() {
                     className="w-full h-10 pl-10 pr-3 text-sm border border-border rounded-md bg-secondary text-muted-foreground cursor-not-allowed"
                   />
                 </div>
+                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
               </div>
             </div>
           </section>
@@ -342,33 +334,6 @@ export default function Profile() {
         </div>
       </div>
       </PullToRefresh>
-
-      {/* Edit Email Modal */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowEmailModal(false)}>
-          <div className="bg-card rounded-xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-bold text-foreground mb-4">Change Your Email</h2>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <p>
-                Please submit your request to <a href="mailto:changemyemail@automax.ie" className="text-foreground font-semibold hover:underline">changemyemail@automax.ie</a>
-              </p>
-              <p>
-                For security reasons, we ask that you contact us directly from the email address that is currently registered to your AutoMax account.
-              </p>
-              <p>
-                If you lost access to your old email address, <strong className="text-foreground">please refer to our Help Page article for more information.</strong>
-              </p>
-            </div>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setShowEmailModal(false)}
-                className="px-5 py-2.5 rounded-lg border border-border text-foreground font-medium text-sm hover:bg-secondary transition-colors">
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
