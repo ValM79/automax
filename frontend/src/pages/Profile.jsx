@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -163,9 +163,13 @@ export default function Profile() {
           <div className="space-y-6">
             {/* Trader fields */}
             {sellerType === 'trader' && (
-              <div className="space-y-4">
+              <div className="border border-border rounded-xl p-5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-green-600" />
+                  <h2 className="text-lg font-bold text-foreground">Business Details</h2>
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">Business Name<span className="text-destructive">*</span></label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Business Name<span className="text-destructive">*</span></label>
                   <input
                     type="text"
                     value={form.businessName}
@@ -175,7 +179,7 @@ export default function Profile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">Business Address</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Business Address</label>
                   <input
                     type="text"
                     value={form.businessAddress || ''}
@@ -185,7 +189,7 @@ export default function Profile() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">VAT Number (if applicable)</label>
+                  <label className="block text-sm font-medium text-foreground mb-2">VAT Number (if applicable)</label>
                   <input
                     type="text"
                     value={form.vatNumber}
@@ -197,66 +201,73 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Your Name<span className="text-destructive">*</span></label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={set('name')}
-                placeholder="Your name"
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Phone<span className="text-destructive">*</span></label>
-              <div className="flex flex-col md:flex-row md:items-center gap-3">
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
-                  disabled={!editingPhone}
-                  placeholder="e.g. 0862671554"
-                  className="flex-1 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
-                />
-                <button
-                  onClick={() => setEditingPhone((v) => !v)}
-                  className="border border-foreground text-foreground font-semibold px-6 py-3 rounded-lg hover:bg-secondary transition-colors text-sm flex-shrink-0 md:w-auto">
-                  {editingPhone ? 'Done' : 'Edit'}
-                </button>
+            {/* Account Details */}
+            <div className="border border-border rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <User className="w-5 h-5 text-green-600" />
+                <h2 className="text-lg font-bold text-foreground">Account Details</h2>
               </div>
-              {form.phone ? (
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> Your phone is verified</p>
-              ) : (
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> Add a phone number so buyers can contact you</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-muted-foreground">Email</label>
-                <button
-                  onClick={() => setShowEmailModal(true)}
-                  className="text-sm font-semibold text-primary hover:underline transition-colors">
-                  Edit email
-                </button>
-              </div>
-              <input
-                type="email"
-                value={form.email}
-                disabled
-                className="w-full px-4 py-3 border border-border rounded-lg bg-secondary text-muted-foreground cursor-not-allowed"
-              />
-            </div>
-
-            {/* County + Area inline */}
-            <div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">County<span className="text-destructive">*</span></label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Full Name<span className="text-destructive">*</span></label>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={set('name')}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-foreground">Email</label>
+                    <button
+                      onClick={() => setShowEmailModal(true)}
+                      className="text-sm font-semibold text-primary hover:underline transition-colors">
+                      Edit email
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="email"
+                      value={form.email}
+                      disabled
+                      className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-secondary text-muted-foreground cursor-not-allowed"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="border border-border rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Phone className="w-5 h-5 text-green-600" />
+                <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Phone Number<span className="text-destructive">*</span></label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                      disabled={!editingPhone}
+                      placeholder="e.g. 086 123 4567"
+                      className="flex-1 min-w-0 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
+                    />
+                    <button
+                      onClick={() => setEditingPhone((v) => !v)}
+                      className="border border-foreground text-foreground font-semibold px-4 py-3 rounded-lg hover:bg-secondary transition-colors text-sm flex-shrink-0">
+                      {editingPhone ? 'Done' : 'Edit'}
+                    </button>
+                  </div>
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Your phone is verified' : 'Add a phone number so buyers can contact you'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">County<span className="text-destructive">*</span></label>
                   <div className="relative">
                     <select
                       value={form.county}
@@ -267,8 +278,8 @@ export default function Profile() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">Area<span className="text-destructive">*</span></label>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">Area / Town<span className="text-destructive">*</span></label>
                   <div className="relative">
                     <select
                       value={form.area}
@@ -279,9 +290,9 @@ export default function Profile() {
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> Items will appear under the county you choose, so buyers can gauge collection distance</p>
                 </div>
               </div>
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> Items will appear under the county you choose</p>
             </div>
 
           </div>
