@@ -39,6 +39,7 @@ export default function Profile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -63,24 +64,30 @@ export default function Profile() {
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   const areas = areasByCounty[form.county] || areasByCounty.default;
 
+  // Account deletion is handled by the support team, not instantly: this only emails the request to
+  // support@automax.ie (via the contact form backend) so the request can be checked before anything is removed.
   const handleDeleteAccount = async () => {
     setDeleting(true);
     setDeleteError('');
     try {
-      const response = await api.functions.invoke('deleteAccount', {});
-      if (response.data?.error) {
-        throw new Error(response.data.error);
+      const response = await api.functions.invoke('submitContactForm', {
+        email: form.email,
+        name: form.name || form.email,
+        mobile: form.phone || 'Not provided',
+        reason: 'Support / Help',
+        subject: 'Account deletion request',
+        description:
+          `Please delete my AutoMax account.\nAccount email: ${form.email}\nAccount ID: ${user.id || 'n/a'}\nRequested from the Profile page.`,
+      });
+      if (response?.data?.error || response?.data?.success === false) {
+        throw new Error(response.data.error || 'Could not send the request');
       }
-      // Favorites, saved searches, and browsing history are stored client-side
-      // only (never sent to the backend) -- clear them here so "browsing logs
-      // and search history permanently cleared" is actually true.
-      localStorage.removeItem('automax_favorites');
-      localStorage.removeItem('automax_saved_searches');
-      localStorage.removeItem('automax_browsing_history');
-      await api.auth.logout(window.location.origin + '/');
+      setRequestSent(true);
+      setShowDeleteModal(false);
+      setDeleting(false);
     } catch (e) {
       setDeleting(false);
-      setDeleteError(e.message || 'Failed to delete account. Please try again.');
+      setDeleteError(e.message || 'Could not send your request. Please try again.');
     }
   };
 
@@ -129,6 +136,12 @@ export default function Profile() {
         </div>
 
         <h1 className="text-2xl font-bold text-foreground mb-6">My Profile</h1>
+
+        {requestSent && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+            Your delete request has been sent to our support team. We will contact you by email to confirm.
+          </div>
+        )}
 
         {saveSuccess && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
@@ -331,8 +344,9 @@ export default function Profile() {
           <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="border border-border text-foreground px-4 py-2 rounded-md hover:bg-secondary transition-colors font-medium text-sm">
-            Make Request
+            disabled={requestSent}
+            className="border border-border text-foreground px-4 py-2 rounded-md hover:bg-secondary transition-colors font-medium text-sm disabled:opacity-60">
+            {requestSent ? 'Request sent' : 'Make Request'}
           </button>
         </div>
       </div>
@@ -366,7 +380,7 @@ export default function Profile() {
                 onClick={handleDeleteAccount}
                 disabled={deleting}
                 className="bg-destructive text-destructive-foreground px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-destructive/90 transition-colors disabled:opacity-60">
-                {deleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                {deleting ? 'Sending...' : 'Make Delete Requests'}
               </button>
             </div>
           </div>
