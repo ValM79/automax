@@ -138,14 +138,14 @@ export default function Profile() {
         )}
 
         {/* Profile header card */}
-        <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-5">
+        <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-xl font-bold text-muted-foreground shrink-0">
+            <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-foreground truncate">{form.name || 'Your Name'}</h2>
-              <p className="text-sm text-muted-foreground truncate">{form.email}</p>
+              <h2 className="text-base font-bold text-foreground truncate">{form.name || 'Your Name'}</h2>
+              <p className="text-xs text-muted-foreground truncate">{form.email}</p>
             </div>
             {user.role === 'admin' && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold bg-secondary text-foreground rounded-full px-2.5 py-1 shrink-0">
