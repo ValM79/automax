@@ -12,7 +12,7 @@ import { queryClientInstance } from '@/lib/query-client';
 import { IRISH_COUNTIES } from '@/lib/counties';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AreaSelect from '../components/automarket/AreaSelect';
-import { IRISH_TOWNS, OTHER_AREA } from '@/lib/irishTowns';
+import { IRISH_TOWNS } from '@/lib/irishTowns';
 
 export default function Profile() {
   const { user, isLoadingAuth, refreshUser } = useAuth();
@@ -94,8 +94,7 @@ export default function Profile() {
       await api.auth.updateMe({
         display_name: form.name,
         county: form.county,
-        // "Other" picked but nothing typed: save no area, never the placeholder value
-        area: form.area === OTHER_AREA ? '' : form.area.trim(),
+        area: form.area.trim(),
         phone: form.phone,
         seller_type: sellerType,
         business_name: form.businessName,
@@ -326,10 +325,10 @@ export default function Profile() {
                   value={form.area}
                   onChange={(v) => setForm((f) => ({ ...f, area: v }))}
                   options={areas}
-                  disabled={!form.county}
-                  placeholder={form.county ? 'Select your area or town' : 'Select a county first'}
+                  listDisabled={!form.county}
+                  placeholder="Type your area or town"
                 />
-                <p className="text-xs text-muted-foreground">Pick your town from the list, or choose "Other" to type your own. Used so buyers can gauge collection distance.</p>
+                <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
               </div>
             </div>
           </section>

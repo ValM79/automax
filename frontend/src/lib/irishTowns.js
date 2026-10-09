@@ -1,6 +1,6 @@
 // Towns, villages and city areas for each of the 26 Republic of Ireland counties, alphabetical.
-// This is a long list but not every townland: the Area / Town field always offers "Other" so a
-// seller can type their own place.
+// A long list but not every townland: it is only a help. The Area / Town field lets the customer
+// type any place they like.
 export const IRISH_TOWNS = {
   Carlow: ['Ballon', 'Borris', 'Carlow', 'Clonegal', 'Fenagh', 'Hacketstown', 'Leighlinbridge', 'Muine Bheag (Bagenalstown)', 'Myshall', 'Rathvilly', 'Tullow'],
   Cavan: ['Arvagh', 'Bailieborough', 'Ballyconnell', 'Ballyjamesduff', 'Belturbet', 'Blacklion', 'Butlersbridge', 'Cavan', 'Cootehill', 'Killeshandra', 'Kingscourt', 'Mullagh', 'Shercock', 'Virginia'],
@@ -32,5 +32,3 @@ export const IRISH_TOWNS = {
 
 // keep every county's list alphabetical for the dropdown
 for (const county of Object.keys(IRISH_TOWNS)) IRISH_TOWNS[county].sort((a, b) => a.localeCompare(b, 'en'));
-
-export const OTHER_AREA = '__other__';
