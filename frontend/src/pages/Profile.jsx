@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2 } from 'lucide-react';
+import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -32,6 +32,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [notify, setNotify] = useState({ messages: true, savedSearches: true, promotions: false });
+  const [memberSince, setMemberSince] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
@@ -44,6 +46,11 @@ export default function Profile() {
       return;
     }
     setSellerType(user.seller_type || 'private');
+    setNotify({
+      messages: user.notify_messages !== false,
+      savedSearches: user.notify_saved_searches !== false,
+      promotions: user.notify_promotions === true,
+    });
     setForm((f) => ({
       ...f,
       name: user.display_name || user.full_name || '',
@@ -56,6 +63,17 @@ export default function Profile() {
       vatNumber: user.vat_number || '',
     }));
   }, [isLoadingAuth, user]);
+
+  // "Member since" comes from the account system through the public seller-facts function.
+  useEffect(() => {
+    if (!user?.id) return;
+    api.functions.invoke('getSellerStats', { seller_id: user.id })
+      .then((res) => {
+        const m = /^(\d{4})-(\d{2})$/.exec(res?.data?.member_since || '');
+        setMemberSince(m ? new Date(Date.UTC(+m[1], +m[2] - 1, 1)).toLocaleDateString('en-IE', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
+      })
+      .catch(() => setMemberSince(''));
+  }, [user?.id]);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
   const areas = IRISH_TOWNS[form.county] || [];
@@ -97,6 +115,9 @@ export default function Profile() {
         area: form.area.trim(),
         phone: form.phone,
         seller_type: sellerType,
+        notify_messages: notify.messages,
+        notify_saved_searches: notify.savedSearches,
+        notify_promotions: notify.promotions,
         business_name: form.businessName,
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
@@ -333,14 +354,80 @@ export default function Profile() {
             </div>
           </section>
 
+          {/* Notification Preferences */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Bell className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Notification Preferences</h2>
+            </div>
+            <div className="space-y-4">
+              {[
+                { key: 'messages', title: 'Message alerts', text: 'Email me when someone sends a message about my listings' },
+                { key: 'savedSearches', title: 'Saved search alerts', text: 'Email me when new listings match my saved searches' },
+                { key: 'promotions', title: 'Promotions & offers', text: 'Email me about featured ad deals and platform promotions' },
+              ].map((row, i) => (
+                <React.Fragment key={row.key}>
+                  {i > 0 && <div className="border-t border-border" />}
+                  <label className="flex items-center justify-between gap-4 cursor-pointer">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{row.title}</p>
+                      <p className="text-xs text-muted-foreground">{row.text}</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notify[row.key]}
+                      onChange={(e) => setNotify((n) => ({ ...n, [row.key]: e.target.checked }))}
+                      className="w-5 h-5 rounded accent-primary shrink-0"
+                    />
+                  </label>
+                </React.Fragment>
+              ))}
+            </div>
+          </section>
+
+          {/* Account Info (read-only) */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Shield className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Account Info</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Email:</span>
+                <span className="text-foreground font-medium truncate">{form.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Role:</span>
+                <span className="text-foreground font-medium capitalize">{user.role || 'user'}</span>
+              </div>
+              {memberSince && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Member since:</span>
+                  <span className="text-foreground font-medium">{memberSince}</span>
+                </div>
+              )}
+            </div>
+          </section>
+
           {/* Actions */}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="w-full bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+            <button
+              type="button"
+              onClick={() => api.auth.logout(window.location.origin + '/')}
+              className="sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 border border-border text-foreground rounded-lg hover:bg-secondary transition-colors font-medium text-sm">
+              <LogOut className="w-4 h-4" /> Log Out
+            </button>
+          </div>
         </div>
 
         {/* Delete Account */}

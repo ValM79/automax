@@ -21,6 +21,9 @@ const EDITABLE_FIELDS = [
   'business_name',
   'business_address',
   'vat_number',
+  'notify_messages',
+  'notify_saved_searches',
+  'notify_promotions',
 ];
 
 export const handler = async (event) => {
