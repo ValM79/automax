@@ -313,7 +313,7 @@ export default function Profile() {
                     {editingPhone ? 'Done' : 'Edit'}
                   </button>
                 </div>
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Your phone is verified' : 'Add a phone number so buyers can contact you'}</p>
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
