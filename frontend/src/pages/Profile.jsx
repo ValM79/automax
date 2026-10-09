@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2, Store, Shield } from 'lucide-react';
+import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2, Store, Shield, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -324,12 +324,15 @@ export default function Profile() {
 
         {/* Delete Account */}
         <div className="mt-6 bg-card rounded-xl border border-border p-5 sm:p-6">
-          <h2 className="text-lg font-bold text-foreground mb-2">Danger Zone</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <Trash2 className="w-5 h-5 text-muted-foreground" />
+            <h2 className="text-lg font-bold text-foreground">Make Request Delete My Account</h2>
+          </div>
           <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="bg-destructive text-destructive-foreground px-6 py-2.5 rounded-lg hover:bg-destructive/90 transition-colors font-medium text-sm">
-            Delete Account
+            className="border border-border text-foreground px-4 py-2 rounded-md hover:bg-secondary transition-colors font-medium text-sm">
+            Make Request
           </button>
         </div>
       </div>
