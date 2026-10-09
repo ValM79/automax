@@ -104,7 +104,7 @@ export default function Profile() {
 
   if (isLoadingAuth || !user) {
     return (
-      <div className="min-h-screen bg-muted">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="flex items-center justify-center h-[60vh]">
           <div className="w-8 h-8 border-4 border-border border-t-slate-800 rounded-full animate-spin" />
@@ -115,10 +115,10 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <PullToRefresh onRefresh={async () => { await queryClientInstance.invalidateQueries(); }}>
-      <div className="max-w-3xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <BackButton />
           <span>›</span>
@@ -133,7 +133,7 @@ export default function Profile() {
           </div>
         )}
 
-        <div className="bg-card rounded-xl border border-border shadow-sm p-6 md:p-8">
+        <div className="pb-2">
           {/* Header */}
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
@@ -163,11 +163,12 @@ export default function Profile() {
           <div className="space-y-6">
             {/* Trader fields */}
             {sellerType === 'trader' && (
-              <div className="border border-border rounded-xl p-5 space-y-4">
-                <div className="flex items-center gap-2">
+              <div className="border border-border rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-4">
                   <Building2 className="w-5 h-5 text-green-600" />
                   <h2 className="text-lg font-bold text-foreground">Business Details</h2>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Business Name<span className="text-destructive">*</span></label>
                   <input
@@ -197,6 +198,7 @@ export default function Profile() {
                     placeholder="e.g. IE6439073E"
                     className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
+                </div>
                 </div>
               </div>
             )}
@@ -246,7 +248,7 @@ export default function Profile() {
                 <Phone className="w-5 h-5 text-green-600" />
                 <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Phone Number<span className="text-destructive">*</span></label>
                   <div className="flex items-center gap-3">
@@ -278,7 +280,7 @@ export default function Profile() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 lg:col-span-1">
                   <label className="block text-sm font-medium text-foreground mb-2">Area / Town<span className="text-destructive">*</span></label>
                   <div className="relative">
                     <select
@@ -299,7 +301,7 @@ export default function Profile() {
         </div>
 
         {/* Delete Account */}
-        <div className="mt-6 bg-card rounded-xl border border-border shadow-sm p-6 md:p-8">
+        <div className="mt-6 border border-border rounded-xl p-6 md:p-8">
           <h2 className="text-lg font-bold text-foreground mb-2">Danger Zone</h2>
           <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
           <button
