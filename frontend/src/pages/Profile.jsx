@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2, Store, Shield, Trash2 } from 'lucide-react';
+import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -9,7 +9,8 @@ import Footer from '../components/automarket/Footer';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
-const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
+import { IRISH_COUNTIES } from '@/lib/counties';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const areasByCounty = {
   Dublin: ['Dublin City Centre', 'North Dublin', 'South Dublin', 'West County', 'East Dublin'],
@@ -26,7 +27,7 @@ export default function Profile() {
   const [form, setForm] = useState({
     name: '',
     email: '',
-    county: 'Dublin',
+    county: '',
     area: '',
     phone: '',
     businessName: '',
@@ -53,7 +54,7 @@ export default function Profile() {
       ...f,
       name: user.display_name || user.full_name || '',
       email: user.email || '',
-      county: user.county || 'Dublin',
+      county: user.county || '',
       area: user.area || '',
       phone: user.phone || '',
       businessName: user.business_name || '',
@@ -317,28 +318,21 @@ export default function Profile() {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
-                <div className="relative">
-                  <select
-                    value={form.county}
-                    onChange={(e) => setForm((f) => ({ ...f, county: e.target.value, area: '' }))}
-                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
-                    {counties.map((c) => <option key={c}>{c}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                </div>
+                <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
+                  <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
+                  <SelectContent>
+                    {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
-                <div className="relative">
-                  <select
-                    value={form.area}
-                    onChange={set('area')}
-                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
-                    <option value="">Select area...</option>
-                    {areas.map((a) => <option key={a}>{a}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                </div>
+                <Select value={form.area} onValueChange={(v) => setForm((f) => ({ ...f, area: v }))} disabled={!form.county}>
+                  <SelectTrigger className="h-10 bg-card"><SelectValue placeholder={form.county ? 'Select area...' : 'Select a county first'} /></SelectTrigger>
+                  <SelectContent>
+                    {areas.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-muted-foreground">Used so buyers can gauge collection distance. Items will appear under the county you choose.</p>
               </div>
             </div>
