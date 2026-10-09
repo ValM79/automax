@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2, Store, Shield } from 'lucide-react';
+import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -9,24 +9,19 @@ import Footer from '../components/automarket/Footer';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
-const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
-
-const areasByCounty = {
-  Dublin: ['Dublin City Centre', 'North Dublin', 'South Dublin', 'West County', 'East Dublin'],
-  Cork: ['Cork City', 'North Cork', 'South Cork', 'West Cork'],
-  Galway: ['Galway City', 'Connemara', 'East Galway'],
-  Limerick: ['Limerick City', 'North Limerick', 'South Limerick'],
-  default: ['North', 'South', 'East', 'West', 'City Centre']
-};
+import { IRISH_COUNTIES } from '@/lib/counties';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AreaSelect from '../components/automarket/AreaSelect';
+import { IRISH_TOWNS } from '@/lib/irishTowns';
 
 export default function Profile() {
-  const { user, isLoadingAuth } = useAuth();
+  const { user, isLoadingAuth, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [sellerType, setSellerType] = useState('private');
   const [form, setForm] = useState({
     name: '',
     email: '',
-    county: 'Dublin',
+    county: '',
     area: '',
     phone: '',
     businessName: '',
@@ -36,9 +31,13 @@ export default function Profile() {
   const [editingPhone, setEditingPhone] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [notify, setNotify] = useState({ messages: false, savedSearches: false, promotions: false });
+  const [memberSince, setMemberSince] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -47,11 +46,16 @@ export default function Profile() {
       return;
     }
     setSellerType(user.seller_type || 'private');
+    setNotify({
+      messages: user.notify_messages === true,
+      savedSearches: user.notify_saved_searches === true,
+      promotions: user.notify_promotions === true,
+    });
     setForm((f) => ({
       ...f,
       name: user.display_name || user.full_name || '',
       email: user.email || '',
-      county: user.county || 'Dublin',
+      county: user.county || '',
       area: user.area || '',
       phone: user.phone || '',
       businessName: user.business_name || '',
@@ -60,45 +64,73 @@ export default function Profile() {
     }));
   }, [isLoadingAuth, user]);
 
-  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const areas = areasByCounty[form.county] || areasByCounty.default;
+  // "Member since" comes from the account system through the public seller-facts function.
+  useEffect(() => {
+    if (!user?.id) return;
+    api.functions.invoke('getSellerStats', { seller_id: user.id })
+      .then((res) => {
+        const m = /^(\d{4})-(\d{2})$/.exec(res?.data?.member_since || '');
+        setMemberSince(m ? new Date(Date.UTC(+m[1], +m[2] - 1, 1)).toLocaleDateString('en-IE', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '');
+      })
+      .catch(() => setMemberSince(''));
+  }, [user?.id]);
 
+  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  const areas = IRISH_TOWNS[form.county] || [];
+
+  // Account deletion is handled by the support team, not instantly: this only emails the request to
+  // support@automax.ie (via the contact form backend) so the request can be checked before anything is removed.
   const handleDeleteAccount = async () => {
     setDeleting(true);
     setDeleteError('');
     try {
-      const response = await api.functions.invoke('deleteAccount', {});
-      if (response.data?.error) {
-        throw new Error(response.data.error);
+      const response = await api.functions.invoke('submitContactForm', {
+        email: form.email,
+        name: form.name || form.email,
+        mobile: form.phone || 'Not provided',
+        reason: 'Support / Help',
+        subject: 'Account deletion request',
+        description:
+          `Please delete my AutoMax account.\nAccount email: ${form.email}\nAccount ID: ${user.id || 'n/a'}\nRequested from the Profile page.`,
+      });
+      if (response?.data?.error || response?.data?.success === false) {
+        throw new Error(response.data.error || 'Could not send the request');
       }
-      // Favorites, saved searches, and browsing history are stored client-side
-      // only (never sent to the backend) -- clear them here so "browsing logs
-      // and search history permanently cleared" is actually true.
-      localStorage.removeItem('automax_favorites');
-      localStorage.removeItem('automax_saved_searches');
-      localStorage.removeItem('automax_browsing_history');
-      await api.auth.logout(window.location.origin + '/');
+      setRequestSent(true);
+      setShowDeleteModal(false);
+      setDeleting(false);
     } catch (e) {
       setDeleting(false);
-      setDeleteError(e.message || 'Failed to delete account. Please try again.');
+      setDeleteError(e.message || 'Could not send your request. Please try again.');
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
-    await api.auth.updateMe({
-      display_name: form.name,
-      county: form.county,
-      area: form.area,
-      phone: form.phone,
-      seller_type: sellerType,
-      business_name: form.businessName,
-      business_address: form.businessAddress,
-      vat_number: form.vatNumber,
-    });
-    setSaving(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setSaveError('');
+    try {
+      await api.auth.updateMe({
+        display_name: form.name,
+        county: form.county,
+        area: form.area.trim(),
+        phone: form.phone,
+        seller_type: sellerType,
+        notify_messages: notify.messages,
+        notify_saved_searches: notify.savedSearches,
+        notify_promotions: notify.promotions,
+        business_name: form.businessName,
+        business_address: form.businessAddress,
+        vat_number: form.vatNumber,
+      });
+      // Re-read the saved profile so leaving and coming back to this page shows what was saved.
+      await refreshUser();
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      setSaveError(e?.message || 'Could not save your changes. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (isLoadingAuth || !user) {
@@ -130,62 +162,73 @@ export default function Profile() {
 
         <h1 className="text-2xl font-bold text-foreground mb-6">My Profile</h1>
 
+        {requestSent && (
+          <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
+            Your delete request has been sent to our support team. We will contact you by email to confirm.
+          </div>
+        )}
+
+        {saveError && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+            {saveError}
+          </div>
+        )}
+
         {saveSuccess && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Profile updated successfully!
           </div>
         )}
 
-        {/* Profile header card */}
+        {/* Seller type: chosen first, the identity card below follows it */}
+        <section className="bg-card rounded-xl border border-border p-5 sm:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Store className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
+              { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
+            ].map(({ key, label, text, Icon }) => (
+              <div key={key} className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSellerType(key)}
+                  aria-pressed={sellerType === key}
+                  className={`w-full h-10 flex items-center gap-2 px-3 rounded-md border text-sm transition-colors ${sellerType === key ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary' : 'border-border bg-card text-foreground hover:bg-secondary'}`}>
+                  <Icon className={`w-4 h-4 ${sellerType === key ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-medium">{label}</span>
+                </button>
+                <p className="text-xs text-muted-foreground">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-              {initials}
+              {sellerType === 'trader' ? <Building2 className="w-5 h-5" /> : initials}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-bold text-foreground truncate">{form.name || 'Your Name'}</h2>
-              <p className="text-xs text-muted-foreground truncate">{form.email}</p>
+              <h2 className="text-base font-bold text-foreground truncate">
+                {sellerType === 'trader' ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
+              </h2>
+              <p className="text-xs text-muted-foreground truncate">
+                {sellerType === 'trader' ? `Trader account${form.name ? ' · ' + form.name : ''}` : form.email}
+              </p>
             </div>
-            {user.role === 'admin' && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold bg-secondary text-foreground rounded-full px-2.5 py-1 shrink-0">
-                <Shield className="w-3 h-3" /> Admin
-              </span>
-            )}
           </div>
         </div>
 
         <div className="space-y-6">
-          {/* Seller type */}
-          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Store className="w-5 h-5 text-green-600" />
-              <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
-                { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
-              ].map(({ key, label, text, Icon }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setSellerType(key)}
-                  className={`text-left p-4 rounded-lg border-2 transition-colors ${sellerType === key ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-semibold text-foreground text-sm">{label}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{text}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-
           {/* Trader fields */}
           {sellerType === 'trader' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Building2 className="w-5 h-5 text-green-600" />
+                <Building2 className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-bold text-foreground">Business Details</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -226,7 +269,7 @@ export default function Profile() {
           {/* Account Details */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
-              <User className="w-5 h-5 text-green-600" />
+              <User className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Account Details</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -259,7 +302,7 @@ export default function Profile() {
           {/* Contact Information */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Phone className="w-5 h-5 text-green-600" />
+              <Phone className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -281,34 +324,86 @@ export default function Profile() {
                     {editingPhone ? 'Done' : 'Edit'}
                   </button>
                 </div>
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Your phone is verified' : 'Add a phone number so buyers can contact you'}</p>
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
-                <div className="relative">
-                  <select
-                    value={form.county}
-                    onChange={(e) => setForm((f) => ({ ...f, county: e.target.value, area: '' }))}
-                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
-                    {counties.map((c) => <option key={c}>{c}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                </div>
+                <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
+                  <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
+                  <SelectContent>
+                    {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
                 <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
-                <div className="relative">
-                  <select
-                    value={form.area}
-                    onChange={set('area')}
-                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
-                    <option value="">Select area...</option>
-                    {areas.map((a) => <option key={a}>{a}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                </div>
-                <p className="text-xs text-muted-foreground">Used so buyers can gauge collection distance. Items will appear under the county you choose.</p>
+                <AreaSelect
+                  value={form.area}
+                  onChange={(v) => setForm((f) => ({ ...f, area: v }))}
+                  options={areas}
+                  listDisabled={!form.county}
+                  placeholder="Type your area or town"
+                />
+                <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
               </div>
+            </div>
+          </section>
+
+          {/* Notification Preferences */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Bell className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Notification Preferences</h2>
+            </div>
+            <div className="space-y-4">
+              {[
+                { key: 'messages', title: 'Message alerts', text: 'Email me when someone sends a message about my listings' },
+                { key: 'savedSearches', title: 'Saved search alerts', text: 'Email me when new listings match my saved searches' },
+                { key: 'promotions', title: 'Promotions & offers', text: 'Email me about featured ad deals and platform promotions' },
+              ].map((row, i) => (
+                <React.Fragment key={row.key}>
+                  {i > 0 && <div className="border-t border-border" />}
+                  <label className="flex items-center justify-between gap-4 cursor-pointer">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{row.title}</p>
+                      <p className="text-xs text-muted-foreground">{row.text}</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notify[row.key]}
+                      onChange={(e) => setNotify((n) => ({ ...n, [row.key]: e.target.checked }))}
+                      className="w-5 h-5 rounded accent-primary shrink-0"
+                    />
+                  </label>
+                </React.Fragment>
+              ))}
+            </div>
+          </section>
+
+          {/* Account Info (read-only) */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Shield className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Account Info</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Email:</span>
+                <span className="text-foreground font-medium truncate">{form.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Role:</span>
+                <span className="text-foreground font-medium capitalize">{user.role || 'user'}</span>
+              </div>
+              {memberSince && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Member since:</span>
+                  <span className="text-foreground font-medium">{memberSince}</span>
+                </div>
+              )}
             </div>
           </section>
 
@@ -324,12 +419,16 @@ export default function Profile() {
 
         {/* Delete Account */}
         <div className="mt-6 bg-card rounded-xl border border-border p-5 sm:p-6">
-          <h2 className="text-lg font-bold text-foreground mb-2">Danger Zone</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <Trash2 className="w-5 h-5 text-muted-foreground" />
+            <h2 className="text-lg font-bold text-foreground">Make Request Delete My Account</h2>
+          </div>
           <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="bg-destructive text-destructive-foreground px-6 py-2.5 rounded-lg hover:bg-destructive/90 transition-colors font-medium text-sm">
-            Delete Account
+            disabled={requestSent}
+            className="border border-border text-foreground px-4 py-2 rounded-md hover:bg-secondary transition-colors font-medium text-sm disabled:opacity-60">
+            {requestSent ? 'Request sent' : 'Make Request'}
           </button>
         </div>
       </div>
@@ -363,7 +462,7 @@ export default function Profile() {
                 onClick={handleDeleteAccount}
                 disabled={deleting}
                 className="bg-destructive text-destructive-foreground px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-destructive/90 transition-colors disabled:opacity-60">
-                {deleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                {deleting ? 'Sending...' : 'Make Delete Requests'}
               </button>
             </div>
           </div>
