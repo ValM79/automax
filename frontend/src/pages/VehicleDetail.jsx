@@ -24,8 +24,8 @@ export default function VehicleDetail() {
   const navigate = useNavigate();
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [sellerTenure, setSellerTenure] = useState(null);
-  const [sellerName, setSellerName] = useState(null);
+  const [sellerStats, setSellerStats] = useState(null);
+  const [sellerName] = useState(null);
 
   // Normalize a UserAd entity into the car object shape used by this page
   const normalizeAd = (ad) => ({
@@ -102,35 +102,14 @@ export default function VehicleDetail() {
     }
   };
 
+  // Seller facts for the seller card: member since, live ads and total ads (public counts, no personal data).
   useEffect(() => {
     if (!car) return;
     const sellerId = car.sellerId || car.created_by_id;
-    if (sellerId) {
-      api.entities.User.get(sellerId).
-      then((sellerUser) => {
-        if (sellerUser?.display_name || sellerUser?.full_name) {
-          setSellerName(sellerUser.display_name || sellerUser.full_name);
-        }
-        if (sellerUser?.created_date) {
-          const diff = Date.now() - new Date(sellerUser.created_date).getTime();
-          const days = Math.floor(diff / 86400000);
-          const years = Math.floor(days / 365);
-          const months = Math.floor(days % 365 / 30);
-          if (years >= 1) {
-            setSellerTenure(`${years} year${years > 1 ? 's' : ''}`);
-          } else if (months >= 1) {
-            setSellerTenure(`${months} month${months > 1 ? 's' : ''}`);
-          } else {
-            setSellerTenure(`${days} day${days > 1 ? 's' : ''}`);
-          }
-        } else {
-          setSellerTenure('New seller');
-        }
-      }).
-      catch(() => setSellerTenure('New seller'));
-    } else {
-      setSellerTenure('New seller');
-    }
+    if (!sellerId) return;
+    api.functions.invoke('getSellerStats', { seller_id: sellerId })
+      .then((res) => setSellerStats(res?.data || null))
+      .catch(() => setSellerStats(null));
   }, [car?.id]);
 
   useEffect(() => {
@@ -369,7 +348,9 @@ export default function VehicleDetail() {
             seller={{
               name: sellerName || car.fullName || car.sellerType || 'Private Seller',
               location: locationShort,
-              yearsOnPlatform: sellerTenure || 'New seller',
+              memberSince: sellerStats?.member_since || null,
+              activeAds: sellerStats?.active_ads ?? null,
+              totalAds: sellerStats?.total_ads ?? null,
               phone: car.phone || '',
               isTrader: car.sellerType === 'Trader'
             }}
