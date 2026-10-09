@@ -138,13 +138,13 @@ export default function Profile() {
         <h1 className="text-2xl font-bold text-foreground mb-6">My Profile</h1>
 
         {requestSent && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Your delete request has been sent to our support team. We will contact you by email to confirm.
           </div>
         )}
 
         {saveSuccess && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Profile updated successfully!
           </div>
         )}
@@ -171,7 +171,7 @@ export default function Profile() {
           {/* Seller type */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Store className="w-5 h-5 text-green-600" />
+              <Store className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,7 +198,7 @@ export default function Profile() {
           {sellerType === 'trader' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Building2 className="w-5 h-5 text-green-600" />
+                <Building2 className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-bold text-foreground">Business Details</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -239,7 +239,7 @@ export default function Profile() {
           {/* Account Details */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
-              <User className="w-5 h-5 text-green-600" />
+              <User className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Account Details</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -272,7 +272,7 @@ export default function Profile() {
           {/* Contact Information */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
-              <Phone className="w-5 h-5 text-green-600" />
+              <Phone className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
