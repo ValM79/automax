@@ -567,6 +567,12 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'submitContactForm', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Public seller facts for the ad page (member since, live ads, total ads). Read-only.
+    const getSellerStatsFn = new lambdaNode.NodejsFunction(this, 'GetSellerStatsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'getSellerStats', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const verifyCodeFn = new lambdaNode.NodejsFunction(this, 'VerifyCodeFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'verifyCode', 'index.mjs'),
@@ -618,6 +624,14 @@ export class AutomaxStack extends cdk.Stack {
     deleteAccountFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['cognito-idp:AdminDeleteUser'],
+        resources: [userPool.userPoolArn],
+      })
+    );
+    // getSellerStats only reads ads and looks up the seller's join date.
+    userAdTable.grantReadData(getSellerStatsFn);
+    getSellerStatsFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['cognito-idp:ListUsers'],
         resources: [userPool.userPoolArn],
       })
     );
@@ -680,6 +694,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/deleteAccount', apigw.HttpMethod.POST, deleteAccountFn, false);
     route('/functions/downloadReceipt', apigw.HttpMethod.POST, downloadReceiptFn, false);
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);
+    route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);
     route('/functions/verifyCode', apigw.HttpMethod.POST, verifyCodeFn, false);
     route('/functions/submitContactForm', apigw.HttpMethod.POST, submitContactFormFn, false);
