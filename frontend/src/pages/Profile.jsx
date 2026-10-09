@@ -179,17 +179,17 @@ export default function Profile() {
                 { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
                 { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
               ].map(({ key, label, text, Icon }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setSellerType(key)}
-                  className={`text-left p-4 rounded-lg border-2 transition-colors ${sellerType === key ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-semibold text-foreground text-sm">{label}</span>
-                  </div>
+                <div key={key} className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSellerType(key)}
+                    aria-pressed={sellerType === key}
+                    className={`w-full h-10 flex items-center gap-2 px-3 rounded-md border text-sm transition-colors ${sellerType === key ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary' : 'border-border bg-card text-foreground hover:bg-secondary'}`}>
+                    <Icon className={`w-4 h-4 ${sellerType === key ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span className="font-medium">{label}</span>
+                  </button>
                   <p className="text-xs text-muted-foreground">{text}</p>
-                </button>
+                </div>
               ))}
             </div>
           </section>
