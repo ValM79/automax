@@ -57,6 +57,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Re-reads the signed-in user (e.g. after the profile was saved) without showing the page spinner.
+  const refreshUser = async () => {
+    const currentUser = await api.auth.me();
+    setUser(currentUser);
+    return currentUser;
+  };
+
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
@@ -89,7 +96,8 @@ export const AuthProvider = ({ children }) => {
       appPublicSettings,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState,
+      refreshUser
     }}>
       {children}
     </AuthContext.Provider>

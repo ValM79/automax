@@ -20,7 +20,7 @@ const areasByCounty = {
 };
 
 export default function Profile() {
-  const { user, isLoadingAuth } = useAuth();
+  const { user, isLoadingAuth, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [sellerType, setSellerType] = useState('private');
   const [form, setForm] = useState({
@@ -36,6 +36,7 @@ export default function Profile() {
   const [editingPhone, setEditingPhone] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
@@ -93,19 +94,27 @@ export default function Profile() {
 
   const handleSave = async () => {
     setSaving(true);
-    await api.auth.updateMe({
-      display_name: form.name,
-      county: form.county,
-      area: form.area,
-      phone: form.phone,
-      seller_type: sellerType,
-      business_name: form.businessName,
-      business_address: form.businessAddress,
-      vat_number: form.vatNumber,
-    });
-    setSaving(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setSaveError('');
+    try {
+      await api.auth.updateMe({
+        display_name: form.name,
+        county: form.county,
+        area: form.area,
+        phone: form.phone,
+        seller_type: sellerType,
+        business_name: form.businessName,
+        business_address: form.businessAddress,
+        vat_number: form.vatNumber,
+      });
+      // Re-read the saved profile so leaving and coming back to this page shows what was saved.
+      await refreshUser();
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      setSaveError(e?.message || 'Could not save your changes. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (isLoadingAuth || !user) {
@@ -140,6 +149,12 @@ export default function Profile() {
         {requestSent && (
           <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Your delete request has been sent to our support team. We will contact you by email to confirm.
+          </div>
+        )}
+
+        {saveError && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+            {saveError}
           </div>
         )}
 
