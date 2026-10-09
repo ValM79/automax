@@ -70,18 +70,17 @@ export const handler = async (event) => {
     try {
       // A new message goes to the seller's account email if they have a profile row,
       // otherwise the ad's contact email. A reply goes to the original sender's email.
-      let messageAlertsOn = false;
+      let messageAlertsOn = true; // default ON: only an explicit "off" on the Profile page stops the email
       if (recipientUserId) {
         try {
           const recipientRes = await ddb.send(new GetCommand({ TableName: TABLES.User, Key: { id: recipientUserId } }));
           if (!isReply && recipientRes.Item?.email) recipientEmail = recipientRes.Item.email;
-          // "Message alerts" on the Profile page start OFF; only people who switched them on get the email.
-          messageAlertsOn = recipientRes.Item?.notify_messages === true;
+          messageAlertsOn = recipientRes.Item?.notify_messages !== false;
         } catch (e) {
           console.log('Could not look up the recipient profile:', e.message);
         }
       }
-      if (!messageAlertsOn) console.log('Message alert email skipped: the recipient has not switched message alerts on');
+      if (!messageAlertsOn) console.log('Message alert email skipped: the recipient turned message alerts off');
       if (recipientEmail && messageAlertsOn) {
         const origin = process.env.APP_ORIGIN || 'https://automax.ie';
         const cleanRecipientName = sanitize(recipientName);
