@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2 } from 'lucide-react';
+import { ArrowLeft, Info, ChevronDown, User, Mail, Phone, Building2, Store, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -114,11 +114,13 @@ export default function Profile() {
     );
   }
 
+  const initials = (form.name || form.email || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <PullToRefresh onRefresh={async () => { await queryClientInstance.invalidateQueries(); }}>
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <BackButton />
           <span>›</span>
@@ -127,181 +129,209 @@ export default function Profile() {
           <span className="text-foreground font-medium">Profile</span>
         </div>
 
+        <h1 className="text-2xl font-bold text-foreground mb-6">My Profile</h1>
+
         {saveSuccess && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-700">
             Profile updated successfully!
           </div>
         )}
 
-        <div className="pb-2">
-          {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-              <p className="text-sm text-primary mt-1">To store and update your profile information.</p>
+        {/* Profile header card */}
+        <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-5">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-xl font-bold text-muted-foreground shrink-0">
+              {initials}
             </div>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm disabled:opacity-60 flex-shrink-0">
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-foreground truncate">{form.name || 'Your Name'}</h2>
+              <p className="text-sm text-muted-foreground truncate">{form.email}</p>
+            </div>
+            {user.role === 'admin' && (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold bg-secondary text-foreground rounded-full px-2.5 py-1 shrink-0">
+                <Shield className="w-3 h-3" /> Admin
+              </span>
+            )}
           </div>
+        </div>
 
-          {/* Seller type toggle */}
-          <div className="grid grid-cols-2 gap-2 border border-border rounded-lg p-1 mb-6 max-w-md">
-            {[{ key: 'private', label: 'Private Seller' }, { key: 'trader', label: 'Trader' }].map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setSellerType(t.key)}
-                className={`py-2.5 rounded-md text-sm font-semibold transition-colors ${sellerType === t.key ? 'bg-secondary text-foreground border border-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                {t.label}
-              </button>
-            ))}
-          </div>
+        <div className="space-y-6">
+          {/* Seller type */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Store className="w-5 h-5 text-green-600" />
+              <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
+                { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
+              ].map(({ key, label, text, Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSellerType(key)}
+                  className={`text-left p-4 rounded-lg border-2 transition-colors ${sellerType === key ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/40'}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Icon className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-semibold text-foreground text-sm">{label}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{text}</p>
+                </button>
+              ))}
+            </div>
+          </section>
 
-          <div className="space-y-6">
-            {/* Trader fields */}
-            {sellerType === 'trader' && (
-              <div className="border border-border rounded-xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Building2 className="w-5 h-5 text-green-600" />
-                  <h2 className="text-lg font-bold text-foreground">Business Details</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Business Name<span className="text-destructive">*</span></label>
+          {/* Trader fields */}
+          {sellerType === 'trader' && (
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Building2 className="w-5 h-5 text-green-600" />
+                <h2 className="text-lg font-bold text-foreground">Business Details</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">Business Name<span className="text-destructive">*</span></label>
                   <input
                     type="text"
                     value={form.businessName}
                     onChange={set('businessName')}
                     placeholder="Business name"
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Business Address</label>
-                  <input
-                    type="text"
-                    value={form.businessAddress || ''}
-                    onChange={set('businessAddress')}
-                    placeholder="Business address"
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">VAT Number (if applicable)</label>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
                   <input
                     type="text"
                     value={form.vatNumber}
                     onChange={set('vatNumber')}
                     placeholder="e.g. IE6439073E"
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
-                </div>
-              </div>
-            )}
-
-            {/* Account Details */}
-            <div className="border border-border rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <User className="w-5 h-5 text-green-600" />
-                <h2 className="text-lg font-bold text-foreground">Account Details</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Full Name<span className="text-destructive">*</span></label>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-sm font-medium text-foreground">Business Address</label>
                   <input
                     type="text"
-                    value={form.name}
-                    onChange={set('name')}
-                    placeholder="Your name"
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    value={form.businessAddress || ''}
+                    onChange={set('businessAddress')}
+                    placeholder="Business address"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-foreground">Email</label>
-                    <button
-                      onClick={() => setShowEmailModal(true)}
-                      className="text-sm font-semibold text-primary hover:underline transition-colors">
-                      Edit email
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type="email"
-                      value={form.email}
-                      disabled
-                      className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-secondary text-muted-foreground cursor-not-allowed"
-                    />
-                  </div>
+              </div>
+            </section>
+          )}
+
+          {/* Account Details */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <User className="w-5 h-5 text-green-600" />
+              <h2 className="text-lg font-bold text-foreground">Account Details</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">Full Name<span className="text-destructive">*</span></label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={set('name')}
+                  placeholder="Your name"
+                  className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-foreground">Email</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailModal(true)}
+                    className="text-sm font-semibold text-primary hover:underline transition-colors">
+                    Edit email
+                  </button>
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="email"
+                    value={form.email}
+                    disabled
+                    className="w-full h-10 pl-10 pr-3 text-sm border border-border rounded-md bg-secondary text-muted-foreground cursor-not-allowed"
+                  />
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* Contact Information */}
-            <div className="border border-border rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Phone className="w-5 h-5 text-green-600" />
-                <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
+          {/* Contact Information */}
+          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Phone className="w-5 h-5 text-green-600" />
+              <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">Phone Number<span className="text-destructive">*</span></label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                    disabled={!editingPhone}
+                    placeholder="e.g. 086 123 4567"
+                    className="flex-1 min-w-0 h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setEditingPhone((v) => !v)}
+                    className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
+                    {editingPhone ? 'Done' : 'Edit'}
+                  </button>
+                </div>
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Your phone is verified' : 'Add a phone number so buyers can contact you'}</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Phone Number<span className="text-destructive">*</span></label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
-                      disabled={!editingPhone}
-                      placeholder="e.g. 086 123 4567"
-                      className="flex-1 min-w-0 px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
-                    />
-                    <button
-                      onClick={() => setEditingPhone((v) => !v)}
-                      className="border border-foreground text-foreground font-semibold px-4 py-3 rounded-lg hover:bg-secondary transition-colors text-sm flex-shrink-0">
-                      {editingPhone ? 'Done' : 'Edit'}
-                    </button>
-                  </div>
-                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Your phone is verified' : 'Add a phone number so buyers can contact you'}</p>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
+                <div className="relative">
+                  <select
+                    value={form.county}
+                    onChange={(e) => setForm((f) => ({ ...f, county: e.target.value, area: '' }))}
+                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
+                    {counties.map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">County<span className="text-destructive">*</span></label>
-                  <div className="relative">
-                    <select
-                      value={form.county}
-                      onChange={(e) => setForm((f) => ({ ...f, county: e.target.value, area: '' }))}
-                      className="w-full appearance-none px-4 py-3 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground pr-9">
-                      {counties.map((c) => <option key={c}>{c}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
+                <div className="relative">
+                  <select
+                    value={form.area}
+                    onChange={set('area')}
+                    className="w-full h-10 appearance-none px-3 pr-9 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground">
+                    <option value="">Select area...</option>
+                    {areas.map((a) => <option key={a}>{a}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
-                <div className="md:col-span-2 lg:col-span-1">
-                  <label className="block text-sm font-medium text-foreground mb-2">Area / Town<span className="text-destructive">*</span></label>
-                  <div className="relative">
-                    <select
-                      value={form.area}
-                      onChange={set('area')}
-                      className="w-full appearance-none px-4 py-3 border border-border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground pr-9">
-                      <option value="">Select area...</option>
-                      {areas.map((a) => <option key={a}>{a}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2"><Info className="w-3.5 h-3.5 text-primary" /> Items will appear under the county you choose, so buyers can gauge collection distance</p>
-                </div>
+                <p className="text-xs text-muted-foreground">Used so buyers can gauge collection distance. Items will appear under the county you choose.</p>
               </div>
             </div>
+          </section>
 
-          </div>
+          {/* Actions */}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
 
         {/* Delete Account */}
-        <div className="mt-6 border border-border rounded-xl p-6 md:p-8">
+        <div className="mt-6 bg-card rounded-xl border border-border p-5 sm:p-6">
           <h2 className="text-lg font-bold text-foreground mb-2">Danger Zone</h2>
           <p className="text-sm text-muted-foreground mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
           <button
