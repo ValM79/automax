@@ -149,15 +149,45 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Profile header card */}
+        {/* Seller type: chosen first, the identity card below follows it */}
+        <section className="bg-card rounded-xl border border-border p-5 sm:p-6 mb-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Store className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
+              { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
+            ].map(({ key, label, text, Icon }) => (
+              <div key={key} className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSellerType(key)}
+                  aria-pressed={sellerType === key}
+                  className={`w-full h-10 flex items-center gap-2 px-3 rounded-md border text-sm transition-colors ${sellerType === key ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary' : 'border-border bg-card text-foreground hover:bg-secondary'}`}>
+                  <Icon className={`w-4 h-4 ${sellerType === key ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className="font-medium">{label}</span>
+                </button>
+                <p className="text-xs text-muted-foreground">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-              {initials}
+              {sellerType === 'trader' ? <Building2 className="w-5 h-5" /> : initials}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-bold text-foreground truncate">{form.name || 'Your Name'}</h2>
-              <p className="text-xs text-muted-foreground truncate">{form.email}</p>
+              <h2 className="text-base font-bold text-foreground truncate">
+                {sellerType === 'trader' ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
+              </h2>
+              <p className="text-xs text-muted-foreground truncate">
+                {sellerType === 'trader' ? `Trader account${form.name ? ' · ' + form.name : ''}` : form.email}
+              </p>
             </div>
             {user.role === 'admin' && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold bg-secondary text-foreground rounded-full px-2.5 py-1 shrink-0">
@@ -168,32 +198,6 @@ export default function Profile() {
         </div>
 
         <div className="space-y-6">
-          {/* Seller type */}
-          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Store className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
-                { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
-              ].map(({ key, label, text, Icon }) => (
-                <div key={key} className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setSellerType(key)}
-                    aria-pressed={sellerType === key}
-                    className={`w-full h-10 flex items-center gap-2 px-3 rounded-md border text-sm transition-colors ${sellerType === key ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary' : 'border-border bg-card text-foreground hover:bg-secondary'}`}>
-                    <Icon className={`w-4 h-4 ${sellerType === key ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className="font-medium">{label}</span>
-                  </button>
-                  <p className="text-xs text-muted-foreground">{text}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* Trader fields */}
           {sellerType === 'trader' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
