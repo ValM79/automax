@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, LogOut } from 'lucide-react';
+import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -32,7 +32,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [notify, setNotify] = useState({ messages: true, savedSearches: true, promotions: false });
+  const [notify, setNotify] = useState({ messages: false, savedSearches: false, promotions: false });
   const [memberSince, setMemberSince] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -47,8 +47,8 @@ export default function Profile() {
     }
     setSellerType(user.seller_type || 'private');
     setNotify({
-      messages: user.notify_messages !== false,
-      savedSearches: user.notify_saved_searches !== false,
+      messages: user.notify_messages === true,
+      savedSearches: user.notify_saved_searches === true,
       promotions: user.notify_promotions === true,
     });
     setForm((f) => ({
@@ -220,11 +220,6 @@ export default function Profile() {
                 {sellerType === 'trader' ? `Trader account${form.name ? ' · ' + form.name : ''}` : form.email}
               </p>
             </div>
-            {user.role === 'admin' && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold bg-secondary text-foreground rounded-full px-2.5 py-1 shrink-0">
-                <Shield className="w-3 h-3" /> Admin
-              </span>
-            )}
           </div>
         </div>
 
@@ -413,21 +408,13 @@ export default function Profile() {
           </section>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-            <button
-              type="button"
-              onClick={() => api.auth.logout(window.location.origin + '/')}
-              className="sm:w-auto h-12 px-6 inline-flex items-center justify-center gap-2 border border-border text-foreground rounded-lg hover:bg-secondary transition-colors font-medium text-sm">
-              <LogOut className="w-4 h-4" /> Log Out
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="w-full bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
 
         {/* Delete Account */}
