@@ -191,7 +191,7 @@ export default function Profile() {
                 {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
               </h2>
               <p className="text-xs text-muted-foreground truncate">
-                {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : `Private account · ${form.email}`}
+                {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
             </div>
           </div>
