@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
+import { Mail, Lock, User, Building2, Eye, EyeOff, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/apiClient';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function PasswordInput({ id, label, placeholder, value, onChange, hint }) {
   const [show, setShow] = useState(false);
@@ -39,6 +40,7 @@ export default function CreateAccount() {
     password: '',
     confirmPassword: '',
     fullName: '',
+    accountType: 'private', // 'private' | 'trader'
     agreeMarketing: false,
   });
   const [step, setStep] = useState('form'); // 'form' | 'confirm'
@@ -47,13 +49,14 @@ export default function CreateAccount() {
   const [error, setError] = useState('');
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  const isTrader = form.accountType === 'trader';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!form.email || !form.fullName) {
-      setError('Please fill in your name and email.');
+      setError(isTrader ? 'Please fill in your business name and email.' : 'Please fill in your name and email.');
       return;
     }
     if (form.password.length < 8) {
@@ -86,6 +89,17 @@ export default function CreateAccount() {
       // a normal email/password sign-in — see Login.jsx for why this is a
       // hard redirect rather than an SPA navigate.
       await api.auth.loginViaEmailPassword(form.email, form.password);
+      // Remember the chosen account type on the new profile. A trader's account name is the business name.
+      // Not worth blocking the sign-in over: the Profile page lets them set it again.
+      try {
+        await api.auth.updateMe(
+          isTrader
+            ? { seller_type: 'trader', business_name: form.fullName.trim() }
+            : { seller_type: 'private' }
+        );
+      } catch {
+        /* ignored */
+      }
       window.location.replace('/');
     } catch (err) {
       setError(err.message || 'Invalid or expired code. Please try again.');
@@ -182,17 +196,31 @@ export default function CreateAccount() {
             </div>
           )}
 
-          {/* Full Name */}
+          {/* Account Type */}
           <div className="mb-5">
-            <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
+            <label htmlFor="accountType" className="block text-sm font-medium text-foreground mb-1.5">Account Type</label>
+            <Select value={form.accountType} onValueChange={(v) => setForm((f) => ({ ...f, accountType: v }))}>
+              <SelectTrigger id="accountType" className="h-[42px] bg-card rounded-lg"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Private Account</SelectItem>
+                <SelectItem value="trader">Trader</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Account Name */}
+          <div className="mb-5">
+            <label htmlFor="fullName" className="block text-sm font-medium text-foreground mb-1.5">Account Name</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              {isTrader
+                ? <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                : <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
               <input
                 id="fullName"
                 type="text"
                 value={form.fullName}
                 onChange={set('fullName')}
-                placeholder="Your full name"
+                placeholder={isTrader ? 'Enter business name' : 'Enter your name'}
                 className="w-full border border-input rounded-lg px-3 py-2.5 text-sm pl-9 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
               />
             </div>
