@@ -17,7 +17,6 @@ import { IRISH_TOWNS } from '@/lib/irishTowns';
 export default function Profile() {
   const { user, isLoadingAuth, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [sellerType, setSellerType] = useState('private');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -45,7 +44,6 @@ export default function Profile() {
       navigate('/login?next=/profile', { replace: true });
       return;
     }
-    setSellerType(user.seller_type || 'private');
     setNotify({
       // Message alerts are ON unless the user switched them off; the other two are OFF until opted in
       messages: user.notify_messages !== false,
@@ -115,7 +113,6 @@ export default function Profile() {
         county: form.county,
         area: form.area.trim(),
         phone: form.phone,
-        seller_type: sellerType,
         notify_messages: notify.messages,
         notify_saved_searches: notify.savedSearches,
         notify_promotions: notify.promotions,
@@ -146,6 +143,8 @@ export default function Profile() {
     );
   }
 
+  // Fixed when the account was created: a private account sees the private form, a trader the trader form.
+  const isTrader = user.seller_type === 'trader';
   const initials = (form.name || form.email || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
@@ -181,44 +180,18 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Seller type: chosen first, the identity card below follows it */}
-        <section className="bg-card rounded-xl border border-border p-5 sm:p-6 mb-6">
-          <div className="flex items-center gap-2 mb-5">
-            <Store className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">Seller Type</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { key: 'private', label: 'Private Seller', text: 'I sell occasionally as a private individual', Icon: User },
-              { key: 'trader', label: 'Trader', text: 'I sell professionally as a business', Icon: Store },
-            ].map(({ key, label, text, Icon }) => (
-              <div key={key} className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => setSellerType(key)}
-                  aria-pressed={sellerType === key}
-                  className={`w-full h-10 flex items-center gap-2 px-3 rounded-md border text-sm transition-colors ${sellerType === key ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary' : 'border-border bg-card text-foreground hover:bg-secondary'}`}>
-                  <Icon className={`w-4 h-4 ${sellerType === key ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className="font-medium">{label}</span>
-                </button>
-                <p className="text-xs text-muted-foreground">{text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-              {sellerType === 'trader' ? <Building2 className="w-5 h-5" /> : initials}
+              {isTrader ? <Building2 className="w-5 h-5" /> : initials}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">
-                {sellerType === 'trader' ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
+                {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
               </h2>
               <p className="text-xs text-muted-foreground truncate">
-                {sellerType === 'trader' ? `Trader account${form.name ? ' · ' + form.name : ''}` : form.email}
+                {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
             </div>
           </div>
@@ -226,7 +199,7 @@ export default function Profile() {
 
         <div className="space-y-6">
           {/* Trader fields */}
-          {sellerType === 'trader' && (
+          {isTrader && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <Building2 className="w-5 h-5 text-primary" />
@@ -234,7 +207,7 @@ export default function Profile() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Business Name<span className="text-destructive">*</span></label>
+                  <label className="block text-sm font-medium text-foreground">Business Name</label>
                   <input
                     type="text"
                     value={form.businessName}
@@ -275,7 +248,7 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">Full Name<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">{isTrader ? 'Contact Name' : 'Full Name'}</label>
                 <input
                   type="text"
                   value={form.name}
@@ -308,7 +281,7 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">Phone Number<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">Phone Number</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="tel"
@@ -328,7 +301,7 @@ export default function Profile() {
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">County</label>
                 <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
                   <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
                   <SelectContent>
@@ -337,7 +310,7 @@ export default function Profile() {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">Area / Town</label>
                 <AreaSelect
                   value={form.area}
                   onChange={(v) => setForm((f) => ({ ...f, area: v }))}
@@ -397,6 +370,11 @@ export default function Profile() {
                 <Shield className="w-4 h-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground">Role:</span>
                 <span className="text-foreground font-medium capitalize">{user.role || 'user'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Store className="w-4 h-4 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">Account type:</span>
+                <span className="text-foreground font-medium">{isTrader ? 'Trader' : 'Private'}</span>
               </div>
               {memberSince && (
                 <div className="flex items-center gap-2">
