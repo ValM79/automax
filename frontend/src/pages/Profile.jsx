@@ -207,7 +207,7 @@ export default function Profile() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Business Name<span className="text-destructive">*</span></label>
+                  <label className="block text-sm font-medium text-foreground">Business Name</label>
                   <input
                     type="text"
                     value={form.businessName}
@@ -248,7 +248,7 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">{isTrader ? 'Contact Name' : 'Full Name'}<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">{isTrader ? 'Contact Name' : 'Full Name'}</label>
                 <input
                   type="text"
                   value={form.name}
@@ -281,7 +281,7 @@ export default function Profile() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">Phone Number<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">Phone Number</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="tel"
@@ -301,7 +301,7 @@ export default function Profile() {
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">County<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">County</label>
                 <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
                   <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
                   <SelectContent>
@@ -310,7 +310,7 @@ export default function Profile() {
                 </Select>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <label className="block text-sm font-medium text-foreground">Area / Town<span className="text-destructive">*</span></label>
+                <label className="block text-sm font-medium text-foreground">Area / Town</label>
                 <AreaSelect
                   value={form.area}
                   onChange={(v) => setForm((f) => ({ ...f, area: v }))}
