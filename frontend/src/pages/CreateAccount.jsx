@@ -259,22 +259,12 @@ export default function CreateAccount() {
             onChange={set('confirmPassword')}
           />
 
-          {/* reCAPTCHA notice */}
-          <div className="bg-muted border border-border rounded-lg px-4 py-3 mb-4">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              This site is protected by reCAPTCHA and the{' '}
-              <a href="#" className="text-blue-600 hover:underline">Google Privacy Policy</a>{' '}
-              and{' '}
-              <a href="#" className="text-blue-600 hover:underline">Terms of Services apply</a>
-            </p>
-          </div>
-
           {/* Terms */}
           <p className="text-xs text-foreground mb-5 leading-relaxed">
             By clicking Continue, I agree to the{' '}
-            <a href="#" className="text-blue-600 hover:underline">AutoMax Terms of Use</a>{' '}
+            <Link to="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
             and{' '}
-            <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
+            <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Privacy Policy</Link>
           </p>
 
           {/* Submit */}
