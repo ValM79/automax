@@ -186,11 +186,6 @@ export default function MyAds() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <div className="pr-10">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ad.status)}`}>
-                          {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Active'}
-                        </span>
-                      </div>
                       <h3 className="text-base font-bold text-foreground mb-1 line-clamp-2">{ad.title}</h3>
                       <p className="text-sm text-muted-foreground mb-2">{[ad.county, ad.area].filter(Boolean).join(', ') || ad.location}</p>
                       <p className="text-xs text-muted-foreground">
@@ -200,7 +195,10 @@ export default function MyAds() {
                         <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
                       }
                     </div>
-                    <div className="flex items-end justify-between mt-4">
+                    <div className="flex items-end justify-between gap-3 mt-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ad.status)}`}>
+                        {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Active'}
+                      </span>
                       <p className="text-xl font-normal text-foreground">{ad.currency || '€'}{ad.price}</p>
                     </div>
                   </div>
