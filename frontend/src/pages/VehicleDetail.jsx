@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Flag, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Share2, ChevronDown, ChevronUp } from 'lucide-react';
 import ShareMenu from '../components/automarket/ShareMenu';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -356,6 +356,7 @@ export default function VehicleDetail() {
             }}
             onSendMessage={handleSendMessageClick}
             onViewAllAds={handleViewAllAds}
+            onReport={() => navigate(user ? `/report-ad/${car.id}` : `/login?next=${encodeURIComponent(`/report-ad/${car.id}`)}`)}
             isOwnAd={!!user && (car.sellerId || car.created_by_id) === user.id}
             onManage={() => navigate('/my-ads')} />
             </div>
@@ -383,19 +384,6 @@ export default function VehicleDetail() {
               AutoMax accepts no responsibility or liability for any loss, damage, or dispute arising from the content of an advertisement, including reliance on images or information that have been modified, enhanced, generated, or otherwise produced using AI or related technologies.
             </p>
           }
-          <hr className="border-border my-4" />
-          <button
-            onClick={() => {
-              if (!user) {
-                navigate(`/login?next=${encodeURIComponent(`/report-ad/${car.id}`)}`);
-              } else {
-                navigate(`/report-ad/${car.id}`);
-              }
-            }}
-            className="flex items-center gap-1.5 hover:text-foreground transition-colors text-[hsl(var(--foreground))] text-sm">
-            
-            <Flag className="w-3.5 h-3.5" /> Report Ad
-          </button>
         </div>
       </div>
 
