@@ -16,7 +16,6 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
     const m = /^(\d{4})-(\d{2})$/.exec(seller?.memberSince || '');
     return m ? new Date(Date.UTC(+m[1], +m[2] - 1, 1)).toLocaleDateString('en-IE', { month: 'short', year: 'numeric', timeZone: 'UTC' }) : null;
   })();
-  const hasFacts = memberSinceText || seller?.activeAds != null || seller?.totalAds != null;
 
   // The owner sees the same buttons a buyer sees. Message and phone can't be used on your own ad,
   // so pressing them only explains that.
@@ -41,18 +40,11 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
         </div>
       </div>
 
-      {hasFacts && (
-        <dl className="mt-4 space-y-1 text-sm">
-          {memberSinceText && (
-            <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Member since</dt><dd className="font-medium text-foreground">{memberSinceText}</dd></div>
-          )}
-          {seller?.activeAds != null && (
-            <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Active ads</dt><dd className="font-medium text-foreground">{seller.activeAds}</dd></div>
-          )}
-          {seller?.totalAds != null && (
-            <div className="flex justify-between gap-3"><dt className="text-muted-foreground">Total ads</dt><dd className="font-medium text-foreground">{seller.totalAds}</dd></div>
-          )}
-        </dl>
+      {memberSinceText && (
+        <div className="mt-4 flex justify-between gap-3 text-sm">
+          <span className="text-muted-foreground">Member since</span>
+          <span className="font-medium text-foreground">{memberSinceText}</span>
+        </div>
       )}
 
       <div className="border-t border-border my-4" />
