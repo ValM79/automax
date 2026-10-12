@@ -41,7 +41,6 @@ export default function CreateAccount() {
     confirmPassword: '',
     fullName: '',
     accountType: 'private', // 'private' | 'trader'
-    agreeMarketing: false,
   });
   const [step, setStep] = useState('form'); // 'form' | 'confirm'
   const [code, setCode] = useState('');
@@ -259,27 +258,6 @@ export default function CreateAccount() {
             value={form.confirmPassword}
             onChange={set('confirmPassword')}
           />
-
-          {/* Marketing consent */}
-          <div className="mb-5">
-            <p className="text-sm text-foreground leading-relaxed mb-3">
-              To get the most from AutoMax, we'll send you members-only updates via email,{' '}
-              <span className="text-blue-600">push notifications</span> and on site messaging. You can{' '}
-              <span className="text-blue-600">update your preferences</span> at any time from your Profile page.
-            </p>
-            <div className="flex items-center gap-2.5">
-              <input
-                type="checkbox"
-                id="agreeMarketing"
-                checked={form.agreeMarketing}
-                onChange={(e) => setForm((f) => ({ ...f, agreeMarketing: e.target.checked }))}
-                className="w-4 h-4 border border-input rounded accent-primary cursor-pointer"
-              />
-              <label htmlFor="agreeMarketing" className="text-sm font-medium cursor-pointer">
-                Yes, I agree
-              </label>
-            </div>
-          </div>
 
           {/* reCAPTCHA notice */}
           <div className="bg-muted border border-border rounded-lg px-4 py-3 mb-4">
