@@ -265,7 +265,7 @@ export default function CreateAccount() {
             <p className="text-sm text-foreground leading-relaxed mb-3">
               To get the most from AutoMax, we'll send you members-only updates via email,{' '}
               <span className="text-blue-600">push notifications</span> and on site messaging. You can{' '}
-              <span className="text-blue-600">update your preferences</span> at any time from your My AutoMax page.
+              <span className="text-blue-600">update your preferences</span> at any time from your Profile page.
             </p>
             <div className="flex items-center gap-2.5">
               <input
