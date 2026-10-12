@@ -10,6 +10,7 @@ import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
 import SellerCard from '../components/automarket/SellerCard';
+import { formatLocation } from '@/lib/formatLocation';
 import MessageModal from '../components/automarket/MessageModal';
 import { setSeoMeta } from '../components/SeoManager';
 
@@ -250,7 +251,7 @@ export default function VehicleDetail() {
   const displayPrice = isNaN(priceNum) ? car.price : `${currencySymbol}${priceNum.toLocaleString()}`;
 
   const locationShort = car.location ? car.location.split(',').pop().trim() : null;
-  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, `${viewCount} view${viewCount !== 1 ? 's' : ''}`, car.location].filter(Boolean);
+  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, `${viewCount} view${viewCount !== 1 ? 's' : ''}`, formatLocation(car.location)].filter(Boolean);
 
   const specItems = [
     car.engineSize && { label: 'Engine', value: car.engineSize },
@@ -304,13 +305,14 @@ export default function VehicleDetail() {
               </div>
               <p className="text-sm mt-1 text-[hsl(var(--foreground))]">{metaParts.join(' · ')}</p>
               {specItems.length > 0 && (
-                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 mt-3 text-sm w-fit">
                   {specItems.map((s) => (
-                    <span key={s.label} className="text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">{s.label}:</span> {s.value}
-                    </span>
+                    <React.Fragment key={s.label}>
+                      <dt className="font-medium text-foreground">{s.label}</dt>
+                      <dd className="text-muted-foreground">{s.value}</dd>
+                    </React.Fragment>
                   ))}
-                </div>
+                </dl>
               )}
               <div className="flex items-center justify-end gap-4 mt-3">
                 <div className="relative">

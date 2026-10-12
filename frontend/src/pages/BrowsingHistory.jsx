@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatLocation } from '@/lib/formatLocation';
 import BackButton from '../components/automarket/BackButton';
 import { ArrowLeft, Camera, History, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -89,7 +90,7 @@ export default function BrowsingHistory() {
                 </div>
                 <div className="p-3">
                   <h3 className="font-semibold text-foreground text-sm leading-snug mb-1 line-clamp-2">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground mb-2">{item.viewedAt} · {item.location}</p>
+                  <p className="text-xs text-muted-foreground mb-2">{item.viewedAt} · {formatLocation(item.location)}</p>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">Price</p>

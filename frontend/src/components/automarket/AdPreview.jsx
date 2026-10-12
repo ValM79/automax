@@ -65,7 +65,7 @@ export default function AdPreview({ form, photos, selectedPackage, onClose, onBa
                 <h1 className="text-foreground [font-family:'Inter',_sans-serif] font-medium text-xl">{form.title || 'Your Ad Title'}</h1>
                 <div className="flex items-center gap-2 mt-2">
                   <MapPin className="w-4 h-4 text-[hsl(var(--foreground))]" />
-                  <span className="text-sm text-[hsl(var(--foreground))]">{[form.area, form.county].filter(Boolean).join(', ') || 'Location'}</span>
+                  <span className="text-sm text-[hsl(var(--foreground))]">{[form.county, form.area].filter(Boolean).join(', ') || 'Location'}</span>
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
