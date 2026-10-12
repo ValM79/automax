@@ -10,6 +10,7 @@ import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
 import SellerCard from '../components/automarket/SellerCard';
+import { formatLocation } from '@/lib/formatLocation';
 import MessageModal from '../components/automarket/MessageModal';
 import { setSeoMeta } from '../components/SeoManager';
 
@@ -250,7 +251,7 @@ export default function VehicleDetail() {
   const displayPrice = isNaN(priceNum) ? car.price : `${currencySymbol}${priceNum.toLocaleString()}`;
 
   const locationShort = car.location ? car.location.split(',').pop().trim() : null;
-  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, `${viewCount} view${viewCount !== 1 ? 's' : ''}`, car.location].filter(Boolean);
+  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, `${viewCount} view${viewCount !== 1 ? 's' : ''}`, formatLocation(car.location)].filter(Boolean);
 
   const specItems = [
     car.engineSize && { label: 'Engine', value: car.engineSize },

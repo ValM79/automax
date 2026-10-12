@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { formatLocation } from '@/lib/formatLocation';
 import { Camera, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -66,7 +67,7 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
     return parseInt(localStorage.getItem(key) || '0', 10);
   }, [item.id]);
 
-  const meta = [item.year, item.engine || item.fuel, item.mileage, timeAgo, viewCount > 0 ? `${viewCount} view${viewCount !== 1 ? 's' : ''}` : null, item.location].filter(Boolean).join(' · ');
+  const meta = [item.year, item.engine || item.fuel, item.mileage, timeAgo, viewCount > 0 ? `${viewCount} view${viewCount !== 1 ? 's' : ''}` : null, formatLocation(item.location)].filter(Boolean).join(' · ');
 
   return (
     <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onClick={handleCardClick}>
