@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { Plus, Megaphone, Camera } from 'lucide-react';
+import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2 } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { adDaysLeft } from '@/lib/adTimeLeft';
 import Navbar from '../components/automarket/Navbar';
@@ -9,9 +9,10 @@ import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-// One style for all three card actions so they always look and behave the same.
-const AD_ACTION_BUTTON = 'px-4 rounded-lg border border-foreground hover:bg-secondary transition-colors disabled:opacity-60 min-h-[44px] flex items-center justify-center text-sm font-medium text-foreground';
+// One style for every item in the three-dots menu so they always look and behave the same.
+const MENU_ITEM = 'gap-3 px-3 py-2.5 text-sm cursor-pointer';
 
 export default function MyAds() {
   const navigate = useNavigate();
@@ -61,6 +62,19 @@ export default function MyAds() {
     setDeletingId(null);
   };
 
+  // "Sold" takes the ad off the public listings (only active ads are shown there) but keeps it in My Ads.
+  const handleMarkSold = async (id) => {
+    if (!window.confirm('Mark this ad as sold? It will be removed from the listings.')) return;
+    setDeletingId(id);
+    try {
+      await api.entities.UserAd.update(id, { status: 'sold' });
+      setAds((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'sold' } : a)));
+    } catch (e) {
+      window.alert('Could not mark the ad as sold. Please try again.');
+    }
+    setDeletingId(null);
+  };
+
   const handleEdit = (ad) => {
     navigate(`/edit-ad/${ad.id}`);
   };
@@ -72,6 +86,7 @@ export default function MyAds() {
   const getStatusColor = (status) => {
     if (status === 'active') return 'bg-green-50 text-green-700';
     if (status === 'expired') return 'bg-red-50 text-red-600';
+    if (status === 'sold') return 'bg-blue-50 text-blue-700';
     return 'bg-muted text-foreground';
   };
 
@@ -136,13 +151,41 @@ export default function MyAds() {
                       }
                     </div>
                   </div>
-                  <div className="flex-1 p-4 flex flex-col justify-between min-w-0">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ad.status)}`}>
-                          {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Active'}
-                        </span>
-                      </div>
+                  <div className="flex-1 p-4 flex flex-col justify-between min-w-0 relative">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Ad actions"
+                          disabled={deletingId === ad.id}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-foreground hover:bg-secondary transition-colors disabled:opacity-60">
+                          <EllipsisVertical className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-52 rounded-xl p-1.5 shadow-lg">
+                        <DropdownMenuItem className={MENU_ITEM} onSelect={() => navigate(`/vehicle/${ad.id}`)}>
+                          <Eye /> View
+                        </DropdownMenuItem>
+                        {/* a sold ad can't be renewed (the payment step only accepts pending, active or expired ads) */}
+                        {ad.status !== 'sold' && (
+                          <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleRenew(ad)}>
+                            <RotateCcw /> Renew my Ad
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleEdit(ad)}>
+                          <SquarePen /> Edit
+                        </DropdownMenuItem>
+                        {ad.status === 'active' && (
+                          <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleMarkSold(ad.id)}>
+                            <CircleCheck /> Mark as Sold
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleDelete(ad.id)}>
+                          <Trash2 /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <div className="pr-10">
                       <h3 className="text-base font-bold text-foreground mb-1 line-clamp-2">{ad.title}</h3>
                       <p className="text-sm text-muted-foreground mb-2">{[ad.county, ad.area].filter(Boolean).join(', ') || ad.location}</p>
                       <p className="text-xs text-muted-foreground">
@@ -152,28 +195,11 @@ export default function MyAds() {
                         <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
                       }
                     </div>
-                    <div className="flex items-end justify-between mt-4">
+                    <div className="flex items-end justify-between gap-3 mt-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ad.status)}`}>
+                        {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Active'}
+                      </span>
                       <p className="text-xl font-normal text-foreground">{ad.currency || '€'}{ad.price}</p>
-                      <div className="flex flex-col gap-2 w-40">
-                        <button
-                          onClick={() => handleEdit(ad)}
-                          disabled={deletingId === ad.id}
-                          className={AD_ACTION_BUTTON}>
-                          Edit your Ad
-                        </button>
-                        <button
-                          onClick={() => handleRenew(ad)}
-                          disabled={deletingId === ad.id}
-                          className={AD_ACTION_BUTTON}>
-                          Upload your Ad
-                        </button>
-                        <button
-                          onClick={() => handleDelete(ad.id)}
-                          disabled={deletingId === ad.id}
-                          className={AD_ACTION_BUTTON}>
-                          Delete your Ad
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
