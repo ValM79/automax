@@ -187,13 +187,13 @@ export default function MyAds() {
                     </DropdownMenu>
                     <div className="pr-10">
                       <h3 className="text-base font-bold text-foreground mb-1 line-clamp-2">{ad.title}</h3>
+                      <p className="text-sm text-foreground mb-2">
+                        Listed {ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : ''}{ad.subsection ? ` · ${ad.subsection}` : ''}
+                      </p>
                                       <div className="flex flex-col gap-1 text-sm text-foreground mb-2">
                         <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> Views: {Number(ad.view_count) || 0}</span>
                         <span className="inline-flex items-center gap-1.5"><Heart className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Listed {ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : ''}{ad.subsection ? ` · ${ad.subsection}` : ''}
-                      </p>
                       {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
                         <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
                       }
