@@ -361,6 +361,7 @@ export default function VehicleDetail() {
               memberSince: sellerStats?.member_since || null,
               activeAds: sellerStats?.active_ads ?? null,
               totalAds: sellerStats?.total_ads ?? null,
+              avatarUrl: sellerStats?.avatar_url || null,
               phone: car.phone || '',
               isTrader: car.sellerType === 'Trader'
             }}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MessageSquare, Phone, User, Building2, MapPin, Flag } from 'lucide-react';
+import { MessageSquare, Phone, User, MapPin, Flag } from 'lucide-react';
+import AvatarBadge from './AvatarBadge';
 
 const buttonClass =
   'w-full h-11 border border-primary text-primary bg-card rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors';
@@ -26,9 +27,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
     <div className="bg-card border border-border rounded-2xl p-5">
       {/* Who is selling */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-secondary text-foreground flex items-center justify-center shrink-0">
-          {isTrader ? <Building2 className="w-6 h-6" /> : <User className="w-6 h-6" />}
-        </div>
+        <AvatarBadge url={seller?.avatarUrl} isTrader={isTrader} />
         <div className="min-w-0">
           <h3 className="font-semibold text-foreground text-base truncate">{name}</h3>
           {location && (
