@@ -51,8 +51,8 @@ export default function ForgotPassword() {
 
         {done ? (
           <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-accent bg-accent/5 border border-accent/20 rounded-lg px-4 py-3 w-full">
-              <CheckCircle className="w-5 h-5 flex-shrink-0 text-accent" />
+            <div className="flex items-center gap-2 text-sm text-primary bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 w-full">
+              <CheckCircle className="w-5 h-5 flex-shrink-0 text-primary" />
               <span>
                 If an account exists for <strong>{email}</strong>, a password reset
                 code has been sent. Check your inbox and spam folder.

@@ -21,7 +21,7 @@ export default function ElectricSection() {
             Get all the latest expert advice and reviews for buying and selling electric and hybrid cars in Ireland.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button className="bg-accent hover:bg-accent/90 text-white font-semibold rounded-lg px-6 h-11">
+            <Button className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg px-6 h-11">
               <Zap className="w-4 h-4 mr-2" />
               Go electric
             </Button>

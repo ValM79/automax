@@ -33,7 +33,7 @@ export default function Advertisement() {
               <h3 className="text-lg font-bold text-foreground mb-2">{opt.name}</h3>
               <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{opt.desc}</p>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-accent" />
+                <CheckCircle className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">{opt.reach}</span>
               </div>
             </div>

@@ -45,7 +45,7 @@ export default function ReviewsSection() {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className={`absolute top-3 left-3 text-white text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider ${
-                article.type === 'review' ? 'bg-primary' : 'bg-accent'
+                article.type === 'review' ? 'bg-primary' : 'bg-foreground'
               }`}>
                 {article.type}
               </div>
