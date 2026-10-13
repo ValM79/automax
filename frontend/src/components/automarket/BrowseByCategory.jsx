@@ -32,6 +32,11 @@ const IMG = {
   recovery: '/img/0babdc7b0_generated_image.jpg', // the banner on the Recovery Service page
 };
 
+// Each picture is a square with the vehicle floating in white space, so in the small tile it looked tiny. These values scale
+// each one up (s) and centre the vehicle (x, y in px) so it fills the tile. Car Parts, Car Extras and Boat Extras already
+// fill their square and are left alone.
+const FIT = {car:{s:1.43,x:0,y:-0.2},newCar:{s:1.52,x:0.1,y:-0.8},dealerCars:{s:1.86,x:0,y:0},vintageCar:{s:1.4,x:-1.5,y:-0.1},modifiedCar:{s:1.39,x:0,y:-1.2},truck:{s:1.82,x:-1.2,y:1.6},commercial:{s:1.57,x:0,y:-0.8},trailer:{s:1.42,x:0,y:-0.8},camper:{s:1.52,x:-0.1,y:0.2},coachBus:{s:1.47,x:0.2,y:0.4},plant:{s:1.55,x:-0.3,y:1.2},motorbikeExtras:{s:1.17,x:0,y:-0.2},caravan:{s:1.46,x:0.6,y:0.1},motorbike:{s:1.58,x:-0.4,y:0.2},vintageBike:{s:1.49,x:-0.1,y:0},scooter:{s:1.44,x:0,y:0.3},quad:{s:1.74,x:-0.1,y:-0.5},electricCar:{s:1.48,x:0,y:-0.7},boat:{s:1.6,x:0.1,y:0},breaking:{s:1.52,x:0.1,y:-0.8},rallyCar:{s:1.57,x:0,y:0},bicycle:{s:1.39,x:0.1,y:-0.7},otherItems:{s:1.46,x:0,y:0},rentCar:{s:1.49,x:-0.2,y:-0.9},recovery:{s:1.45,x:-0.5,y:0.1}};
+
 const categories = [
 [
 { label: 'Cars', imgKey: 'newCar' },
@@ -64,11 +69,16 @@ const categories = [
 { label: 'Quads', imgKey: 'quad', highlight: true },
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
-{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true, zoom: 1.4 },
-{ label: 'Recovery Service', imgKey: 'recovery', whiten: true, zoom: 1.4 },
+{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true },
+{ label: 'Recovery Service', imgKey: 'recovery', whiten: true },
 ]];
 
-function CategoryIcon({ imgKey, isAllMotor, isOther, whiten, zoom }) {
+function fitStyle(key) {
+  const f = FIT[key];
+  return f ? { transform: `translate(${f.x}px, ${f.y}px) scale(${f.s})` } : {};
+}
+
+function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
@@ -77,18 +87,18 @@ function CategoryIcon({ imgKey, isAllMotor, isOther, whiten, zoom }) {
   }
   if (isOther) {
     return (
-      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded">
-        <img src={IMG.otherItems} alt="" className="max-w-full max-h-full object-contain" />
+      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
+        <img src={IMG.otherItems} alt="" className="max-w-full max-h-full object-contain" style={fitStyle('otherItems')} />
       </div>);
   }
   return (
     <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
       {/* the two page banners have a light-grey studio background; a small lift makes it match the white of the others */}
-      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={{ ...(whiten ? { filter: 'brightness(1.08)' } : {}), ...(zoom ? { transform: `scale(${zoom})` } : {}) }} />
+      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={{ ...(whiten ? { filter: 'brightness(1.08)' } : {}), ...fitStyle(imgKey) }} />
     </div>);
 }
 
-function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten, zoom }) {
+function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -125,7 +135,7 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten, zo
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} zoom={zoom} />
+        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
