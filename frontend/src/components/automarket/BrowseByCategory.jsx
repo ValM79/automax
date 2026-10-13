@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { KeyRound, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const IMG = {
@@ -63,9 +63,17 @@ const categories = [
 { label: 'Quads', imgKey: 'quad', highlight: true },
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
+{ label: 'Rent a Car', icon: KeyRound },
+{ label: 'Recovery Service', icon: Truck },
 ]];
 
-function CategoryIcon({ imgKey, isAllMotor, isOther }) {
+function CategoryIcon({ imgKey, isAllMotor, isOther, icon: Icon }) {
+  if (Icon) {
+    return (
+      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded">
+        <Icon className="w-6 h-6 text-foreground" strokeWidth={1.6} />
+      </div>);
+  }
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
@@ -84,7 +92,7 @@ function CategoryIcon({ imgKey, isAllMotor, isOther }) {
     </div>);
 }
 
-function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther }) {
+function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, icon }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -114,12 +122,14 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther }) {
     if (label === 'Other items') navigate('/other-motor');
     if (label === 'Commercials') navigate('/commercials');
     if (label === 'Bikes & Bicycles') navigate('/bikes-bicycles');
+    if (label === 'Rent a Car') navigate('/car-rent');
+    if (label === 'Recovery Service') navigate('/recovery-service');
   };
 
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} />
+        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} icon={icon} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
