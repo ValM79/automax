@@ -1,5 +1,4 @@
 import React from 'react';
-import { KeyRound, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const IMG = {
@@ -29,6 +28,8 @@ const IMG = {
   carExtras: '/img/06f7b7968_generated_image.jpg',
   bicycle: '/img/8ded1f6ff_generated_image.jpg',
   otherItems: '/img/c3b58389b_generated_image.jpg',
+  rentCar: '/img/12a53ea6f_generated_image.jpg', // the banner on the Rent a Car page
+  recovery: '/img/0babdc7b0_generated_image.jpg', // the banner on the Recovery Service page
 };
 
 const categories = [
@@ -63,17 +64,11 @@ const categories = [
 { label: 'Quads', imgKey: 'quad', highlight: true },
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
-{ label: 'Rent a Car', icon: KeyRound },
-{ label: 'Recovery Service', icon: Truck },
+{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true },
+{ label: 'Recovery Service', imgKey: 'recovery', whiten: true },
 ]];
 
-function CategoryIcon({ imgKey, isAllMotor, isOther, icon: Icon }) {
-  if (Icon) {
-    return (
-      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded">
-        <Icon className="w-6 h-6 text-foreground" strokeWidth={1.6} />
-      </div>);
-  }
+function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
@@ -88,11 +83,12 @@ function CategoryIcon({ imgKey, isAllMotor, isOther, icon: Icon }) {
   }
   return (
     <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded">
-      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" />
+      {/* the two page banners have a light-grey studio background; a small lift makes it match the white of the others */}
+      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={whiten ? { filter: 'brightness(1.08)' } : undefined} />
     </div>);
 }
 
-function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, icon }) {
+function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -129,7 +125,7 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, icon }) {
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} icon={icon} />
+        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
