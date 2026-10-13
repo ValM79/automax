@@ -66,10 +66,10 @@ export default function CompareModal({ cars, onClose }) {
                 return (
                   <div
                     key={car.id}
-                    className={`px-5 py-3.5 text-sm border-l border-border flex items-center ${i % 2 === 0 ? 'bg-secondary/30' : ''} ${isHighlight ? 'text-accent font-bold' : 'text-foreground'}`}
+                    className={`px-5 py-3.5 text-sm border-l border-border flex items-center ${i % 2 === 0 ? 'bg-secondary/30' : ''} ${isHighlight ? 'text-primary font-bold' : 'text-foreground'}`}
                   >
                     {val || <Minus className="w-4 h-4 text-muted-foreground" />}
-                    {isHighlight && <Check className="w-3.5 h-3.5 ml-1.5 text-accent" />}
+                    {isHighlight && <Check className="w-3.5 h-3.5 ml-1.5 text-primary" />}
                   </div>
                 );
               })}
@@ -86,9 +86,9 @@ export default function CompareModal({ cars, onClose }) {
                   <img src={car.image} alt={car.name} className="w-full h-full object-cover" />
                 </div>
                 <p className="font-bold text-foreground text-sm leading-tight">{car.year} {car.name}</p>
-                <p className={`text-lg mt-1 font-bold flex items-center gap-1.5 ${car.price === bestPrice ? 'text-accent' : 'text-primary'}`}>
+                <p className={`text-lg mt-1 font-bold flex items-center gap-1.5 ${car.price === bestPrice ? 'text-primary' : 'text-foreground'}`}>
                   {car.price}
-                  {car.price === bestPrice && <Check className="w-3.5 h-3.5 text-accent" />}
+                  {car.price === bestPrice && <Check className="w-3.5 h-3.5 text-primary" />}
                 </p>
               </div>
               {SPECS.filter(s => s.key !== 'price').map((spec, i) => {
