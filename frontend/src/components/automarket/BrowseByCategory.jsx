@@ -65,10 +65,10 @@ const categories = [
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
 { label: 'Rent a Car', imgKey: 'rentCar', whiten: true },
-{ label: 'Recovery Service', imgKey: 'recovery', whiten: true },
+{ label: 'Recovery Service', imgKey: 'recovery', whiten: true, zoom: 1.4 },
 ]];
 
-function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
+function CategoryIcon({ imgKey, isAllMotor, isOther, whiten, zoom }) {
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
@@ -82,13 +82,13 @@ function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
       </div>);
   }
   return (
-    <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded">
+    <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
       {/* the two page banners have a light-grey studio background; a small lift makes it match the white of the others */}
-      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={whiten ? { filter: 'brightness(1.08)' } : undefined} />
+      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={{ ...(whiten ? { filter: 'brightness(1.08)' } : {}), ...(zoom ? { transform: `scale(${zoom})` } : {}) }} />
     </div>);
 }
 
-function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) {
+function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten, zoom }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -125,7 +125,7 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) 
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
+        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} zoom={zoom} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
