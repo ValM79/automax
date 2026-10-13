@@ -76,6 +76,7 @@ export function userAdToListingItem(ad) {
     mileage: ad.mileage,
     currency: ad.currency || '€',
     location: ad.location,
+    viewCount: ad.view_count ?? null,
     year: ad.vehicleYear,
     fuel: ad.vehicleFuel,
     engine: ad.vehicleFuel,

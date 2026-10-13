@@ -62,10 +62,7 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
     return 'Just now';
   }, [item.id, item.created_date, now]);
 
-  const viewCount = useMemo(() => {
-    const key = `automax_views_${item.id}`;
-    return parseInt(localStorage.getItem(key) || '0', 10);
-  }, [item.id]);
+  const viewCount = Number(item.viewCount) || 0;
 
   const meta = [item.year, item.engine || item.fuel, item.mileage, timeAgo, viewCount > 0 ? `${viewCount} view${viewCount !== 1 ? 's' : ''}` : null, formatLocation(item.location)].filter(Boolean).join(' · ');
 

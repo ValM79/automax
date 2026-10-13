@@ -37,6 +37,7 @@ export default function VehicleDetail() {
     fuel: ad.vehicleFuel,
     mileage: ad.mileage,
     location: ad.location,
+    viewCount: ad.view_count ?? null,
     price: parseFloat(String(ad.price || '').replace(/[^0-9.]/g, '')) || 0,
     currency: ad.currency || '€',
     photos: ad.photos,
@@ -143,14 +144,21 @@ export default function VehicleDetail() {
     return () => clearInterval(interval);
   }, []);
 
-  const viewCount = useMemo(() => {
-    if (!car) return 0;
-    const key = `automax_views_${car.id}`;
-    const current = parseInt(localStorage.getItem(key) || '0', 10);
-    const newCount = current + 1;
-    localStorage.setItem(key, newCount.toString());
-    return newCount;
+  // One real view is counted per browser per ad per day (the seller's own visits and inactive ads are not counted).
+  const [liveViews, setLiveViews] = useState(null);
+  useEffect(() => {
+    if (!car?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `automax_viewed_${car.id}`;
+    try {
+      if (localStorage.getItem(key) === today) return;
+      localStorage.setItem(key, today);
+    } catch { /* still count this visit */ }
+    api.functions.invoke('recordAdView', { ad_id: car.id })
+      .then((res) => { if (res?.data?.counted && res.data.view_count != null) setLiveViews(res.data.view_count); })
+      .catch(() => {});
   }, [car?.id]);
+  const viewCount = liveViews ?? car?.viewCount ?? null;
 
   const timeAgo = useMemo(() => {
     if (!car) return '';
@@ -251,7 +259,7 @@ export default function VehicleDetail() {
   const displayPrice = isNaN(priceNum) ? car.price : `${currencySymbol}${priceNum.toLocaleString()}`;
 
   const locationShort = car.location ? car.location.split(',').pop().trim() : null;
-  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, `${viewCount} view${viewCount !== 1 ? 's' : ''}`, formatLocation(car.location)].filter(Boolean);
+  const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, viewCount != null ? `${viewCount} view${viewCount !== 1 ? 's' : ''}` : null, formatLocation(car.location)].filter(Boolean);
 
   const specItems = [
     car.engineSize && { label: 'Engine', value: car.engineSize },

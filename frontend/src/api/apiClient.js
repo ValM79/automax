@@ -378,6 +378,8 @@ const functions = {
   sendVerificationCode: makeFunctionClient('sendVerificationCode'),
   submitContactForm: makeFunctionClient('submitContactForm'),
   getSellerStats: makeFunctionClient('getSellerStats'),
+  recordAdView: makeFunctionClient('recordAdView'),
+  toggleAdSave: makeFunctionClient('toggleAdSave'),
   verifyCode: makeFunctionClient('verifyCode'),
   verifyAppleTransaction: makeFunctionClient('verifyAppleTransaction'),
   // downloadReceipt returns a PDF blob, not JSON — call it directly (see below).
