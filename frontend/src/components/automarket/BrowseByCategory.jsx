@@ -73,9 +73,12 @@ const categories = [
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true },
 ]];
 
+// FIT fills the tile edge to edge; this pulls every picture back a little so it sits comfortably next to the text.
+const EASE = 0.86;
+
 function fitStyle(key) {
   const f = FIT[key];
-  return f ? { transform: `translate(${f.x}px, ${f.y}px) scale(${f.s})` } : {};
+  return f ? { transform: `translate(${(f.x * EASE).toFixed(1)}px, ${(f.y * EASE).toFixed(1)}px) scale(${(f.s * EASE).toFixed(3)})` } : {};
 }
 
 function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
