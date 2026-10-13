@@ -187,9 +187,9 @@ export default function MyAds() {
                     </DropdownMenu>
                     <div className="pr-10">
                       <h3 className="text-base font-bold text-foreground mb-1 line-clamp-2">{ad.title}</h3>
-                                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                        <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> {Number(ad.view_count) || 0} view{(Number(ad.view_count) || 0) === 1 ? '' : 's'}</span>
-                        <span className="inline-flex items-center gap-1.5"><Heart className="w-4 h-4" /> {Number(ad.save_count) || 0} saved</span>
+                                      <div className="flex flex-col gap-1 text-sm text-foreground mb-2">
+                        <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> Views: {Number(ad.view_count) || 0}</span>
+                        <span className="inline-flex items-center gap-1.5"><Heart className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Listed {ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : ''}{ad.subsection ? ` · ${ad.subsection}` : ''}
