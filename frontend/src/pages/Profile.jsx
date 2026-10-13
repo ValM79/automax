@@ -220,14 +220,7 @@ export default function Profile() {
         {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => photoInput.current && photoInput.current.click()}
-              disabled={photoBusy}
-              aria-label="Change Logo"
-              className="relative shrink-0 rounded-full disabled:opacity-60">
-              <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
-            </button>
+            <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
             <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={changePhoto} />
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">
