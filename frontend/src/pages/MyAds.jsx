@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2, Heart } from 'lucide-react';
+import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2, Lock } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { adDaysLeft } from '@/lib/adTimeLeft';
 import Navbar from '../components/automarket/Navbar';
@@ -192,7 +192,7 @@ export default function MyAds() {
                       </p>
                                       <div className="flex flex-col gap-1 text-sm text-foreground mb-2">
                         <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> Views: {Number(ad.view_count) || 0}</span>
-                        <span className="inline-flex items-center gap-1.5"><Heart className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
+                        <span className="inline-flex items-center gap-1.5"><Lock className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
                       </div>
                       {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
                         <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
