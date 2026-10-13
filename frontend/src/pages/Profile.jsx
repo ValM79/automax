@@ -227,9 +227,6 @@ export default function Profile() {
               aria-label="Change Logo"
               className="relative shrink-0 rounded-full disabled:opacity-60">
               <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
-              <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card">
-                <Camera className="w-3 h-3" />
-              </span>
             </button>
             <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={changePhoto} />
             <div className="flex-1 min-w-0">
@@ -240,7 +237,8 @@ export default function Profile() {
                 {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
               <p className="text-xs mt-1.5 flex items-center gap-3">
-                <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="text-primary font-medium hover:underline disabled:opacity-60">
+                <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
+                  <Camera className="w-3.5 h-3.5" />
                   {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                 </button>
                 {user.avatar_url && !photoBusy && (
