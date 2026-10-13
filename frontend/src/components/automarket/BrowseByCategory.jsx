@@ -64,7 +64,7 @@ const categories = [
 { label: 'Quads', imgKey: 'quad', highlight: true },
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
-{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true },
+{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true, zoom: 1.4 },
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true, zoom: 1.4 },
 ]];
 
