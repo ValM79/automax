@@ -26,7 +26,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
     <div className="bg-card border border-border rounded-2xl p-5">
       {/* Who is selling */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-full bg-secondary text-foreground flex items-center justify-center shrink-0">
           {isTrader ? <Building2 className="w-6 h-6" /> : <User className="w-6 h-6" />}
         </div>
         <div className="min-w-0">

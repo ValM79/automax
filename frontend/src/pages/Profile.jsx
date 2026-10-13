@@ -145,7 +145,6 @@ export default function Profile() {
 
   // Fixed when the account was created: a private account sees the private form, a trader the trader form.
   const isTrader = user.seller_type === 'trader';
-  const initials = (form.name || form.email || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,8 +182,8 @@ export default function Profile() {
         {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-              {isTrader ? <Building2 className="w-5 h-5" /> : initials}
+            <div className="w-12 h-12 rounded-full bg-secondary text-foreground flex items-center justify-center shrink-0">
+              {isTrader ? <Building2 className="w-6 h-6" /> : <User className="w-6 h-6" />}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">
