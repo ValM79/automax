@@ -224,7 +224,7 @@ export default function Profile() {
               type="button"
               onClick={() => photoInput.current && photoInput.current.click()}
               disabled={photoBusy}
-              aria-label={isTrader ? 'Change logo' : 'Change photo'}
+              aria-label="Change Logo"
               className="relative shrink-0 rounded-full disabled:opacity-60">
               <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
               <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card">
@@ -241,7 +241,7 @@ export default function Profile() {
               </p>
               <p className="text-xs mt-1.5 flex items-center gap-3">
                 <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="text-primary font-medium hover:underline disabled:opacity-60">
-                  {photoBusy ? 'Uploading…' : user.avatar_url ? (isTrader ? 'Change logo' : 'Change photo') : (isTrader ? 'Add logo' : 'Add photo')}
+                  {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                 </button>
                 {user.avatar_url && !photoBusy && (
                   <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
