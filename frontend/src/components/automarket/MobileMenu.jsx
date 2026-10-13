@@ -16,9 +16,7 @@ const dropdownMap = {
 const navLinks = [
   { label: "Buyer's Tips", route: '/buying-tips', hasDropdown: false },
   { label: "Seller's Tips", route: '/selling-tips', hasDropdown: false },
-  { label: 'Dealers', hasDropdown: true },
-  { label: 'Car Rent', route: '/car-rent', hasDropdown: false },
-  { label: 'Recovery Service', route: '/recovery-service', hasDropdown: false }];
+  { label: 'Dealers', hasDropdown: true }];
 
 
 const userMenuItems = [

@@ -67,9 +67,7 @@ export default function Navbar() {
   const navLinks = [
   { label: "Buyer's Tips" },
   { label: "Seller's Tips" },
-  { label: 'Dealers', hasDropdown: true },
-  { label: 'Car Rent', hasDropdown: true },
-  { label: 'Recovery Service', hasDropdown: true }];
+  { label: 'Dealers', hasDropdown: true }];
 
 
   return (
@@ -133,20 +131,6 @@ export default function Navbar() {
                     </div>
               }
                 </div> :
-            link.label === 'Car Rent' ?
-            <Link
-              key="Car Rent"
-              to="/car-rent"
-              className="text-[hsl(var(--foreground))] px-3 py-2 text-sm font-medium hover:underline flex items-center gap-1 transition-colors">
-                  Car Rent
-                </Link> :
-            link.label === 'Recovery Service' ?
-            <Link
-              key="Recovery Service"
-              to="/recovery-service"
-              className="text-[hsl(var(--foreground))] px-3 py-2 text-sm font-medium hover:underline flex items-center gap-1 transition-colors">
-                  Recovery Service
-                </Link> :
 
             <button
               key={link.label} className="text-[hsl(var(--foreground))] px-3 py-2 text-sm font-medium hover:text-destructive flex items-center gap-1 transition-colors">
