@@ -573,6 +573,17 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'getSellerStats', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // View and save counters shown to the seller on My Ads. recordAdView is public (anyone can open an
+    // ad); toggleAdSave checks the caller's sign-in inside the function.
+    const recordAdViewFn = new lambdaNode.NodejsFunction(this, 'RecordAdViewFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'recordAdView', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+    const toggleAdSaveFn = new lambdaNode.NodejsFunction(this, 'ToggleAdSaveFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'toggleAdSave', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const verifyCodeFn = new lambdaNode.NodejsFunction(this, 'VerifyCodeFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'verifyCode', 'index.mjs'),
@@ -627,6 +638,11 @@ export class AutomaxStack extends cdk.Stack {
         resources: [userPool.userPoolArn],
       })
     );
+    // Counters: each only touches the ad table (counts) and, to know who is calling / what they saved, the profile table.
+    userAdTable.grantReadWriteData(recordAdViewFn);
+    userProfileTable.grantReadData(recordAdViewFn);
+    userAdTable.grantReadWriteData(toggleAdSaveFn);
+    userProfileTable.grantReadWriteData(toggleAdSaveFn);
     // getSellerStats only reads ads and looks up the seller's join date.
     userAdTable.grantReadData(getSellerStatsFn);
     getSellerStatsFn.addToRolePolicy(
@@ -695,6 +711,8 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/downloadReceipt', apigw.HttpMethod.POST, downloadReceiptFn, false);
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
+    route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);
+    route('/functions/toggleAdSave', apigw.HttpMethod.POST, toggleAdSaveFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);
     route('/functions/verifyCode', apigw.HttpMethod.POST, verifyCodeFn, false);
     route('/functions/submitContactForm', apigw.HttpMethod.POST, submitContactFormFn, false);

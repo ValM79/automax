@@ -23,6 +23,7 @@ export default function SellerAds() {
           price: `€${ad.price}`,
           mileage: ad.mileage,
           location: ad.location,
+          viewCount: ad.view_count ?? null,
           year: ad.vehicleYear,
           engine: ad.vehicleFuel,
           image: (ad.photos && ad.photos[0]) || null,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2 } from 'lucide-react';
+import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2, Lock, Clock } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { adDaysLeft } from '@/lib/adTimeLeft';
 import Navbar from '../components/automarket/Navbar';
@@ -84,9 +84,9 @@ export default function MyAds() {
   };
 
   const getStatusColor = (status) => {
-    if (status === 'active') return 'bg-green-50 text-green-700';
+    if (status === 'active') return 'bg-primary/10 text-primary';
     if (status === 'expired') return 'bg-red-50 text-red-600';
-    if (status === 'sold') return 'bg-blue-50 text-blue-700';
+    if (status === 'sold') return 'bg-secondary text-foreground';
     return 'bg-muted text-foreground';
   };
 
@@ -187,16 +187,19 @@ export default function MyAds() {
                     </DropdownMenu>
                     <div className="pr-10">
                       <h3 className="text-base font-bold text-foreground mb-1 line-clamp-2">{ad.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-2">{[ad.county, ad.area].filter(Boolean).join(', ') || ad.location}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-foreground mb-2">
                         Listed {ad.created_date ? new Date(ad.created_date).toLocaleDateString('en-IE') : ''}{ad.subsection ? ` · ${ad.subsection}` : ''}
                       </p>
-                      {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
-                        <p className="text-xs font-medium text-foreground mt-1">{adDaysLeft(ad)} day{adDaysLeft(ad) === 1 ? '' : 's'} left</p>
-                      }
+                                      <div className="flex flex-col gap-1 text-sm text-foreground mb-2">
+                        <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> Views: {Number(ad.view_count) || 0}</span>
+                        <span className="inline-flex items-center gap-1.5"><Lock className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
+                        {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
+                          <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4" /> Days left: {adDaysLeft(ad)}</span>
+                        }
+                      </div>
                     </div>
                     <div className="flex items-end justify-between gap-3 mt-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(ad.status)}`}>
+                      <span className={`min-w-[7rem] px-5 py-1.5 rounded-full text-xs font-medium text-center ${getStatusColor(ad.status)}`}>
                         {ad.status ? ad.status.charAt(0).toUpperCase() + ad.status.slice(1) : 'Active'}
                       </span>
                       <p className="text-xl font-normal text-foreground">{ad.currency || '€'}{ad.price}</p>

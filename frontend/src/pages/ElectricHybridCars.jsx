@@ -112,6 +112,7 @@ export default function ElectricHybridCars() {
       fuel: ad.vehicleFuel,
       mileage: ad.mileage,
       location: ad.location,
+      viewCount: ad.view_count ?? null,
       price: parseFloat(ad.price?.replace(/[^0-9.]/g, '')) || 0,
       monthly: null,
       photos: ad.photos ? ad.photos.length : 1,
