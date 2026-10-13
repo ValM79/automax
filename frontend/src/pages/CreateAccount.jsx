@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Building2, Eye, EyeOff, ArrowLeft, AlertCircle, KeyRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { api } from '@/api/apiClient';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -32,6 +33,9 @@ function PasswordInput({ id, label, placeholder, value, onChange, hint }) {
     </div>
   );
 }
+
+// Inside the Android/iPhone app a new browser tab does not exist, so the legal pages open in the same screen there.
+const legalLinkProps = Capacitor.isNativePlatform() ? {} : { target: "_blank", rel: "noopener noreferrer" };
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -262,9 +266,9 @@ export default function CreateAccount() {
           {/* Terms */}
           <p className="text-xs text-foreground mb-5 leading-relaxed">
             By clicking Continue, I agree to the{' '}
-            <Link to="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
+            <Link to="/terms-and-conditions" {...legalLinkProps} className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
             and{' '}
-            <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Privacy Policy</Link>
+            <Link to="/privacy-policy" {...legalLinkProps} className="text-blue-600 hover:underline">Privacy Policy</Link>
           </p>
 
           {/* Submit */}
