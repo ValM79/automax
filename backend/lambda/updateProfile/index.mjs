@@ -24,6 +24,7 @@ const EDITABLE_FIELDS = [
   'notify_messages',
   'notify_saved_searches',
   'notify_promotions',
+  'avatar_url',
 ];
 
 export const handler = async (event) => {
@@ -32,6 +33,15 @@ export const handler = async (event) => {
     if (!user) return json(401, { error: 'Unauthorized' });
 
     const body = JSON.parse(event.body || '{}');
+
+    // Profile photo / logo: only a picture this user uploaded to our own photo storage (or empty, to remove it).
+    // Anything else could point at another site, so it is refused.
+    if ('avatar_url' in body) {
+      const v = body.avatar_url;
+      const mine = `https://${process.env.PHOTOS_CDN_DOMAIN}/ads/${user.id}/`;
+      if (v && !(typeof v === 'string' && v.startsWith(mine) && v.length < 300)) return json(400, { error: 'Invalid photo' });
+      body.avatar_url = v || '';
+    }
 
     const names = {};
     const values = {};

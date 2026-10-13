@@ -645,6 +645,7 @@ export class AutomaxStack extends cdk.Stack {
     userProfileTable.grantReadWriteData(toggleAdSaveFn);
     // getSellerStats only reads ads and looks up the seller's join date.
     userAdTable.grantReadData(getSellerStatsFn);
+    userProfileTable.grantReadData(getSellerStatsFn); // only the profile photo link is read
     getSellerStatsFn.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['cognito-idp:ListUsers'],

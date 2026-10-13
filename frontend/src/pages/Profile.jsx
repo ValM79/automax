@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar } from 'lucide-react';
+import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -13,6 +13,8 @@ import { IRISH_COUNTIES } from '@/lib/counties';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AreaSelect from '../components/automarket/AreaSelect';
 import { IRISH_TOWNS } from '@/lib/irishTowns';
+import { squareImage } from '@/lib/avatar';
+import AvatarBadge from '../components/automarket/AvatarBadge';
 
 export default function Profile() {
   const { user, isLoadingAuth, refreshUser } = useAuth();
@@ -37,6 +39,9 @@ export default function Profile() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [requestSent, setRequestSent] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+  const photoInput = useRef(null);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -104,6 +109,39 @@ export default function Profile() {
     }
   };
 
+  // The photo (or logo, for a trader) is stored as soon as it is chosen; it does not wait for "Save Changes".
+  const changePhoto = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setPhotoError('Please choose a picture (JPG or PNG).'); return; }
+    setPhotoBusy(true);
+    setPhotoError('');
+    try {
+      const small = await squareImage(file, { fit: user.seller_type === 'trader' ? 'contain' : 'cover' });
+      const { file_url } = await api.integrations.Core.UploadFile({ file: small });
+      await api.auth.updateMe({ avatar_url: file_url });
+      await refreshUser();
+    } catch (err) {
+      setPhotoError(err?.message || 'Could not upload the picture. Please try again.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const removePhoto = async () => {
+    setPhotoBusy(true);
+    setPhotoError('');
+    try {
+      await api.auth.updateMe({ avatar_url: '' });
+      await refreshUser();
+    } catch (err) {
+      setPhotoError(err?.message || 'Could not remove the picture. Please try again.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
@@ -145,7 +183,6 @@ export default function Profile() {
 
   // Fixed when the account was created: a private account sees the private form, a trader the trader form.
   const isTrader = user.seller_type === 'trader';
-  const initials = (form.name || form.email || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,9 +220,18 @@ export default function Profile() {
         {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full border-2 border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-              {isTrader ? <Building2 className="w-5 h-5" /> : initials}
-            </div>
+            <button
+              type="button"
+              onClick={() => photoInput.current && photoInput.current.click()}
+              disabled={photoBusy}
+              aria-label={isTrader ? 'Change logo' : 'Change photo'}
+              className="relative shrink-0 rounded-full disabled:opacity-60">
+              <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card">
+                <Camera className="w-3 h-3" />
+              </span>
+            </button>
+            <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={changePhoto} />
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">
                 {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
@@ -193,6 +239,15 @@ export default function Profile() {
               <p className="text-xs text-muted-foreground truncate">
                 {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
+              <p className="text-xs mt-1.5 flex items-center gap-3">
+                <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="text-primary font-medium hover:underline disabled:opacity-60">
+                  {photoBusy ? 'Uploading…' : user.avatar_url ? (isTrader ? 'Change logo' : 'Change photo') : (isTrader ? 'Add logo' : 'Add photo')}
+                </button>
+                {user.avatar_url && !photoBusy && (
+                  <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                )}
+              </p>
+              {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
             </div>
           </div>
         </div>

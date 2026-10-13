@@ -5,7 +5,7 @@
 // It is public because buyers (including logged-out visitors) see it. It returns counts and a
 // month/year only, never the seller's email, phone or name. The user profile table has no
 // created date, so the join date comes from the account system (Cognito).
-import { QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { CognitoIdentityProviderClient, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { ddb, TABLES, json } from '../_lib/common.mjs';
 
@@ -40,6 +40,18 @@ async function countAds(sellerId) {
   return { active, total };
 }
 
+// The seller's profile photo / logo (a link to our own photo storage). Nothing else from the profile is returned.
+async function avatarUrl(sellerId) {
+  try {
+    const res = await ddb.send(new GetCommand({ TableName: TABLES.User, Key: { id: sellerId }, ProjectionExpression: 'avatar_url' }));
+    const url = res.Item?.avatar_url;
+    return typeof url === 'string' && url.startsWith(`https://${process.env.PHOTOS_CDN_DOMAIN}/`) ? url : null;
+  } catch (e) {
+    console.log('Could not read the seller photo:', e.message);
+    return null;
+  }
+}
+
 async function memberSince(sellerId) {
   try {
     const res = await cognito.send(new ListUsersCommand({
@@ -64,8 +76,8 @@ export const handler = async (event) => {
     const hit = cache.get(seller_id);
     if (hit && Date.now() - hit.at < CACHE_MS) return json(200, hit.body);
 
-    const [{ active, total }, since] = await Promise.all([countAds(seller_id), memberSince(seller_id)]);
-    const body = { member_since: since, active_ads: active, total_ads: total };
+    const [{ active, total }, since, avatar] = await Promise.all([countAds(seller_id), memberSince(seller_id), avatarUrl(seller_id)]);
+    const body = { member_since: since, active_ads: active, total_ads: total, avatar_url: avatar };
     cache.set(seller_id, { at: Date.now(), body });
     return json(200, body);
   } catch (error) {
