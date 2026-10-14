@@ -40,7 +40,7 @@ const categories = [
 [
 { label: 'Cars', imgKey: 'newCar' },
 { label: 'New Cars', imgKey: 'car' },
-{ label: 'Dealership Cars', imgKey: 'dealerCars' },
+{ label: 'Dealership Cars', imgKey: 'rentCar', whiten: true },
 { label: 'Electric & Hybrid Cars', imgKey: 'electricCar' },
 { label: 'Vintage Cars', imgKey: 'vintageCar' },
 { label: 'Modified Cars', imgKey: 'modifiedCar' },
@@ -68,7 +68,7 @@ const categories = [
 { label: 'Quads', imgKey: 'quad', highlight: true },
 { label: 'Bikes & Bicycles', imgKey: 'bicycle', highlight: true },
 { label: 'Other items', isOther: true },
-{ label: 'Rent a Car', imgKey: 'rentCar', whiten: true },
+{ label: 'Rent a Car', imgKey: 'dealerCars' },
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true },
 ]];
 
