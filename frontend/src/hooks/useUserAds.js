@@ -83,7 +83,7 @@ export function userAdToListingItem(ad) {
     image: (ad.photos && ad.photos[0]) || null,
     images: ad.photos || [],
     photos: ad.photos ? ad.photos.length : 1,
-    sellerType: ad.isTrader ? 'Trader' : 'Private Seller',
+    sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
     spotlight: ad.spotlight,
     description: ad.description,
     fullName: ad.fullName,

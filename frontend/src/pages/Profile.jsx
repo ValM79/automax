@@ -118,7 +118,7 @@ export default function Profile() {
     setPhotoBusy(true);
     setPhotoError('');
     try {
-      const small = await squareImage(file, { fit: user.seller_type === 'trader' ? 'contain' : 'cover' });
+      const small = await squareImage(file, { fit: ['trader', 'dealer'].includes(user.seller_type) ? 'contain' : 'cover' });
       const { file_url } = await api.integrations.Core.UploadFile({ file: small });
       await api.auth.updateMe({ avatar_url: file_url });
       await refreshUser();
@@ -182,7 +182,8 @@ export default function Profile() {
   }
 
   // Fixed when the account was created: a private account sees the private form, a trader the trader form.
-  const isTrader = user.seller_type === 'trader';
+  const isTrader = ['trader', 'dealer'].includes(user.seller_type); // business account
+  const accountKind = user.seller_type === 'dealer' ? 'Dealer' : 'Trader';
 
   return (
     <div className="min-h-screen bg-background">
@@ -227,7 +228,7 @@ export default function Profile() {
                 {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
               </h2>
               <p className="text-xs text-muted-foreground truncate">
-                {isTrader ? `Trader account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
+                {isTrader ? `${accountKind} account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
               <p className="text-xs mt-1.5 flex items-center gap-3">
                 <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
@@ -420,7 +421,7 @@ export default function Profile() {
               <div className="flex items-center gap-2">
                 <Store className="w-4 h-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground">Account type:</span>
-                <span className="text-foreground font-medium">{isTrader ? 'Trader' : 'Private'}</span>
+                <span className="text-foreground font-medium">{isTrader ? accountKind : 'Private'}</span>
               </div>
               {memberSince && (
                 <div className="flex items-center gap-2">

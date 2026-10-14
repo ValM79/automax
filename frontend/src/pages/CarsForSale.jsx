@@ -127,7 +127,7 @@ export default function CarsForSale() {
     phone: ad.phone,
     sellerId: ad.created_by_id,
     spotlight: ad.spotlight,
-    sellerType: ad.isTrader ? 'Trader' : 'Private Seller',
+    sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
     adType: ad.adType,
     description: ad.description,
     bodyType: ad.bodyType,

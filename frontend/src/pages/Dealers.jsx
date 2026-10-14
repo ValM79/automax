@@ -22,6 +22,27 @@ function DealerLogo({ url }) {
   );
 }
 
+// An empty card in the same shape as a real dealer card (grey bars where the name, location, stock, tags and logo go).
+// Shown below the "No dealerships here yet" message so the layout is visible before the first dealer arrives.
+function PlaceholderCard({ tags = 2, trusted = false }) {
+  return (
+    <div aria-hidden="true" className="bg-card rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4">
+      <div className="min-w-0 flex-1">
+        <div className="h-6 w-48 max-w-full rounded bg-border" />
+        {trusted && <div className="h-4 w-28 rounded bg-border mt-3" />}
+        <div className="h-4 w-60 max-w-full rounded bg-border mt-3" />
+        <div className="flex gap-2 mt-4">
+          {Array.from({ length: tags }).map((_, i) => <div key={i} className="h-6 w-16 rounded bg-border" />)}
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-2 shrink-0">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-border bg-secondary/60" />
+        <div className="h-3 w-20 rounded bg-border" />
+      </div>
+    </div>
+  );
+}
+
 // Dealers Garage: the directory of dealerships. The list comes from real Trader accounts that have at least one live ad,
 // so it fills itself as dealers sign up and place ads.
 export default function Dealers() {
@@ -102,11 +123,15 @@ export default function Dealers() {
           <div className="bg-card rounded-lg shadow-sm p-10 text-center">
             <Car className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
             <p className="text-lg font-semibold text-foreground mb-1">No dealerships here yet</p>
-            <p className="text-sm text-muted-foreground mb-5">Are you a dealer? Create a Trader account and list your stock to appear here.</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/create-account" className="h-11 px-6 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors">Create a Trader account</Link>
-              <Link to="/dealers-information" className="h-11 px-6 inline-flex items-center justify-center rounded-lg border border-primary text-primary font-medium text-sm hover:bg-primary/5 transition-colors">Dealers information</Link>
-            </div>
+            <p className="text-sm text-muted-foreground">Are you a dealer? Sign up and list your stock to appear here.</p>
+          </div>
+        )}
+
+        {dealers && !error && dealers.length === 0 && (
+          <div className="flex flex-col gap-4 mt-4">
+            <PlaceholderCard tags={3} trusted />
+            <PlaceholderCard tags={2} />
+            <PlaceholderCard tags={1} />
           </div>
         )}
 
