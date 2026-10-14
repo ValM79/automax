@@ -74,8 +74,8 @@ const keywordToCategory = {
   // --- Car Types ---
   car: 'Cars', cars: 'Cars', sedan: 'Cars', hatchback: 'Cars', saloon: 'Cars', coupe: 'Cars', suv: 'Cars', estate: 'Cars',
   convertible: 'Cars', family: 'Cars', crossover: 'Cars', mpv: 'Cars', people: 'Cars', pickup: 'Trucks',
-  // --- Dealers Garage (was New Cars) ---
-  new: 'Dealers Garage', 'new car': 'Dealers Garage', dealer: 'Dealers Garage', dealers: 'Dealers Garage', garage: 'Dealers Garage',
+  // --- New cars are ordinary Cars ads ---
+  new: 'Cars', 'new car': 'Cars',
   // --- Electric & Hybrid ---
   'electric & hybrid': 'Electric & Hybrid Cars', 'electric and hybrid': 'Electric & Hybrid Cars',
   'electric car': 'Electric & Hybrid Cars', 'electric cars': 'Electric & Hybrid Cars',

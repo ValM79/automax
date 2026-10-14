@@ -16,7 +16,6 @@ const Dealers = lazy(() => import('./pages/Dealers'));
 const PlaceAd = lazy(() => import('./pages/PlaceAd'));
 const CarsForSale = lazy(() => import('./pages/CarsForSale'));
 const Commercials = lazy(() => import('./pages/Commercials'));
-const NewCarListings = lazy(() => import('./pages/NewCarListings'));
 const DealershipCars = lazy(() => import('./pages/DealershipCars'));
 const VintageCars = lazy(() => import('./pages/VintageCars'));
 const ModifiedCars = lazy(() => import('./pages/ModifiedCars'));
@@ -98,12 +97,12 @@ const AnimatedRoutes = () => {
       <Route path="/create-account" element={<CreateAccount />} />
       <Route path="/car-rent" element={<CarRent />} />
       <Route path="/recovery-service" element={<CarInsurance />} />
-      <Route path="/dealers" element={<Dealers />} />
+      <Route path="/dealers-garage" element={<Dealers />} />
+      <Route path="/dealers" element={<Navigate to="/dealers-garage" replace />} />
       <Route path="/place-ad" element={<PlaceAd />} />
       <Route path="/cars-for-sale" element={<CarsForSale />} />
       <Route path="/commercials" element={<Commercials />} />
-      <Route path="/dealers-garage" element={<NewCarListings />} />
-      <Route path="/new-cars" element={<Navigate to="/dealers-garage" replace />} />
+      <Route path="/new-cars" element={<Navigate to="/cars-for-sale" replace />} />
       <Route path="/dealership-cars" element={<DealershipCars />} />
       <Route path="/vintage-cars" element={<VintageCars />} />
       <Route path="/modified-cars" element={<ModifiedCars />} />

@@ -584,6 +584,12 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'toggleAdSave', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Public dealer directory (Dealers Garage): traders with at least one live ad. Read-only.
+    const listDealersFn = new lambdaNode.NodejsFunction(this, 'ListDealersFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'listDealers', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const verifyCodeFn = new lambdaNode.NodejsFunction(this, 'VerifyCodeFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'verifyCode', 'index.mjs'),
@@ -638,6 +644,9 @@ export class AutomaxStack extends cdk.Stack {
         resources: [userPool.userPoolArn],
       })
     );
+    // listDealers only reads ads (to find live ones) and the public bits of seller profiles.
+    userAdTable.grantReadData(listDealersFn);
+    userProfileTable.grantReadData(listDealersFn);
     // Counters: each only touches the ad table (counts) and, to know who is calling / what they saved, the profile table.
     userAdTable.grantReadWriteData(recordAdViewFn);
     userProfileTable.grantReadData(recordAdViewFn);
@@ -712,6 +721,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/downloadReceipt', apigw.HttpMethod.POST, downloadReceiptFn, false);
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
+    route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
     route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);
     route('/functions/toggleAdSave', apigw.HttpMethod.POST, toggleAdSaveFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);

@@ -23,7 +23,7 @@ const userMenuItems = [
 
 
 const dealersMenuItems = [
-{ label: 'Find a dealer', route: '/dealers' },
+{ label: 'Find a dealer', route: '/dealers-garage' },
 { label: 'Dealers information', route: '/dealers-information' }];
 
 

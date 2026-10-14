@@ -24,11 +24,11 @@ const areasByCounty = {
   default: ['North', 'South', 'East', 'West', 'City Centre']
 };
 
-const browseCategories = ['Dealers Garage', 'Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars', 'Car Parts', 'Car Extras', 'Rally Cars', 'Breaking & Repairables', 'Trucks', 'Commercials', 'Trailers', 'Campers', 'Coaches & Buses', 'Plant Machinery', 'Motorbike Extras', 'Caravans', 'Bikes & Bicycles', 'Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Other items'];
+const browseCategories = ['Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars', 'Car Parts', 'Car Extras', 'Rally Cars', 'Breaking & Repairables', 'Trucks', 'Commercials', 'Trailers', 'Campers', 'Coaches & Buses', 'Plant Machinery', 'Motorbike Extras', 'Caravans', 'Bikes & Bicycles', 'Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Other items'];
 
 const knownMakes = ['Alfa Romeo', 'Audi', 'BMW', 'Citroën', 'Fiat', 'Ford', 'Honda', 'Hyundai', 'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Mazda', 'Mercedes-Benz', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Porsche', 'Renault', 'Seat', 'Skoda', 'Subaru', 'Suzuki', 'Tesla', 'Toyota', 'Vauxhall', 'Volkswagen', 'Volvo'];
 
-const vehicleDetailsCategories = ['Cars', 'Dealers Garage', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
+const vehicleDetailsCategories = ['Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
 
 const MAX_PHOTOS = 12;
 
