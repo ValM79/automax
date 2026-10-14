@@ -105,7 +105,6 @@ export default function Dealers() {
             <p className="text-sm text-muted-foreground mb-5">Are you a dealer? Create a Trader account and list your stock to appear here.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to="/create-account" className="h-11 px-6 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors">Create a Trader account</Link>
-              <Link to="/dealers-information" className="h-11 px-6 inline-flex items-center justify-center rounded-lg border border-primary text-primary font-medium text-sm hover:bg-primary/5 transition-colors">Dealers information</Link>
             </div>
           </div>
         )}
