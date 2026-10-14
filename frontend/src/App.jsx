@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ScrollToTop from './components/ScrollToTop';
 import SeoManager from './components/SeoManager';
@@ -102,7 +102,8 @@ const AnimatedRoutes = () => {
       <Route path="/place-ad" element={<PlaceAd />} />
       <Route path="/cars-for-sale" element={<CarsForSale />} />
       <Route path="/commercials" element={<Commercials />} />
-      <Route path="/new-cars" element={<NewCarListings />} />
+      <Route path="/dealers-garage" element={<NewCarListings />} />
+      <Route path="/new-cars" element={<Navigate to="/dealers-garage" replace />} />
       <Route path="/dealership-cars" element={<DealershipCars />} />
       <Route path="/vintage-cars" element={<VintageCars />} />
       <Route path="/modified-cars" element={<ModifiedCars />} />

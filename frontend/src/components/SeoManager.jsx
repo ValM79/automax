@@ -9,7 +9,7 @@ const DEFAULT_SEO = {
 const routeSeo = {
   '/': DEFAULT_SEO,
   '/cars-for-sale': { title: 'Cars For Sale in Ireland | AutoMax', description: 'Browse thousands of new and used cars for sale across Ireland. Filter by make, model, price, year, fuel type and location on AutoMax.' },
-  '/new-cars': { title: 'New Cars For Sale | AutoMax', description: 'Shop the latest new cars for sale in Ireland. Browse new car listings from dealers nationwide on AutoMax.' },
+  '/dealers-garage': { title: 'Dealers Garage | AutoMax', description: 'Cars from dealers and garages across Ireland. Browse dealer listings nationwide on AutoMax.' },
   '/dealership-cars': { title: 'Dealership Cars For Sale | AutoMax', description: 'Browse dealership cars for sale in Ireland. Find quality vehicles from trusted dealers on AutoMax.' },
   '/electric-hybrid-cars': { title: 'Electric & Hybrid Cars For Sale | AutoMax', description: 'Discover electric and hybrid cars for sale in Ireland. Compare EV range, battery size and prices on AutoMax.' },
   '/vintage-cars': { title: 'Vintage & Classic Cars For Sale | AutoMax', description: 'Browse vintage and classic cars for sale in Ireland. Find timeless automobiles from trusted sellers on AutoMax.' },

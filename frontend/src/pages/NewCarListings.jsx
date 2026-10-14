@@ -23,7 +23,7 @@ export default function NewCarListings() {
   const [activeFilters, setActiveFilters] = useState({ vehicles: [] });
   const [currentPage, setCurrentPage] = useState(1);
   const { isFavorite, toggleFavorite } = useFavorites();
-  const userAds = useUserAds(['New Cars']);
+  const userAds = useUserAds(['Dealers Garage', 'New Cars']);
 
   const activeVehicles = (activeFilters.vehicles || []).filter((v) => v.make);
 
@@ -77,13 +77,13 @@ export default function NewCarListings() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">New Cars</span>
+          <span className="text-foreground font-medium">Dealers Garage</span>
         </div>
 
         {/* Header */}
         <div className="mb-5">
           <div className="flex items-center gap-8 mb-3">
-            <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">New Cars For Sale</h1>
+            <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">Dealers Garage</h1>
           </div>
         </div>
 

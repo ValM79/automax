@@ -39,7 +39,7 @@ const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.
 const categories = [
 [
 { label: 'Cars', imgKey: 'newCar' },
-{ label: 'New Cars', imgKey: 'car' },
+{ label: 'Dealers Garage', imgKey: 'car' },
 { label: 'Dealership Cars', imgKey: 'dealerCar' },
 { label: 'Electric & Hybrid Cars', imgKey: 'electricCar' },
 { label: 'Vintage Cars', imgKey: 'vintageCar' },
@@ -101,7 +101,7 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (label === 'New Cars') navigate('/new-cars');
+    if (label === 'Dealers Garage') navigate('/dealers-garage');
     if (label === 'Cars') navigate('/cars-for-sale');
     if (label === 'Dealership Cars') navigate('/dealership-cars');
     if (label === 'Electric & Hybrid Cars') navigate('/electric-hybrid-cars');
