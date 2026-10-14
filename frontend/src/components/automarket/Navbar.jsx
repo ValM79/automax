@@ -23,7 +23,7 @@ const userMenuItems = [
 
 
 const dealersMenuItems = [
-{ label: 'Find a dealer', route: '/dealers-garage' },
+{ label: 'Dealership information', route: '/dealers-garage' },
 { label: 'Dealers information', route: '/dealers-information' }];
 
 
@@ -67,7 +67,7 @@ export default function Navbar() {
   const navLinks = [
   { label: "Buyer's Tips" },
   { label: "Seller's Tips" },
-  { label: 'Dealers', hasDropdown: true }];
+  { label: 'Dealers & Dealership Tips', hasDropdown: true }];
 
 
   return (
@@ -109,12 +109,12 @@ export default function Navbar() {
               className="text-[hsl(var(--foreground))] px-3 py-2 text-sm font-medium hover:underline flex items-center gap-1 transition-colors">
               Seller's Tips
             </Link> :
-            link.label === 'Dealers' ?
-            <div key="Dealers" className="relative" ref={dealersMenuRef}>
+            link.label === 'Dealers & Dealership Tips' ?
+            <div key="Dealers & Dealership Tips" className="relative" ref={dealersMenuRef}>
                   <button
                 onClick={() => setShowDealersMenu((v) => !v)}
                 className="text-[hsl(var(--foreground))] px-3 py-2 text-sm font-medium hover:underline flex items-center gap-1 transition-colors">
-                    Dealers <ChevronDown className="w-3.5 h-3.5" />
+                    Dealers &amp; Dealership Tips <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   {showDealersMenu &&
               <div className="absolute left-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-lg py-1 z-50">

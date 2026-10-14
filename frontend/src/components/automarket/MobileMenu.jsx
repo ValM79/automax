@@ -6,17 +6,17 @@ import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 
 const dealersMenuItems = [
-  { label: 'Find a dealer', route: '/dealers-garage' },
+  { label: 'Dealership information', route: '/dealers-garage' },
   { label: 'Dealers information', route: '/dealers-information' }];
 
 const dropdownMap = {
-  Dealers: dealersMenuItems
+  'Dealers & Dealership Tips': dealersMenuItems
 };
 
 const navLinks = [
   { label: "Buyer's Tips", route: '/buying-tips', hasDropdown: false },
   { label: "Seller's Tips", route: '/selling-tips', hasDropdown: false },
-  { label: 'Dealers', hasDropdown: true }];
+  { label: 'Dealers & Dealership Tips', hasDropdown: true }];
 
 
 const userMenuItems = [
