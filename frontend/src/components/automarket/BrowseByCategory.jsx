@@ -22,7 +22,6 @@ const IMG = {
   boatExtras: '/img/5687cde59_generated_image.jpg',
   electricCar: '/img/4a947c627_generated_image.jpg',
   boat: '/img/87a17cb2c_generated_image.jpg',
-  breaking: '/img/700a41555_generated_image.jpg',
   rallyCar: '/img/906d5fa64_generated_image.jpg',
   carParts: '/img/3211f3316_generated_image.jpg',
   carExtras: '/img/06f7b7968_generated_image.jpg',
@@ -30,11 +29,12 @@ const IMG = {
   otherItems: '/img/c3b58389b_generated_image.jpg',
   recovery: '/img/0babdc7b0_generated_image.jpg', // the banner on the Recovery Service page
   dealerCar: '/img/dealership-car-blue.jpg', // the Cars hatchback recoloured blue, for Dealership Cars
+  damaged: '/img/e9b8cb542_generated_image.jpg', // the banner on the Breaking & Repairables page
 };
 
 // Every category picture is shown at one united size: the vehicle (or item) in each picture is measured and scaled (s) and
 // centred (x, y in px) so it fills the same 40 x 30 px box, keeping its proportions. Same rule for all of them.
-const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},breaking:{s:1.32,x:0,y:-0.7},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7}};
+const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7},damaged:{s:1.29,x:-0.1,y:-0.8}};
 
 const categories = [
 [
@@ -45,7 +45,7 @@ const categories = [
 { label: 'Vintage Cars', imgKey: 'vintageCar' },
 { label: 'Modified Cars', imgKey: 'modifiedCar' },
 { label: 'Rally Cars', imgKey: 'rallyCar' },
-{ label: 'Breaking & Repairables', imgKey: 'breaking' },
+{ label: 'Breaking & Repairables', imgKey: 'damaged', whiten: 1.16 },
 { label: 'Car Parts', imgKey: 'carParts' },
 { label: 'Car Extras', imgKey: 'carExtras' },
 ],
@@ -93,7 +93,7 @@ function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
   return (
     <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
       {/* the two page banners have a light-grey studio background; a small lift makes it match the white of the others */}
-      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={{ ...(whiten ? { filter: 'brightness(1.08)' } : {}), ...fitStyle(imgKey) }} />
+      <img src={IMG[imgKey]} alt="" className="max-w-full max-h-full object-contain" style={{ ...(whiten ? { filter: `brightness(${typeof whiten === 'number' ? whiten : 1.08})` } : {}), ...fitStyle(imgKey) }} />
     </div>);
 }
 
