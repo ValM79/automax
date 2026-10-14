@@ -35,7 +35,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
               <MapPin className="w-3.5 h-3.5 shrink-0" /> {location}
             </p>
           )}
-          {isTrader && <span className="inline-block mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Trader</span>}
+          {isTrader && <span className="inline-block mt-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">{seller?.badge || 'Trader'}</span>}
         </div>
       </div>
 

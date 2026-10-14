@@ -33,7 +33,7 @@ async function liveAdsBySeller() {
       KeyConditionExpression: '#s = :active',
       ExpressionAttributeNames: { '#s': 'status' },
       ExpressionAttributeValues: { ':active': 'active' },
-      ProjectionExpression: 'created_by_id, subsection, sellerType, businessName, listingDays, created_date',
+      ProjectionExpression: 'created_by_id, subsection, isTrader, businessName, listingDays, created_date',
       ExclusiveStartKey: key,
     }));
     for (const ad of res.Items || []) {
@@ -43,7 +43,7 @@ async function liveAdsBySeller() {
       const s = sellers.get(ad.created_by_id) || { stock: 0, sections: new Set(), traderAd: false, adName: '' };
       s.stock += 1;
       if (ad.subsection) s.sections.add(sectionOf(ad.subsection));
-      if (ad.sellerType === 'Trader') s.traderAd = true;
+      if (ad.isTrader === true) s.traderAd = true;
       if (!s.adName && ad.businessName) s.adName = String(ad.businessName);
       sellers.set(ad.created_by_id, s);
     }
@@ -76,7 +76,7 @@ async function buildDealers() {
   const dealers = [];
   for (const [id, s] of sellers) {
     const p = profiles.get(id) || {};
-    if (p.seller_type !== 'trader' && !s.traderAd) continue; // private sellers are not dealers
+    if (!['trader', 'dealer'].includes(p.seller_type) && !s.traderAd) continue; // private sellers are not dealers
     const name = String(p.business_name || s.adName || '').trim();
     if (!name) continue;
     dealers.push({

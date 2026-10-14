@@ -178,7 +178,7 @@ export default function PlaceAd() {
         county: user.county || f.county,
         area: user.area || f.area,
         phone: user.phone || f.phone,
-        isTrader: user.seller_type === 'trader' ? true : f.isTrader,
+        isTrader: ['trader', 'dealer'].includes(user.seller_type) ? true : f.isTrader,
         businessName: user.business_name || f.businessName,
         vatNumber: user.vat_number || f.vatNumber
       }));
@@ -1188,6 +1188,7 @@ export default function PlaceAd() {
                     phone: form.phone,
                     adType: form.adType,
                     isTrader: form.isTrader,
+                    sellerKind: form.isTrader ? (user.seller_type === 'dealer' ? 'dealer' : 'trader') : '',
                     businessName: form.isTrader ? form.businessName.trim() : '',
                     businessAddress: form.isTrader ? form.businessAddress.trim() : '',
                     vatNumber: form.isTrader ? form.vatNumber.trim() : '',
