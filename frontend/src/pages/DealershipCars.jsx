@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = 12;
 const dealerListings = [];
 
 // A trader's car ad (see the "I'm a trader" tick on Place Ad) is also listed here, whichever car category it was placed in.
-const TRADER_CAR_SUBSECTIONS = ['Cars', 'Dealers Garage', 'New Cars', 'Electric & Hybrid Cars', 'Modified Cars', 'Vintage Cars', 'Rally Cars'];
+const TRADER_CAR_SUBSECTIONS = ['Cars', 'New Cars', 'Electric & Hybrid Cars', 'Modified Cars', 'Vintage Cars', 'Rally Cars'];
 
 
 
