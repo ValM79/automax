@@ -29,18 +29,18 @@ const IMG = {
   bicycle: '/img/8ded1f6ff_generated_image.jpg',
   otherItems: '/img/c3b58389b_generated_image.jpg',
   recovery: '/img/0babdc7b0_generated_image.jpg', // the banner on the Recovery Service page
-  dealerBanner: '/img/927787060_generated_image.jpg', // the banner on the Dealership Cars page
+  dealerCar: '/img/dealership-car-blue.jpg', // the Cars hatchback recoloured blue, for Dealership Cars
 };
 
 // Every category picture is shown at one united size: the vehicle (or item) in each picture is measured and scaled (s) and
 // centred (x, y in px) so it fills the same 40 x 30 px box, keeping its proportions. Same rule for all of them.
-const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},breaking:{s:1.32,x:0,y:-0.7},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerBanner:{s:1.18,x:0,y:-0.5}};
+const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},breaking:{s:1.32,x:0,y:-0.7},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7}};
 
 const categories = [
 [
 { label: 'Cars', imgKey: 'newCar' },
 { label: 'New Cars', imgKey: 'car' },
-{ label: 'Dealership Cars', imgKey: 'dealerBanner', whiten: true },
+{ label: 'Dealership Cars', imgKey: 'dealerCar' },
 { label: 'Electric & Hybrid Cars', imgKey: 'electricCar' },
 { label: 'Vintage Cars', imgKey: 'vintageCar' },
 { label: 'Modified Cars', imgKey: 'modifiedCar' },
