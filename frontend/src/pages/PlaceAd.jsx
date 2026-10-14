@@ -31,7 +31,7 @@ const areasByCounty = {
 const sections = [
 {
   label: 'Cars',
-  subsections: ['New Cars', 'Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars', 'Car Parts', 'Car Extras', 'Rally Cars', 'Breaking & Repairables']
+  subsections: ['Dealers Garage', 'Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars', 'Car Parts', 'Car Extras', 'Rally Cars', 'Breaking & Repairables']
 },
 {
   label: 'Trucks & Vans',
@@ -45,7 +45,7 @@ const sections = [
 
 // All individual category names matching BrowseByCategory
 const browseCategories = [
-'New Cars', 'Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars',
+'Dealers Garage', 'Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Vintage Cars', 'Modified Cars',
 'Car Parts', 'Car Extras', 'Rally Cars', 'Breaking & Repairables',
 'Trucks', 'Commercials', 'Trailers', 'Campers', 'Coaches & Buses',
 'Plant Machinery', 'Motorbike Extras', 'Caravans', 'Bikes & Bicycles',
@@ -57,7 +57,8 @@ concat('Other items');
 
 
 const categoryToSection = {
-  'new cars': { section: 'Cars', subsection: 'New Cars' },
+  'dealers garage': { section: 'Cars', subsection: 'Dealers Garage' },
+  'new cars': { section: 'Cars', subsection: 'Dealers Garage' },
   cars: { section: 'Cars', subsection: 'Cars' },
   'electric & hybrid cars': { section: 'Cars', subsection: 'Electric & Hybrid Cars' },
   'electric and hybrid cars': { section: 'Cars', subsection: 'Electric & Hybrid Cars' },
@@ -202,13 +203,14 @@ export default function PlaceAd() {
 
   // When vehicle year is set to 2000 or under and subsection is a car category, auto-suggest Vintage Cars
   const isVintageYear = form.vehicleYear && parseInt(form.vehicleYear, 10) <= 2000;
-  const isCarSubsection = ['Cars', 'New Cars', 'Electric & Hybrid Cars', 'Dealership Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', ''].includes(form.subsection);
+  const isCarSubsection = ['Cars', 'Dealers Garage', 'Electric & Hybrid Cars', 'Dealership Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', ''].includes(form.subsection);
   const showVintageSuggestion = isVintageYear && isCarSubsection && form.subsection !== 'Vintage Cars' && !vintageSuggestionDismissed;
 
   // Subsection → route mapping for redirect after payment
   const subsectionToRoute = {
     'Cars': '/cars-for-sale',
-    'New Cars': '/new-cars',
+    'Dealers Garage': '/dealers-garage',
+    'New Cars': '/dealers-garage',
     'Dealership Cars': '/dealership-cars',
     'Electric & Hybrid Cars': '/electric-hybrid-cars',
     'Cars from Dealerships': '/dealership-cars',
@@ -251,7 +253,7 @@ export default function PlaceAd() {
 
   const isBikeCategory = isBikePackageSubsection(form.subsection);
 
-  const vehicleDetailsCategories = ['Cars', 'New Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
+  const vehicleDetailsCategories = ['Cars', 'Dealers Garage', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);
 
   const validateForm = () => {

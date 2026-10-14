@@ -24,7 +24,7 @@ function clearHistory() {
 const SITE_PAGES = [
   { label: 'Cars for Sale', route: '/cars-for-sale', keywords: ['car', 'cars', 'saloon', 'sedan', 'hatchback', 'coupe', 'suv', 'auto', 'vehicle'] },
   { label: 'Used Cars', route: '/used-cars', keywords: ['used', 'second hand', 'secondhand', 'pre-owned'] },
-  { label: 'New Cars', route: '/new-cars', keywords: ['new car', 'brand new', '2024', '2025', '2026'] },
+  { label: 'Dealers Garage', route: '/dealers-garage', keywords: ['dealer', 'dealers', 'garage', 'dealers garage', 'new car', 'brand new', '2024', '2025', '2026'] },
   { label: 'Electric & Hybrid Cars', route: '/electric-hybrid-cars', keywords: ['electric', 'hybrid', 'ev', 'tesla', 'plug-in', 'green', 'eco'] },
   { label: 'Dealership Cars', route: '/dealership-cars', keywords: ['dealer', 'dealership', 'garage'] },
   { label: 'Motorbikes', route: '/motorbikes', keywords: ['motorbike', 'motorcycle', 'bike', 'moped', 'harley', 'honda cb', 'yamaha', 'kawasaki', 'ducati'] },
