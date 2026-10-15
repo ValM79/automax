@@ -188,7 +188,14 @@ export default function CreateAccount() {
           <Link to="/login" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-5">
             <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to sign in
           </Link>
-          <h1 className="text-2xl font-bold text-foreground text-center">Create your account</h1>
+          <div className="flex flex-col items-center">
+            <img
+              src="/img/39fe51366_automax512png.png"
+              alt="AutoMax logo"
+              className="w-20 h-20 object-contain mb-3"
+            />
+            <h1 className="text-2xl font-bold text-foreground text-center">Create your account</h1>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
