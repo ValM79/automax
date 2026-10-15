@@ -5,7 +5,7 @@ import Footer from '../components/automarket/Footer';
 
 export default function TermsAndConditions() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col [&>.mx-auto]:w-full">
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-4 py-10">

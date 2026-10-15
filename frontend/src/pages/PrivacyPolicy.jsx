@@ -186,7 +186,7 @@ Website: dataprotection.ie | Phone: +353 57 868 4800`
 export default function PrivacyPolicy() {
   const [showContactForm, setShowContactForm] = useState(false);
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col [&>.mx-auto]:w-full">
       <Navbar />
       <div className="max-w-3xl mx-auto px-4 py-10">
 

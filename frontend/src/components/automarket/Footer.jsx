@@ -38,7 +38,7 @@ const footerSections = [
 
 export default function Footer() {
   return (
-    <footer className="bg-foreground text-background/70" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <footer className="bg-foreground text-background/70 mt-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="max-w-7xl mx-auto px-8 py-10">
 
         {/* Top section: Logo + Links + App Download */}
