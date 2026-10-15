@@ -194,7 +194,7 @@ export default function CreateAccount() {
               alt="AutoMax logo"
               className="w-20 h-20 object-contain mb-3"
             />
-            <h1 className="text-2xl font-bold text-foreground text-center">Create your account</h1>
+            <h1 className="text-xl font-bold text-foreground text-center">Create your account</h1>
           </div>
         </div>
 
