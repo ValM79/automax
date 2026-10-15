@@ -16,7 +16,7 @@ export default function ManageCookies() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col [&>.mx-auto]:w-full">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">

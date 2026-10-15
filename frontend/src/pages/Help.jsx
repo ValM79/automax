@@ -58,7 +58,7 @@ export default function Help() {
   };
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-muted flex flex-col [&>.mx-auto]:w-full">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
