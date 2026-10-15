@@ -185,10 +185,17 @@ export default function CreateAccount() {
     <div className="min-h-screen bg-muted flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 w-full max-w-md">
         <div className="mb-6">
-          <Link to="/" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-5">
+          <Link to="/login" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-5">
             <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to sign in
           </Link>
-          <h1 className="text-2xl font-bold text-foreground text-center">Create your account</h1>
+          <div className="flex flex-col items-center">
+            <img
+              src="/img/39fe51366_automax512png.png"
+              alt="AutoMax logo"
+              className="w-20 h-20 object-contain mb-3"
+            />
+            <h1 className="text-xl font-bold text-foreground text-center">Create your account</h1>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -207,7 +214,7 @@ export default function CreateAccount() {
               <SelectContent>
                 <SelectItem value="private">Private Account</SelectItem>
                 <SelectItem value="trader">Trader</SelectItem>
-                <SelectItem value="dealer">Dealer</SelectItem>
+                <SelectItem value="dealer">Dealership</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -266,7 +273,7 @@ export default function CreateAccount() {
 
           {/* Terms */}
           <p className="text-xs text-foreground mb-5 leading-relaxed">
-            By clicking Continue, I agree to the{' '}
+            By clicking <strong className="font-bold">Continue</strong>, I agree to the{' '}
             <Link to="/terms-and-conditions" {...legalLinkProps} className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
             and{' '}
             <Link to="/privacy-policy" {...legalLinkProps} className="text-blue-600 hover:underline">Privacy Policy</Link>
