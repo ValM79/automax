@@ -51,7 +51,6 @@ export default function Dealers() {
   const [error, setError] = useState('');
   const [dealerId, setDealerId] = useState('');
   const [county, setCounty] = useState('');
-  const [section, setSection] = useState('');
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -63,13 +62,11 @@ export default function Dealers() {
   }, []);
 
   const names = useMemo(() => [...(dealers || [])].sort((a, b) => a.name.localeCompare(b.name)), [dealers]);
-  const sections = useMemo(() => [...new Set((dealers || []).flatMap((d) => d.sections))].sort((a, b) => (a === 'Cars' ? -1 : b === 'Cars' ? 1 : a.localeCompare(b))), [dealers]);
 
   const filtered = useMemo(() => (dealers || []).filter((d) => (
     (!dealerId || d.id === dealerId) &&
-    (!county || d.county === county) &&
-    (!section || d.sections.includes(section))
-  )), [dealers, dealerId, county, section]);
+    (!county || d.county === county)
+  )), [dealers, dealerId, county]);
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, pages);
@@ -93,18 +90,14 @@ export default function Dealers() {
             <span className="text-white">Dealers Garage</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-5">Dealers Garage</h1>
-          <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
             <select value={dealerId} onChange={pick(setDealerId)} className={selectClass} aria-label="Dealership">
-              <option value="">All Dealerships</option>
+              <option value="">Search Dealers</option>
               {names.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
             <select value={county} onChange={pick(setCounty)} className={selectClass} aria-label="County">
               <option value="">All Ireland</option>
               {IRISH_COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <select value={section} onChange={pick(setSection)} className={selectClass} aria-label="Section">
-              <option value="">All Sections</option>
-              {sections.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
         </div>
