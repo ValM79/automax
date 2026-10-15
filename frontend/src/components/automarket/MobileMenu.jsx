@@ -6,7 +6,7 @@ import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 
 const dealersMenuItems = [
-  { label: 'Dealership information', route: '/dealers-garage' },
+  { label: 'Dealership information', route: '/dealership-information' },
   { label: 'Dealers information', route: '/dealers-information' }];
 
 const dropdownMap = {

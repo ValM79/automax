@@ -71,6 +71,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const ManageCookies = lazy(() => import('./pages/ManageCookies'));
 const Accessibility = lazy(() => import('./pages/Accessibility'));
 const DealersInformation = lazy(() => import('./pages/DealersInformation'));
+const DealershipInformation = lazy(() => import('./pages/DealershipInformation'));
 const Advertisement = lazy(() => import('./pages/Advertisement'));
 const EditAd = lazy(() => import('./pages/EditAd'));
 import CookieBanner from './components/automarket/CookieBanner';
@@ -158,6 +159,7 @@ const AnimatedRoutes = () => {
       <Route path="/manage-cookies" element={<ManageCookies />} />
       <Route path="/accessibility" element={<Accessibility />} />
       <Route path="/dealers-information" element={<DealersInformation />} />
+      <Route path="/dealership-information" element={<DealershipInformation />} />
       <Route path="/advertisement" element={<Advertisement />} />
       <Route path="/edit-ad/:id" element={<EditAd />} />
       <Route path="*" element={<PageNotFound />} />
