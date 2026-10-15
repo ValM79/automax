@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 
 export default function DealersInformation() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 py-10">
+      <div className="max-w-3xl w-full mx-auto px-4 py-10 flex-1">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
