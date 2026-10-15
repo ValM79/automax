@@ -207,7 +207,7 @@ export default function CreateAccount() {
               <SelectContent>
                 <SelectItem value="private">Private Account</SelectItem>
                 <SelectItem value="trader">Trader</SelectItem>
-                <SelectItem value="dealer">Dealer</SelectItem>
+                <SelectItem value="dealer">Dealership</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -266,7 +266,7 @@ export default function CreateAccount() {
 
           {/* Terms */}
           <p className="text-xs text-foreground mb-5 leading-relaxed">
-            By clicking Continue, I agree to the{' '}
+            By clicking <strong className="font-bold">Continue</strong>, I agree to the{' '}
             <Link to="/terms-and-conditions" {...legalLinkProps} className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
             and{' '}
             <Link to="/privacy-policy" {...legalLinkProps} className="text-blue-600 hover:underline">Privacy Policy</Link>
