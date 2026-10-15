@@ -185,7 +185,7 @@ export default function CreateAccount() {
     <div className="min-h-screen bg-muted flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-lg p-6 md:p-8 w-full max-w-md">
         <div className="mb-6">
-          <Link to="/" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-5">
+          <Link to="/login" className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-5">
             <ArrowLeft className="w-4 h-4 mr-1.5" /> Back to sign in
           </Link>
           <h1 className="text-2xl font-bold text-foreground text-center">Create your account</h1>
