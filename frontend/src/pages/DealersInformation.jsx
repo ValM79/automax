@@ -15,6 +15,9 @@ export default function DealersInformation() {
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-4">Dealers information</h1>
         <p className="text-muted-foreground">Information for dealers will be added here soon.</p>
+        <p className="text-muted-foreground mt-4">
+          Questions? Contact us at <a href="mailto:dealers@automax.ie" className="text-primary font-semibold hover:underline">dealers@automax.ie</a>
+        </p>
       </div>
       <Footer />
     </div>
