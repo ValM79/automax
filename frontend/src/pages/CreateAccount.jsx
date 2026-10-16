@@ -273,7 +273,7 @@ export default function CreateAccount() {
 
           {/* Terms */}
           <p className="text-xs text-foreground mb-5 leading-relaxed">
-            By clicking <strong className="font-bold">Continue</strong>, I agree to the{' '}
+            By clicking <strong className="font-bold">Create account</strong>, I agree to the{' '}
             <Link to="/terms-and-conditions" {...legalLinkProps} className="text-blue-600 hover:underline">AutoMax Terms of Use</Link>{' '}
             and{' '}
             <Link to="/privacy-policy" {...legalLinkProps} className="text-blue-600 hover:underline">Privacy Policy</Link>
@@ -285,7 +285,7 @@ export default function CreateAccount() {
             disabled={loading}
             className="w-full py-3 rounded-lg text-background font-semibold text-base bg-foreground hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {loading ? 'Creating account…' : 'Continue'}
+            {loading ? 'Creating account…' : 'Create account'}
           </button>
         </form>
       </div>
