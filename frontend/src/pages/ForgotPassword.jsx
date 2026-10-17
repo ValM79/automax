@@ -32,6 +32,7 @@ export default function ForgotPassword() {
         {/* Back to login */}
         <Link
           to="/login"
+          replace
           className="absolute top-4 left-4 p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
           aria-label="Back to login"
         >
@@ -64,7 +65,7 @@ export default function ForgotPassword() {
             >
               Enter reset code
             </Link>
-            <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/login" replace className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Back to Sign in
             </Link>
           </div>
@@ -107,7 +108,7 @@ export default function ForgotPassword() {
         <div className="flex justify-center mt-5">
           <p className="text-sm text-muted-foreground">
             Remember your password?{' '}
-            <Link to="/login" className="text-foreground font-medium hover:underline">Sign in</Link>
+            <Link to="/login" replace className="text-foreground font-medium hover:underline">Sign in</Link>
           </p>
         </div>
       </div>
