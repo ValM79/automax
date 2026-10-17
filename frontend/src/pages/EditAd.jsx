@@ -235,7 +235,7 @@ export default function EditAd() {
         description: form.description,
         price: form.price,
         currency: form.currency,
-        subsection: form.subsection,
+        subsection: user?.seller_type === 'dealership' ? 'Dealership Cars' : form.subsection,
         county: form.county,
         area: form.area,
         location: `${form.area || ''}, ${form.county || ''}`.replace(/^,\s*/, '').replace(/,\s*$/, ''),
@@ -385,9 +385,10 @@ export default function EditAd() {
             <div id="field-subsection">
               <label className="block text-sm font-medium text-foreground mb-1.5">Category</label>
               <MobileSelect
-                value={form.subsection}
+                value={user?.seller_type === 'dealership' ? 'Dealership Cars' : form.subsection}
                 onChange={(val) => setForm((f) => ({ ...f, subsection: val }))}
-                options={browseCategories}
+                options={user?.seller_type === 'dealership' ? ['Dealership Cars'] : browseCategories}
+                disabled={user?.seller_type === 'dealership'}
                 placeholder="Select a category..." />
             </div>
             <div className="mt-4">

@@ -17,7 +17,7 @@ const carListings = [];
 const ITEMS_PER_PAGE = 12;
 
 // Subsections that may contain electric / hybrid cars
-const CARS_SUBSECTIONS = ['Cars', 'New Cars', 'Cars from Dealerships', 'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', 'Electric & Hybrid Cars'];
+const CARS_SUBSECTIONS = ['Cars', 'New Cars', 'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', 'Electric & Hybrid Cars'];
 
 const isElectricOrHybrid = (fuel) => {
   if (!fuel) return false;
