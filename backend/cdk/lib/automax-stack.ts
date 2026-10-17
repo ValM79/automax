@@ -163,6 +163,14 @@ export class AutomaxStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       pointInTimeRecovery: true,
     });
+    // Lets the Dealers Garage directory list every Dealer account straight from the profile table (a Query on
+    // seller_type = 'dealer') instead of reading the whole table. Only the public card fields are copied into the index.
+    userProfileTable.addGlobalSecondaryIndex({
+      indexName: 'bySellerType',
+      partitionKey: { name: 'seller_type', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.INCLUDE,
+      nonKeyAttributes: ['business_name', 'display_name', 'avatar_url', 'cover_url', 'county', 'area', 'trusted_dealer'],
+    });
 
     // Records every Apple IAP transaction ID that has activated a listing.
     // verifyAppleTransaction does a conditional Put here (attribute_not_exists)

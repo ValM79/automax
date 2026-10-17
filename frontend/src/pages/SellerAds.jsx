@@ -24,7 +24,7 @@ const sectionOf = (subsection) => (CAR_SUBSECTIONS.has(subsection) ? 'Cars' : (s
 // their own page will look like. Nothing here is real, and it never touches the server.
 const EXAMPLE_STATS = {
   seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
-  county: 'Dublin', area: 'Swords', business_address: 'Your business address', opening_hours: 'Mon-Fri 9:00-18:00, Sat 10:00-16:00',
+  county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: 'Mon-Fri 9:00-18:00, Sat 10:00-16:00',
   phone: '', trusted: true,
 };
 const exampleAd = (i, title, price, section, image) => ({
@@ -380,6 +380,7 @@ export default function SellerAds() {
         {tab === 'contact' && (
           <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
             <h2 className="text-xl font-bold text-foreground mb-5">Contact {name}</h2>
+            {stats?.about && <p className="text-sm text-foreground whitespace-pre-line mb-6">{stats.about}</p>}
             <dl className="space-y-5 text-sm">
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" /> Address</dt>
