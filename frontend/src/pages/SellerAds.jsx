@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { sellerTypeOf, isBusinessType, accountLabel } from '@/lib/accountType';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, ShieldCheck, Phone, Clock, Building2 } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
@@ -123,7 +124,7 @@ export default function SellerAds() {
             image: (ad.photos && ad.photos[0]) || null,
             images: ad.photos || [],
             photos: ad.photos ? ad.photos.length : 1,
-            sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
+            sellerType: sellerTypeOf(ad),
             isTrader: ad.isTrader === true,
             spotlight: ad.spotlight,
             description: ad.description,
@@ -149,10 +150,14 @@ export default function SellerAds() {
     return () => { alive = false; };
   }, [sellerId]);
 
-  const isBusiness = ['trader', 'dealer'].includes(stats?.seller_type) || ads.some((a) => a.isTrader);
+  // Only a Dealer account has the full dealer page (banner, tabs). Everyone else gets the plain page with their ads.
+  const isBusiness = stats ? stats.seller_type === 'dealer' : ads.some((a) => a.sellerType === 'Dealer');
+  const businessSeller = isBusinessType(stats?.seller_type) || ads.some((a) => a.isTrader);
   const name = isBusiness
     ? (stats?.business_name || ads.find((a) => a.businessName)?.businessName || 'Dealership')
-    : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
+    : businessSeller
+      ? (stats?.business_name || ads.find((a) => a.businessName)?.businessName || ads.find((a) => a.fullName)?.fullName || 'Seller')
+      : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
   const place = [stats?.county, stats?.area].filter(Boolean).join(', ');
 
   const sections = useMemo(() => {
@@ -220,10 +225,10 @@ export default function SellerAds() {
             <span className="text-foreground font-medium">Seller Ads</span>
           </div>
           <div className="flex items-center gap-4 mb-6">
-            <AvatarBadge url={stats?.avatar_url} isTrader={false} className="w-16 h-16" />
+            <AvatarBadge url={stats?.avatar_url} isTrader={businessSeller} className="w-16 h-16" />
             <div>
               <h1 className="text-2xl font-bold text-foreground">{name}</h1>
-              <p className="text-sm text-muted-foreground">Private seller · {ads.length} {ads.length === 1 ? 'ad' : 'ads'}</p>
+              <p className="text-sm text-muted-foreground">{businessSeller ? (isBusinessType(stats?.seller_type) ? accountLabel(stats.seller_type) : 'Trader') : 'Private seller'} · {ads.length} {ads.length === 1 ? 'ad' : 'ads'}</p>
             </div>
           </div>
           {ads.length === 0

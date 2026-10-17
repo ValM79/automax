@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sellerTypeOf } from '@/lib/accountType';
 import { api } from '@/api/apiClient';
 
 /**
@@ -37,7 +38,7 @@ export function useUserAdsByMake(make) {
  * sorted by newest first (to appear at the top of category pages).
  * Respects listingDays — ads older than their paid duration are excluded.
  */
-export function useUserAds(subsections, refetchKey = 0, traderSubsections = []) {
+export function useUserAds(subsections, refetchKey = 0) {
   const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
@@ -45,9 +46,7 @@ export function useUserAds(subsections, refetchKey = 0, traderSubsections = []) 
       .then(ads => {
         const now = Date.now();
         const filtered = ads.filter(ad => {
-          // Trader ads in `traderSubsections` are also shown here (e.g. a dealer's car in Dealership Cars).
-          const listedHere = subsections.includes(ad.subsection) || (ad.isTrader && traderSubsections.includes(ad.subsection));
-          if (!listedHere) return false;
+          if (!subsections.includes(ad.subsection)) return false;
           // Check if listing has expired based on listingDays and created_date
           if (ad.listingDays && ad.created_date) {
             const createdAt = new Date(ad.created_date).getTime();
@@ -59,7 +58,7 @@ export function useUserAds(subsections, refetchKey = 0, traderSubsections = []) 
         setUserAds(filtered);
       })
       .catch(() => setUserAds([]));
-  }, [subsections.join(','), refetchKey, traderSubsections.join(',')]);
+  }, [subsections.join(','), refetchKey]);
 
   return userAds;
 }
@@ -83,7 +82,7 @@ export function userAdToListingItem(ad) {
     image: (ad.photos && ad.photos[0]) || null,
     images: ad.photos || [],
     photos: ad.photos ? ad.photos.length : 1,
-    sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
+    sellerType: sellerTypeOf(ad),
     spotlight: ad.spotlight,
     description: ad.description,
     fullName: ad.fullName,

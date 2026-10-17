@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { sellerTypeOf } from '@/lib/accountType';
 import BackButton from '../components/automarket/BackButton';
 import { Link, useLocation } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
@@ -118,7 +119,7 @@ export default function ElectricHybridCars() {
       photos: ad.photos ? ad.photos.length : 1,
       image: (ad.photos && ad.photos[0]) || 'https://images.unsplash.com/photo-1560958089-b8a63019b834?w=600&q=80',
       spotlight: ad.spotlight,
-      sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
+      sellerType: sellerTypeOf(ad),
       description: ad.description,
       bodyType: ad.bodyType,
       transmission: ad.vehicleTransmission,
