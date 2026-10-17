@@ -71,7 +71,7 @@ function DealerCard({ dealer, onClick, example = false }) {
 }
 
 // One sample card, shown under "No dealerships here yet", so a dealer can see what their own card will look like:
-// a photo of the business as the background and a logo box. Clearly marked Example and not clickable.
+// a photo of the business as the background and a logo box. Clearly marked Example; it opens an example dealer page.
 // Real dealers replace it as soon as the first one has a live ad.
 const EXAMPLE_DEALER = {
   name: 'Your Dealership Name', trusted: true, county: 'Dublin', area: 'Swords', stock: 12,
@@ -157,7 +157,7 @@ export default function Dealers() {
 
         {dealers && !error && dealers.length === 0 && (
           <div className="flex flex-col gap-4 mt-4">
-            <DealerCard dealer={EXAMPLE_DEALER} example />
+            <DealerCard dealer={EXAMPLE_DEALER} example onClick={() => navigate('/seller-ads/example')} />
           </div>
         )}
 
