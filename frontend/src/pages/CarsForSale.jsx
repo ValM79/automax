@@ -318,15 +318,15 @@ export default function CarsForSale() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">All Cars</span>
+          <span className="text-foreground font-medium">Cars For Sale</span>
         </div>
 
         {/* Mobile: title */}
-        <h1 className="lg:hidden text-xl font-bold text-foreground mb-3">All Cars For Sale</h1>
+        <h1 className="lg:hidden text-xl font-bold text-foreground mb-3">Cars For Sale</h1>
 
         {/* Desktop: title */}
         <div className="hidden lg:flex items-center gap-8 mb-3">
-          <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">All Cars For Sale</h1>
+          <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">Cars For Sale</h1>
         </div>
 
         {/* Hero filter chips */}
@@ -342,7 +342,7 @@ export default function CarsForSale() {
 
         {/* Banner */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card z-0 relative">
-          <img src="/img/99b14da02_generated_image.jpg" alt="All Cars For Sale Banner" className="w-full h-full object-cover" />
+          <img src="/img/99b14da02_generated_image.jpg" alt="Cars For Sale Banner" className="w-full h-full object-cover" />
         </div>
 
         {/* Mobile: search + help text + filters below banner */}
