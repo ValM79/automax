@@ -34,3 +34,30 @@ export async function squareImage(file, { size = 400, fit = 'cover' } = {}) {
     URL.revokeObjectURL(url);
   }
 }
+
+// A business's cover photo (the banner of its dealer page and the background of its card): kept wide, not cropped here,
+// shrunk to at most 1600 px across and saved as a JPEG so a 12 MB phone photo becomes a few hundred KB.
+export async function coverImage(file, { maxWidth = 1600 } = {}) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error('Could not read that picture. Please choose a JPG or PNG.'));
+      i.src = url;
+    });
+    const scale = Math.min(1, maxWidth / img.naturalWidth);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    if (!blob) throw new Error('Could not prepare that picture. Please try another one.');
+    return new File([blob], 'cover.jpg', { type: 'image/jpeg' });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}

@@ -13,7 +13,7 @@ import { IRISH_COUNTIES } from '@/lib/counties';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AreaSelect from '../components/automarket/AreaSelect';
 import { IRISH_TOWNS } from '@/lib/irishTowns';
-import { squareImage } from '@/lib/avatar';
+import { squareImage, coverImage } from '@/lib/avatar';
 import AvatarBadge from '../components/automarket/AvatarBadge';
 
 export default function Profile() {
@@ -28,6 +28,7 @@ export default function Profile() {
     businessName: '',
     businessAddress: '',
     vatNumber: '',
+    openingHours: '',
   });
   const [editingPhone, setEditingPhone] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -42,6 +43,9 @@ export default function Profile() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState('');
   const photoInput = useRef(null);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const [coverError, setCoverError] = useState('');
+  const coverInput = useRef(null);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -65,6 +69,7 @@ export default function Profile() {
       businessName: user.business_name || '',
       businessAddress: user.business_address || '',
       vatNumber: user.vat_number || '',
+      openingHours: user.opening_hours || '',
     }));
   }, [isLoadingAuth, user]);
 
@@ -142,6 +147,40 @@ export default function Profile() {
     }
   };
 
+  // A business's cover photo: the background of its Dealers Garage card and the banner of its dealer page.
+  // Stored as soon as it is chosen, like the logo.
+  const changeCover = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { setCoverError('Please choose a picture (JPG or PNG).'); return; }
+    setCoverBusy(true);
+    setCoverError('');
+    try {
+      const wide = await coverImage(file);
+      const { file_url } = await api.integrations.Core.UploadFile({ file: wide });
+      await api.auth.updateMe({ cover_url: file_url });
+      await refreshUser();
+    } catch (err) {
+      setCoverError(err?.message || 'Could not upload the picture. Please try again.');
+    } finally {
+      setCoverBusy(false);
+    }
+  };
+
+  const removeCover = async () => {
+    setCoverBusy(true);
+    setCoverError('');
+    try {
+      await api.auth.updateMe({ cover_url: '' });
+      await refreshUser();
+    } catch (err) {
+      setCoverError(err?.message || 'Could not remove the picture. Please try again.');
+    } finally {
+      setCoverBusy(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
@@ -157,6 +196,7 @@ export default function Profile() {
         business_name: form.businessName,
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
+        ...(['trader', 'dealer'].includes(user.seller_type) ? { opening_hours: form.openingHours } : {}),
       });
       // Re-read the saved profile so leaving and coming back to this page shows what was saved.
       await refreshUser();
@@ -283,6 +323,48 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
+              </div>
+            </section>
+          )}
+
+          {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours */}
+          {isTrader && (
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Store className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">Your Dealer Page</h2>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-foreground">Business Photo</label>
+                <input ref={coverInput} type="file" accept="image/*" className="hidden" onChange={changeCover} />
+                <div className="relative w-full h-36 sm:h-44 rounded-lg border border-border bg-secondary overflow-hidden flex items-center justify-center">
+                  {user.cover_url
+                    ? <img src={user.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    : <span className="text-sm text-muted-foreground">No business photo yet</span>}
+                </div>
+                <p className="text-xs flex items-center gap-3 pt-1">
+                  <button type="button" onClick={() => coverInput.current && coverInput.current.click()} disabled={coverBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
+                    <Camera className="w-3.5 h-3.5" />
+                    {coverBusy ? 'Uploading…' : user.cover_url ? 'Change Business Photo' : 'Add Business Photo'}
+                  </button>
+                  {user.cover_url && !coverBusy && (
+                    <button type="button" onClick={removeCover} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                  )}
+                </p>
+                {coverError && <p className="text-xs text-red-600">{coverError}</p>}
+                <p className="text-xs text-muted-foreground">A photo of your premises or stock. It is the background of your card in Dealers Garage and the banner of your dealer page.</p>
+              </div>
+              <div className="space-y-1.5 mt-5">
+                <label className="block text-sm font-medium text-foreground">Opening Hours</label>
+                <input
+                  type="text"
+                  value={form.openingHours}
+                  onChange={set('openingHours')}
+                  maxLength={200}
+                  placeholder="e.g. Mon-Fri 9:00-18:00, Sat 10:00-14:00"
+                  className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                />
+                <p className="text-xs text-muted-foreground">Shown in the Contact Us tab of your dealer page.</p>
               </div>
             </section>
           )}

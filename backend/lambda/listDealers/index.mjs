@@ -59,7 +59,7 @@ async function profilesFor(ids) {
     for (let attempt = 0; attempt < 3 && keys.length; attempt++) {
       const res = await ddb.send(new BatchGetCommand({
         RequestItems: {
-          [TABLES.User]: { Keys: keys, ProjectionExpression: 'id, seller_type, business_name, display_name, avatar_url, county, area, trusted_dealer' },
+          [TABLES.User]: { Keys: keys, ProjectionExpression: 'id, seller_type, business_name, display_name, avatar_url, cover_url, county, area, trusted_dealer' },
         },
       }));
       for (const p of res.Responses?.[TABLES.User] || []) out.set(p.id, p);
@@ -83,6 +83,7 @@ async function buildDealers() {
       id,
       name: name.slice(0, 80),
       avatar_url: typeof p.avatar_url === 'string' && p.avatar_url.startsWith(cdn) ? p.avatar_url : null,
+      cover_url: typeof p.cover_url === 'string' && p.cover_url.startsWith(cdn) ? p.cover_url : null,
       county: p.county ? String(p.county).slice(0, 40) : '',
       area: p.area ? String(p.area).slice(0, 60) : '',
       stock: s.stock,
