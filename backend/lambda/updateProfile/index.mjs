@@ -25,6 +25,8 @@ const EDITABLE_FIELDS = [
   'notify_saved_searches',
   'notify_promotions',
   'avatar_url',
+  'cover_url',
+  'opening_hours',
 ];
 
 export const handler = async (event) => {
@@ -34,14 +36,17 @@ export const handler = async (event) => {
 
     const body = JSON.parse(event.body || '{}');
 
-    // Profile photo / logo: only a picture this user uploaded to our own photo storage (or empty, to remove it).
-    // Anything else could point at another site, so it is refused.
-    if ('avatar_url' in body) {
-      const v = body.avatar_url;
+    // Profile photo / logo, and a business's cover photo (its dealer page banner and card background): only a picture
+    // this user uploaded to our own photo storage (or empty, to remove it). Anything else could point at another
+    // site, so it is refused.
+    for (const field of ['avatar_url', 'cover_url']) {
+      if (!(field in body)) continue;
+      const v = body[field];
       const mine = `https://${process.env.PHOTOS_CDN_DOMAIN}/ads/${user.id}/`;
       if (v && !(typeof v === 'string' && v.startsWith(mine) && v.length < 300)) return json(400, { error: 'Invalid photo' });
-      body.avatar_url = v || '';
+      body[field] = v || '';
     }
+    if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
     const names = {};
     const values = {};

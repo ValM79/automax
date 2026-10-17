@@ -40,15 +40,43 @@ async function countAds(sellerId) {
   return { active, total };
 }
 
-// The seller's profile photo / logo (a link to our own photo storage). Nothing else from the profile is returned.
-async function avatarUrl(sellerId) {
+// What a buyer may see about the seller. Everyone gets the profile photo / logo (a link to our own photo storage).
+// A business account (trader or dealer) also gets what its dealer page shows: business name, cover photo, county,
+// area, address, opening hours, phone number and the "trusted" mark. These are the details a business chooses to
+// show buyers anyway. Never an email, VAT number or personal name.
+const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'phone', 'trusted_dealer'];
+
+async function sellerProfile(sellerId) {
+  const empty = { avatar_url: null, seller_type: null };
   try {
-    const res = await ddb.send(new GetCommand({ TableName: TABLES.User, Key: { id: sellerId }, ProjectionExpression: 'avatar_url' }));
-    const url = res.Item?.avatar_url;
-    return typeof url === 'string' && url.startsWith(`https://${process.env.PHOTOS_CDN_DOMAIN}/`) ? url : null;
+    const res = await ddb.send(new GetCommand({
+      TableName: TABLES.User,
+      Key: { id: sellerId },
+      ProjectionExpression: FIELDS.map((f) => `#${f}`).join(', '),
+      ExpressionAttributeNames: Object.fromEntries(FIELDS.map((f) => [`#${f}`, f])),
+    }));
+    const p = res.Item;
+    if (!p) return empty;
+    const cdn = `https://${process.env.PHOTOS_CDN_DOMAIN}/`;
+    const photo = (u) => (typeof u === 'string' && u.startsWith(cdn) ? u : null);
+    const out = { avatar_url: photo(p.avatar_url), seller_type: ['trader', 'dealer'].includes(p.seller_type) ? p.seller_type : 'private' };
+    if (out.seller_type !== 'private') {
+      const text = (v, n) => (v ? String(v).slice(0, n) : '');
+      Object.assign(out, {
+        cover_url: photo(p.cover_url),
+        business_name: text(p.business_name, 80),
+        county: text(p.county, 40),
+        area: text(p.area, 60),
+        business_address: text(p.business_address, 200),
+        opening_hours: text(p.opening_hours, 200),
+        phone: text(p.phone, 30),
+        trusted: p.trusted_dealer === true,
+      });
+    }
+    return out;
   } catch (e) {
-    console.log('Could not read the seller photo:', e.message);
-    return null;
+    console.log('Could not read the seller profile:', e.message);
+    return empty;
   }
 }
 
@@ -76,8 +104,8 @@ export const handler = async (event) => {
     const hit = cache.get(seller_id);
     if (hit && Date.now() - hit.at < CACHE_MS) return json(200, hit.body);
 
-    const [{ active, total }, since, avatar] = await Promise.all([countAds(seller_id), memberSince(seller_id), avatarUrl(seller_id)]);
-    const body = { member_since: since, active_ads: active, total_ads: total, avatar_url: avatar };
+    const [{ active, total }, since, profile] = await Promise.all([countAds(seller_id), memberSince(seller_id), sellerProfile(seller_id)]);
+    const body = { member_since: since, active_ads: active, total_ads: total, ...profile };
     cache.set(seller_id, { at: Date.now(), body });
     return json(200, body);
   } catch (error) {
