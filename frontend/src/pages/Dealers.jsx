@@ -22,8 +22,8 @@ function DealerLogo({ url }) {
   );
 }
 
-// One dealership card. A dealer can add a photo of the business (cover): it becomes the card background, under a dark
-// shade so the text stays readable. A dealer with a logo gets the logo box at the right. No cover = plain white card,
+// One dealership card. A dealer can add a photo of the business (cover): it becomes the card background, under a light
+// wash so the dark blue text stays readable on any photo, bright or dark. A dealer with a logo gets the logo box at the right. No cover = plain white card,
 // no logo = no logo box, so a dealer with neither still gets a clean card.
 function DealerCard({ dealer, onClick, example = false }) {
   const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
@@ -31,40 +31,40 @@ function DealerCard({ dealer, onClick, example = false }) {
   useEffect(() => { setCoverFailed(false); }, [coverUrl]);
   const onPhoto = !!coverUrl && !coverFailed;
   const place = [county, area].filter(Boolean).join(', ');
-  const muted = onPhoto ? 'text-white/85' : 'text-muted-foreground';
+  const muted = onPhoto ? 'text-blue-900' : 'text-muted-foreground';
   const Root = onClick ? 'button' : 'div';
   return (
     <Root
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`relative overflow-hidden w-full text-left rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4 ${onPhoto ? 'bg-foreground' : 'bg-card'} ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
+      className={`relative overflow-hidden w-full text-left rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4 bg-card ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
       {onPhoto && (
         <>
           <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/75 to-white/20" />
         </>
       )}
       <div className="relative min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className={`text-xl font-semibold ${onPhoto ? 'text-white' : 'text-foreground'}`}>{name}</h2>
-          {example && <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded ${onPhoto ? 'bg-white/20 text-white' : 'bg-secondary text-muted-foreground'}`}>Example</span>}
+          <h2 className={`text-xl font-semibold ${onPhoto ? 'text-blue-900' : 'text-foreground'}`}>{name}</h2>
+          {example && <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded ${onPhoto ? 'bg-blue-900/10 text-blue-900' : 'bg-secondary text-muted-foreground'}`}>Example</span>}
         </div>
         {trusted && (
           <p className={`flex items-center gap-1.5 text-sm mt-2 ${muted}`}>
-            <ShieldCheck className={`w-4 h-4 ${onPhoto ? 'text-white' : 'text-primary'}`} /> Verified Dealer
+            <ShieldCheck className={`w-4 h-4 ${onPhoto ? 'text-blue-700' : 'text-primary'}`} /> Verified Dealer
           </p>
         )}
         {place && <p className={`text-sm mt-2 ${muted}`}>{place}</p>}
         <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${muted}`}>{stock} {stock === 1 ? 'car' : 'cars'} in stock</p>
         <div className="flex flex-wrap gap-2 mt-3">
           {sections.map((t) => (
-            <span key={t} className={`text-xs px-2 py-1 rounded ${onPhoto ? 'bg-white/20 text-white' : 'bg-secondary text-foreground'}`}>{t}</span>
+            <span key={t} className={`text-xs px-2 py-1 rounded ${onPhoto ? 'bg-white/90 text-blue-900 border border-blue-900/15' : 'bg-secondary text-foreground'}`}>{t}</span>
           ))}
         </div>
       </div>
       <div className="relative flex flex-col items-end gap-2 shrink-0">
         {(avatarUrl || example) && <DealerLogo url={avatarUrl} />}
-        <span className={`text-xs font-medium ${onPhoto ? 'text-white' : 'text-primary'}`}>See Showroom</span>
+        <span className={`text-xs font-medium ${onPhoto ? 'text-blue-800 font-semibold bg-white/90 px-2 py-0.5 rounded' : 'text-primary'}`}>See Showroom</span>
       </div>
     </Root>
   );
