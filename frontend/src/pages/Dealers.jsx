@@ -35,7 +35,8 @@ function ExampleCard() {
         <p className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
           <ShieldCheck className="w-4 h-4 text-primary" /> Verified Dealer
         </p>
-        <p className="text-sm text-muted-foreground mt-2">Dublin, Swords  ·  12 cars in stock</p>
+        <p className="text-sm text-muted-foreground mt-2">Dublin, Swords</p>
+        <p className="text-sm text-muted-foreground mt-1">12 cars in stock</p>
         <div className="flex flex-wrap gap-2 mt-3">
           {['Cars For Sale', 'Dealership Cars', 'Commercials'].map((t) => (
             <span key={t} className="text-xs px-2 py-1 rounded bg-secondary text-foreground">{t}</span>
@@ -157,8 +158,11 @@ export default function Dealers() {
                         <ShieldCheck className="w-4 h-4 text-primary" /> Verified Dealer
                       </p>
                     )}
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {[[d.county, d.area].filter(Boolean).join(', '), `${d.stock} ${d.stock === 1 ? 'car' : 'cars'} in stock`].filter(Boolean).join('  ·  ')}
+                    {(d.county || d.area) && (
+                      <p className="text-sm text-muted-foreground mt-2">{[d.county, d.area].filter(Boolean).join(', ')}</p>
+                    )}
+                    <p className={`text-sm text-muted-foreground ${d.county || d.area ? 'mt-1' : 'mt-2'}`}>
+                      {d.stock} {d.stock === 1 ? 'car' : 'cars'} in stock
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {d.sections.map((s) => (
