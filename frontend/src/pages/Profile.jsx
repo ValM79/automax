@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isBusinessType, accountLabel } from '@/lib/accountType';
 import BackButton from '../components/automarket/BackButton';
 import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -123,7 +124,7 @@ export default function Profile() {
     setPhotoBusy(true);
     setPhotoError('');
     try {
-      const small = await squareImage(file, { fit: ['trader', 'dealer'].includes(user.seller_type) ? 'contain' : 'cover' });
+      const small = await squareImage(file, { fit: isBusinessType(user.seller_type) ? 'contain' : 'cover' });
       const { file_url } = await api.integrations.Core.UploadFile({ file: small });
       await api.auth.updateMe({ avatar_url: file_url });
       await refreshUser();
@@ -196,7 +197,7 @@ export default function Profile() {
         business_name: form.businessName,
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
-        ...(['trader', 'dealer'].includes(user.seller_type) ? { opening_hours: form.openingHours } : {}),
+        ...(user.seller_type === 'dealer' ? { opening_hours: form.openingHours } : {}),
       });
       // Re-read the saved profile so leaving and coming back to this page shows what was saved.
       await refreshUser();
@@ -222,8 +223,8 @@ export default function Profile() {
   }
 
   // Fixed when the account was created: a private account sees the private form, a trader the trader form.
-  const isTrader = ['trader', 'dealer'].includes(user.seller_type); // business account
-  const accountKind = user.seller_type === 'dealer' ? 'Dealer' : 'Trader';
+  const isTrader = isBusinessType(user.seller_type); // business account
+  const accountKind = accountLabel(user.seller_type);
 
   return (
     <div className="min-h-screen bg-background">
@@ -327,8 +328,9 @@ export default function Profile() {
             </section>
           )}
 
-          {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours */}
-          {isTrader && (
+          {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours.
+              Only a Dealer account has a card and a page in Dealers Garage. */}
+          {user.seller_type === 'dealer' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <Store className="w-5 h-5 text-primary" />

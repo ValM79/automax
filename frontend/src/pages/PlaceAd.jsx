@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isBusinessType } from '@/lib/accountType';
 import { Link, useNavigate, useSearchParams, useNavigationType } from 'react-router-dom';
 import { Camera, ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
@@ -178,7 +179,7 @@ export default function PlaceAd() {
         county: user.county || f.county,
         area: user.area || f.area,
         phone: user.phone || f.phone,
-        isTrader: ['trader', 'dealer'].includes(user.seller_type) ? true : f.isTrader,
+        isTrader: isBusinessType(user.seller_type) ? true : f.isTrader,
         businessName: user.business_name || f.businessName,
         vatNumber: user.vat_number || f.vatNumber
       }));
@@ -1058,7 +1059,7 @@ export default function PlaceAd() {
                 className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" />
                 <div>
                   <label htmlFor="trader" className="text-sm font-medium cursor-pointer">Yes, I'm a trader</label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader and also listed in Dealership Cars. Your business details are printed on your receipts.</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader. Your business details are printed on your receipts.</p>
                 </div>
               </div>
 
@@ -1188,7 +1189,7 @@ export default function PlaceAd() {
                     phone: form.phone,
                     adType: form.adType,
                     isTrader: form.isTrader,
-                    sellerKind: form.isTrader ? (user.seller_type === 'dealer' ? 'dealer' : 'trader') : '',
+                    sellerKind: form.isTrader ? (['dealer', 'dealership'].includes(user.seller_type) ? user.seller_type : 'trader') : '',
                     businessName: form.isTrader ? form.businessName.trim() : '',
                     businessAddress: form.isTrader ? form.businessAddress.trim() : '',
                     vatNumber: form.isTrader ? form.vatNumber.trim() : '',

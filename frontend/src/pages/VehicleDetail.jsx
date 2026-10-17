@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { sellerTypeOf } from '@/lib/accountType';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Share2, ChevronDown, ChevronUp } from 'lucide-react';
 import ShareMenu from '../components/automarket/ShareMenu';
@@ -49,7 +50,7 @@ export default function VehicleDetail() {
     sellerId: ad.created_by_id,
     created_by_id: ad.created_by_id,
     created_date: ad.created_date,
-    sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
+    sellerType: sellerTypeOf(ad),
     description: ad.description,
     bodyType: ad.bodyType,
     transmission: ad.vehicleTransmission,
@@ -363,8 +364,8 @@ export default function VehicleDetail() {
               totalAds: sellerStats?.total_ads ?? null,
               avatarUrl: sellerStats?.avatar_url || null,
               phone: car.phone || '',
-              isTrader: car.sellerType === 'Trader' || car.sellerType === 'Dealer',
-              badge: car.sellerType === 'Dealer' ? 'Dealer' : 'Trader'
+              isTrader: ['Trader', 'Dealership', 'Dealer'].includes(car.sellerType),
+              badge: car.sellerType
             }}
             onSendMessage={handleSendMessageClick}
             onViewAllAds={handleViewAllAds}

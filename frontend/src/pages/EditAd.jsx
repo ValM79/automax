@@ -677,7 +677,7 @@ export default function EditAd() {
                 <input type="checkbox" id="trader" checked={form.isTrader} onChange={toggle('isTrader')} className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" />
                 <div>
                   <label htmlFor="trader" className="text-sm font-medium cursor-pointer">Yes, I'm a trader</label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader and also listed in Dealership Cars. Your business details are printed on your receipts.</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader. Your business details are printed on your receipts.</p>
                 </div>
               </div>
               {form.isTrader &&

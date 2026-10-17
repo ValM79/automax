@@ -59,7 +59,7 @@ async function sellerProfile(sellerId) {
     if (!p) return empty;
     const cdn = `https://${process.env.PHOTOS_CDN_DOMAIN}/`;
     const photo = (u) => (typeof u === 'string' && u.startsWith(cdn) ? u : null);
-    const out = { avatar_url: photo(p.avatar_url), seller_type: ['trader', 'dealer'].includes(p.seller_type) ? p.seller_type : 'private' };
+    const out = { avatar_url: photo(p.avatar_url), seller_type: ['trader', 'dealership', 'dealer'].includes(p.seller_type) ? p.seller_type : 'private' };
     if (out.seller_type !== 'private') {
       const text = (v, n) => (v ? String(v).slice(0, n) : '');
       Object.assign(out, {

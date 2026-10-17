@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { sellerTypeOf } from '@/lib/accountType';
 import BackButton from '../components/automarket/BackButton';
 import { Link, useLocation } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
@@ -127,7 +128,7 @@ export default function CarsForSale() {
     phone: ad.phone,
     sellerId: ad.created_by_id,
     spotlight: ad.spotlight,
-    sellerType: ad.isTrader ? (ad.sellerKind === 'dealer' ? 'Dealer' : 'Trader') : 'Private Seller',
+    sellerType: sellerTypeOf(ad),
     adType: ad.adType,
     description: ad.description,
     bodyType: ad.bodyType,

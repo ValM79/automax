@@ -1,8 +1,8 @@
-// Public dealer directory ("Dealers Garage" / Find a dealer): every trader who has at least one live ad.
+// Public dealer directory ("Dealers Garage" / Find a dealer): every Dealer account that has at least one live ad.
 //
 // It builds the list from real data, so nobody has to add dealers by hand:
 //   - live ads come from the ad table (status active and not past their listing period),
-//   - who the seller is (trader or not, business name, logo, county/area, "trusted" mark) comes from their profile.
+//   - who the seller is (a Dealer account or not, business name, logo, county/area, "trusted" mark) comes from their profile.
 // It is public because anyone can browse dealers. It returns only what a dealer chooses to show on their ads
 // anyway: business name, logo, county/area, number of live ads and the sections they sell in. Never an email,
 // phone number, street address or VAT number. "trusted" can only be switched on by the site owner directly in the
@@ -33,17 +33,16 @@ async function liveAdsBySeller() {
       KeyConditionExpression: '#s = :active',
       ExpressionAttributeNames: { '#s': 'status' },
       ExpressionAttributeValues: { ':active': 'active' },
-      ProjectionExpression: 'created_by_id, subsection, isTrader, businessName, listingDays, created_date',
+      ProjectionExpression: 'created_by_id, subsection, businessName, listingDays, created_date',
       ExclusiveStartKey: key,
     }));
     for (const ad of res.Items || []) {
       if (!ad.created_by_id) continue;
       const lapsed = ad.listingDays && ad.created_date && now > Date.parse(ad.created_date) + Number(ad.listingDays) * DAY_MS;
       if (lapsed) continue;
-      const s = sellers.get(ad.created_by_id) || { stock: 0, sections: new Set(), traderAd: false, adName: '' };
+      const s = sellers.get(ad.created_by_id) || { stock: 0, sections: new Set(), adName: '' };
       s.stock += 1;
       if (ad.subsection) s.sections.add(sectionOf(ad.subsection));
-      if (ad.isTrader === true) s.traderAd = true;
       if (!s.adName && ad.businessName) s.adName = String(ad.businessName);
       sellers.set(ad.created_by_id, s);
     }
@@ -76,7 +75,7 @@ async function buildDealers() {
   const dealers = [];
   for (const [id, s] of sellers) {
     const p = profiles.get(id) || {};
-    if (!['trader', 'dealer'].includes(p.seller_type) && !s.traderAd) continue; // private sellers are not dealers
+    if (p.seller_type !== 'dealer') continue; // only Dealer accounts have a card here (not private, trader or dealership accounts)
     const name = String(p.business_name || s.adName || '').trim();
     if (!name) continue;
     dealers.push({

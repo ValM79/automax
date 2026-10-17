@@ -48,6 +48,11 @@ export const handler = async (event) => {
     }
     if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
+    // The account type can only be one of the four kinds.
+    if ('seller_type' in body && !['private', 'trader', 'dealership', 'dealer'].includes(body.seller_type)) {
+      return json(400, { error: 'Invalid account type' });
+    }
+
     const names = {};
     const values = {};
     const setParts = [];
