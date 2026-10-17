@@ -22,22 +22,29 @@ function DealerLogo({ url }) {
   );
 }
 
-// An empty card in the same shape as a real dealer card (grey bars where the name, location, stock, tags and logo go).
-// Shown below the "No dealerships here yet" message so the layout is visible before the first dealer arrives.
-function PlaceholderCard({ tags = 2, trusted = false }) {
+// One sample card, shown under "No dealerships here yet", so a dealer can see what their own card will look like.
+// It is clearly marked Example and is not clickable. Real dealers replace it as soon as the first one has a live ad.
+function ExampleCard() {
   return (
-    <div aria-hidden="true" className="bg-card rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4">
-      <div className="min-w-0 flex-1">
-        <div className="h-6 w-48 max-w-full rounded bg-border" />
-        {trusted && <div className="h-4 w-28 rounded bg-border mt-3" />}
-        <div className="h-4 w-60 max-w-full rounded bg-border mt-3" />
-        <div className="flex gap-2 mt-4">
-          {Array.from({ length: tags }).map((_, i) => <div key={i} className="h-6 w-16 rounded bg-border" />)}
+    <div className="bg-card rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl font-semibold text-foreground">Your Dealership Name</h2>
+          <span className="text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded bg-secondary text-muted-foreground">Example</span>
+        </div>
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2">
+          <ShieldCheck className="w-4 h-4 text-primary" /> Trusted Dealer
+        </p>
+        <p className="text-sm text-muted-foreground mt-2">Dublin, Swords  ·  Stock: 12</p>
+        <div className="flex flex-wrap gap-2 mt-3">
+          {['Cars For Sale', 'Dealership Cars', 'Commercials'].map((t) => (
+            <span key={t} className="text-xs px-2 py-1 rounded bg-secondary text-foreground">{t}</span>
+          ))}
         </div>
       </div>
       <div className="flex flex-col items-end gap-2 shrink-0">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-border bg-secondary/60" />
-        <div className="h-3 w-20 rounded bg-border" />
+        <DealerLogo url="" />
+        <span className="text-xs font-medium text-primary">See Showroom</span>
       </div>
     </div>
   );
@@ -122,9 +129,7 @@ export default function Dealers() {
 
         {dealers && !error && dealers.length === 0 && (
           <div className="flex flex-col gap-4 mt-4">
-            <PlaceholderCard tags={3} trusted />
-            <PlaceholderCard tags={2} />
-            <PlaceholderCard tags={1} />
+            <ExampleCard />
           </div>
         )}
 
