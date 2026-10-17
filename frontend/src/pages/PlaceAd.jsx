@@ -182,6 +182,7 @@ export default function PlaceAd() {
         area: user.area || f.area,
         phone: user.phone || f.phone,
         isTrader: isBusinessType(user.seller_type) ? true : f.isTrader,
+        ...(user.seller_type === 'dealership' ? { subsection: 'Dealership Cars', section: 'Cars' } : {}),
         businessName: user.business_name || f.businessName,
         vatNumber: user.vat_number || f.vatNumber
       }));
@@ -486,9 +487,12 @@ export default function PlaceAd() {
                     }));
                     setFormErrors((e) => ({ ...e, subsection: undefined }));
                   }}
-                  options={browseCategories}
+                  options={user?.seller_type === 'dealership' ? ['Dealership Cars'] : browseCategories}
                   placeholder="Select a section..."
+                  disabled={user?.seller_type === 'dealership'}
                 />
+                {user?.seller_type === 'dealership' && <p className="text-xs text-muted-foreground mt-1">Dealership ads are listed in Dealership Cars and in the car make pages.</p>}
+                {user?.seller_type === 'dealer' && <p className="text-xs text-muted-foreground mt-1">As a Dealer, your ads appear on your own dealer page in Dealers Garage.</p>}
                 {formErrors.subsection && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.subsection}</p>}
               </div>
 

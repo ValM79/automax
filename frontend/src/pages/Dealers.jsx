@@ -55,7 +55,7 @@ function DealerCard({ dealer, onClick, example = false }) {
           </p>
         )}
         {place && <p className={`text-sm mt-2 ${muted}`}>{place}</p>}
-        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${muted}`}>{stock} {stock === 1 ? 'car' : 'cars'} in stock</p>
+        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${muted}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
         <div className="flex flex-wrap gap-2 mt-3">
           {sections.map((t) => (
             <span key={t} className={`text-xs px-2 py-1 rounded ${onPhoto ? 'font-light bg-white/90 text-[#0850f8] border border-[#0850f8]/25' : 'bg-secondary text-foreground'}`}>{t}</span>

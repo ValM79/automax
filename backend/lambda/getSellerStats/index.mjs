@@ -44,7 +44,7 @@ async function countAds(sellerId) {
 // A business account (trader or dealer) also gets what its dealer page shows: business name, cover photo, county,
 // area, address, opening hours, phone number and the "trusted" mark. These are the details a business chooses to
 // show buyers anyway. Never an email, VAT number or personal name.
-const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'phone', 'trusted_dealer'];
+const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'about', 'phone', 'trusted_dealer'];
 
 async function sellerProfile(sellerId) {
   const empty = { avatar_url: null, seller_type: null };
@@ -69,6 +69,7 @@ async function sellerProfile(sellerId) {
         area: text(p.area, 60),
         business_address: text(p.business_address, 200),
         opening_hours: text(p.opening_hours, 200),
+        about: text(p.about, 500),
         phone: text(p.phone, 30),
         trusted: p.trusted_dealer === true,
       });

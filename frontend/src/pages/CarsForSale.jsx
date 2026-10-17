@@ -23,7 +23,7 @@ const carListings = [];
 
 
 // Subsections that map to the Cars for Sale page
-const CARS_SUBSECTIONS = ['Cars', 'New Cars', 'Cars from Dealerships', 'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', 'Electric & Hybrid Cars'];
+const CARS_SUBSECTIONS = ['Cars', 'New Cars', 'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables', 'Electric & Hybrid Cars'];
 
 const parseEngineSizeValue = (str) => {
   if (!str) return null;

@@ -1,4 +1,5 @@
-// Public dealer directory ("Dealers Garage" / Find a dealer): every Dealer account that has at least one live ad.
+// Public dealer directory ("Dealers Garage" / Find a dealer): every Dealer account, from the day it is created (the stock
+// count and the sections come from its live ads, and are 0 / empty until it has some).
 //
 // It builds the list from real data, so nobody has to add dealers by hand:
 //   - live ads come from the ad table (status active and not past their listing period),
@@ -7,7 +8,7 @@
 // anyway: business name, logo, county/area, number of live ads and the sections they sell in. Never an email,
 // phone number, street address or VAT number. "trusted" can only be switched on by the site owner directly in the
 // database (it is not one of the fields a user may edit on their own profile).
-import { QueryCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json } from '../_lib/common.mjs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -51,46 +52,45 @@ async function liveAdsBySeller() {
   return sellers;
 }
 
-async function profilesFor(ids) {
-  const out = new Map();
-  for (let i = 0; i < ids.length; i += 100) {
-    let keys = ids.slice(i, i + 100).map((id) => ({ id }));
-    for (let attempt = 0; attempt < 3 && keys.length; attempt++) {
-      const res = await ddb.send(new BatchGetCommand({
-        RequestItems: {
-          [TABLES.User]: { Keys: keys, ProjectionExpression: 'id, seller_type, business_name, display_name, avatar_url, cover_url, county, area, trusted_dealer' },
-        },
-      }));
-      for (const p of res.Responses?.[TABLES.User] || []) out.set(p.id, p);
-      keys = res.UnprocessedKeys?.[TABLES.User]?.Keys || [];
-    }
-  }
+// Every Dealer account, whether or not it has a live ad yet: the card and the page exist from the day the account is created.
+async function dealerProfiles() {
+  const out = [];
+  let key;
+  do {
+    const res = await ddb.send(new QueryCommand({
+      TableName: TABLES.User,
+      IndexName: 'bySellerType',
+      KeyConditionExpression: 'seller_type = :d',
+      ExpressionAttributeValues: { ':d': 'dealer' },
+      ExclusiveStartKey: key,
+    }));
+    out.push(...(res.Items || []));
+    key = res.LastEvaluatedKey;
+  } while (key && out.length < 2000);
   return out;
 }
 
 async function buildDealers() {
-  const sellers = await liveAdsBySeller();
-  const profiles = await profilesFor([...sellers.keys()]);
+  const [sellers, profiles] = await Promise.all([liveAdsBySeller(), dealerProfiles()]);
   const cdn = `https://${process.env.PHOTOS_CDN_DOMAIN}/`;
   const dealers = [];
-  for (const [id, s] of sellers) {
-    const p = profiles.get(id) || {};
-    if (p.seller_type !== 'dealer') continue; // only Dealer accounts have a card here (not private, trader or dealership accounts)
+  for (const p of profiles) {
+    const s = sellers.get(p.id) || { stock: 0, sections: new Set(), adName: '' };
     const name = String(p.business_name || s.adName || '').trim();
     if (!name) continue;
     dealers.push({
-      id,
+      id: p.id,
       name: name.slice(0, 80),
       avatar_url: typeof p.avatar_url === 'string' && p.avatar_url.startsWith(cdn) ? p.avatar_url : null,
       cover_url: typeof p.cover_url === 'string' && p.cover_url.startsWith(cdn) ? p.cover_url : null,
       county: p.county ? String(p.county).slice(0, 40) : '',
       area: p.area ? String(p.area).slice(0, 60) : '',
       stock: s.stock,
-      sections: [...s.sections].sort((a, b) => (a === 'Cars' ? -1 : b === 'Cars' ? 1 : a.localeCompare(b))),
+      sections: [...s.sections].sort((x, y) => (x === 'Cars' ? -1 : y === 'Cars' ? 1 : x.localeCompare(y))),
       trusted: p.trusted_dealer === true,
     });
   }
-  dealers.sort((a, b) => Number(b.trusted) - Number(a.trusted) || b.stock - a.stock || a.name.localeCompare(b.name));
+  dealers.sort((x, y) => Number(y.trusted) - Number(x.trusted) || y.stock - x.stock || x.name.localeCompare(y.name));
   return dealers.slice(0, MAX_DEALERS);
 }
 

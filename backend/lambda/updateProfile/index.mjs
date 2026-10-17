@@ -27,6 +27,7 @@ const EDITABLE_FIELDS = [
   'avatar_url',
   'cover_url',
   'opening_hours',
+  'about',
 ];
 
 export const handler = async (event) => {

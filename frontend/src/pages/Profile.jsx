@@ -30,6 +30,7 @@ export default function Profile() {
     businessAddress: '',
     vatNumber: '',
     openingHours: '',
+    about: '',
   });
   const [editingPhone, setEditingPhone] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -71,6 +72,7 @@ export default function Profile() {
       businessAddress: user.business_address || '',
       vatNumber: user.vat_number || '',
       openingHours: user.opening_hours || '',
+      about: user.about || '',
     }));
   }, [isLoadingAuth, user]);
 
@@ -197,7 +199,7 @@ export default function Profile() {
         business_name: form.businessName,
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
-        ...(user.seller_type === 'dealer' ? { opening_hours: form.openingHours } : {}),
+        ...(user.seller_type === 'dealer' ? { opening_hours: form.openingHours, about: form.about } : {}),
       });
       // Re-read the saved profile so leaving and coming back to this page shows what was saved.
       await refreshUser();
@@ -286,46 +288,11 @@ export default function Profile() {
         </div>
 
         <div className="space-y-6">
-          {/* Trader fields */}
-          {isTrader && (
-            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
-              <div className="flex items-center gap-2 mb-5">
-                <Building2 className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-bold text-foreground">Business Details</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">Business Name</label>
-                  <input
-                    type="text"
-                    value={form.businessName}
-                    onChange={set('businessName')}
-                    placeholder="Business name"
-                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
-                  <input
-                    type="text"
-                    value={form.vatNumber}
-                    onChange={set('vatNumber')}
-                    placeholder="e.g. IE6439073E"
-                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label className="block text-sm font-medium text-foreground">Business Address</label>
-                  <input
-                    type="text"
-                    value={form.businessAddress || ''}
-                    onChange={set('businessAddress')}
-                    placeholder="Business address"
-                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                  />
-                </div>
-              </div>
-            </section>
+          {user.seller_type === 'dealer' && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 text-sm text-foreground flex flex-wrap items-center justify-between gap-3">
+              <p>Your dealership has its own card in Dealers Garage and its own page. Add your logo, a business photo and your details to make it stand out.</p>
+              <Link to={`/seller-ads/${user.id}`} className="font-semibold text-primary hover:underline whitespace-nowrap">View my dealer page</Link>
+            </div>
           )}
 
           {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours.
@@ -335,6 +302,18 @@ export default function Profile() {
               <div className="flex items-center gap-2 mb-5">
                 <Store className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-bold text-foreground">Your Dealer Page</h2>
+              </div>
+              <div className="space-y-1.5 mb-5">
+                <label className="block text-sm font-medium text-foreground">About Your Dealership</label>
+                <textarea
+                  value={form.about}
+                  onChange={set('about')}
+                  maxLength={500}
+                  rows={4}
+                  placeholder="What you sell, how long you have been trading, what buyers can expect"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground resize-y"
+                />
+                <p className="text-xs text-muted-foreground">{form.about.length}/500. Shown in the Contact Us tab of your dealer page.</p>
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">Business Photo</label>
@@ -367,6 +346,48 @@ export default function Profile() {
                   className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
                 <p className="text-xs text-muted-foreground">Separate the days with commas. They are shown as a list on your dealer page, and Sunday shows Closed unless you add it.</p>
+              </div>
+            </section>
+          )}
+
+          {/* Trader fields */}
+          {isTrader && (
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Building2 className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">{user.seller_type === 'dealer' ? 'Dealership Details' : 'Business Details'}</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">Business Name</label>
+                  <input
+                    type="text"
+                    value={form.businessName}
+                    onChange={set('businessName')}
+                    placeholder="Business name"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                  <input
+                    type="text"
+                    value={form.vatNumber}
+                    onChange={set('vatNumber')}
+                    placeholder="e.g. IE6439073E"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                  />
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-sm font-medium text-foreground">Business Address</label>
+                  <input
+                    type="text"
+                    value={form.businessAddress || ''}
+                    onChange={set('businessAddress')}
+                    placeholder="Business address"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                  />
+                </div>
               </div>
             </section>
           )}
