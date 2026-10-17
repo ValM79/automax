@@ -40,7 +40,7 @@ const sections = [
 },
 {
   label: 'Bikes & Boats',
-  subsections: ['Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Other items']
+  subsections: ['Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Rent a Car', 'Recovery Service', 'Other items']
 }];
 
 
@@ -51,7 +51,7 @@ const browseCategories = [
 'Trucks', 'Commercials', 'Trailers', 'Campers', 'Coaches & Buses',
 'Plant Machinery', 'Motorbike Extras', 'Caravans', 'Bikes & Bicycles',
 'Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis',
-'Boat Extras', 'Other items'].
+'Boat Extras', 'Rent a Car', 'Recovery Service', 'Other items'].
 filter((c) => c !== 'Other items').
 sort((a, b) => a.localeCompare(b)).
 concat('Other items');
@@ -87,6 +87,8 @@ const categoryToSection = {
   quads: { section: 'Bikes & Boats', subsection: 'Quads' },
   'boats & jet skis': { section: 'Bikes & Boats', subsection: 'Boats & Jet Skis' },
   'boat extras': { section: 'Bikes & Boats', subsection: 'Boat Extras' },
+  'rent a car': { section: 'Bikes & Boats', subsection: 'Rent a Car' },
+  'recovery service': { section: 'Bikes & Boats', subsection: 'Recovery Service' },
   other: { section: 'Bikes & Boats', subsection: 'Other items' },
   'other items': { section: 'Bikes & Boats', subsection: 'Other items' },
   'other motor': { section: 'Bikes & Boats', subsection: 'Other items' },
@@ -233,6 +235,8 @@ export default function PlaceAd() {
     'Quads': '/quads',
     'Boats & Jet Skis': '/boats',
     'Boat Extras': '/boat-extras',
+    'Rent a Car': '/car-rent',
+    'Recovery Service': '/recovery-service',
     'Other items': '/other-motor'
   };
 

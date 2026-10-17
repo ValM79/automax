@@ -289,7 +289,7 @@ export default function VehicleDetail() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <Link to="/cars-for-sale" className="hover:text-primary transition-colors">All Cars</Link>
+          <Link to="/cars-for-sale" className="hover:text-primary transition-colors">Cars For Sale</Link>
           <span>›</span>
           <span className="text-foreground font-medium">{car.title}</span>
         </div>

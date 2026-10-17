@@ -4,9 +4,18 @@ import { Link } from 'react-router-dom';
 import { Search, ArrowLeft } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import ListingCard from '../components/automarket/ListingCard';
+import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function CarRent() {
   const [search, setSearch] = useState('');
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const userAds = useUserAds(['Rent a Car']);
+  const q = search.trim().toLowerCase();
+  const items = userAds
+    .map((ad) => ({ ...userAdToListingItem(ad), isUserAd: true, _raw: ad }))
+    .filter((item) => !q || item.title.toLowerCase().includes(q) || (item.location || '').toLowerCase().includes(q));
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +73,15 @@ export default function CarRent() {
           <p className="text-foreground text-base flex-1 text-right">Help us to improve this site: <a href="mailto:Info@automax.ie" className="text-primary hover:underline">Info@automax.ie</a></p>
         </div>
 
-        <p className="text-sm text-muted-foreground py-8 text-center">No car rental listings found. Be the first to list your car rental.</p>
+        {items.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-8 text-center">No car rental listings found. Be the first to list your car rental.</p>
+        ) : (
+          <div className="flex flex-col gap-4 mb-8">
+            {items.map((item) => (
+              <ListingCard key={item.id} item={item} saved={isFavorite(item.id)} onToggleSave={() => toggleFavorite(item)} viewMode="list" />
+            ))}
+          </div>
+        )}
       </div>
 
       <Footer />

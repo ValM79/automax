@@ -4,9 +4,18 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Clock, ShieldCheck, Truck, Search } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import ListingCard from '../components/automarket/ListingCard';
+import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function CarInsurance() {
   const [search, setSearch] = useState('');
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const userAds = useUserAds(['Recovery Service']);
+  const q = search.trim().toLowerCase();
+  const items = userAds
+    .map((ad) => ({ ...userAdToListingItem(ad), isUserAd: true, _raw: ad }))
+    .filter((item) => !q || item.title.toLowerCase().includes(q) || (item.location || '').toLowerCase().includes(q));
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,6 +72,15 @@ export default function CarInsurance() {
           </div>
           <p className="text-foreground text-base flex-1 text-right">Help us to improve this site: <a href="mailto:Info@automax.ie" className="text-primary hover:underline">Info@automax.ie</a></p>
         </div>
+
+        {/* Recovery service listings */}
+        {items.length > 0 && (
+          <div className="flex flex-col gap-4 mb-8">
+            {items.map((item) => (
+              <ListingCard key={item.id} item={item} saved={isFavorite(item.id)} onToggleSave={() => toggleFavorite(item)} viewMode="list" />
+            ))}
+          </div>
+        )}
 
         {/* Info cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
