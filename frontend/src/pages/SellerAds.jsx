@@ -45,6 +45,30 @@ const TABS = [
 
 const inputClass = 'w-full h-11 px-3 text-sm border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40';
 
+// Opening hours are typed as one line ("Mon-Fri 9:00-18:00, Sat 10:00-16:00"). They are shown as a column, one row per
+// part, with the days on the left and the times on the right. If the dealer lists days but never mentions Sunday,
+// a "Sun  Closed" row is added.
+function hoursRows(text) {
+  const parts = String(text || '').split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean);
+  const rows = parts.map((p) => {
+    const m = /^(.+?)\s+(\d.*|closed.*)$/i.exec(p);
+    return m ? [m[1], m[2]] : [p, ''];
+  });
+  const listsDays = rows.some(([d]) => /^(mon|tue|wed|thu|fri|sat|sun)/i.test(d));
+  if (listsDays && !parts.some((p) => /sun/i.test(p))) rows.push(['Sun', 'Closed']);
+  return rows;
+}
+
+function OpeningHours({ text }) {
+  return (
+    <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-foreground">
+      {hoursRows(text).map(([days, times], i) => (times
+        ? <React.Fragment key={i}><dt className="font-medium">{days}</dt><dd>{times}</dd></React.Fragment>
+        : <dd key={i} className="col-span-2">{days}</dd>))}
+    </dl>
+  );
+}
+
 function Spinner() {
   return (
     <div className="flex justify-center py-20">
@@ -312,7 +336,7 @@ export default function SellerAds() {
                 {stats?.opening_hours && (
                   <div>
                     <p className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</p>
-                    <p className="text-foreground mt-1">{stats.opening_hours}</p>
+                    <OpeningHours text={stats.opening_hours} />
                   </div>
                 )}
                 {place && (
@@ -358,7 +382,7 @@ export default function SellerAds() {
               </div>
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</dt>
-                <dd className="text-foreground mt-1">{stats?.opening_hours || 'Not added yet'}</dd>
+                <dd className="text-foreground mt-1">{stats?.opening_hours ? <OpeningHours text={stats.opening_hours} /> : 'Not added yet'}</dd>
               </div>
             </dl>
             <div className="mt-6">{phoneButton}</div>
