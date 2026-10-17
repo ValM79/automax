@@ -364,7 +364,7 @@ export default function Profile() {
                   placeholder="e.g. Mon-Fri 9:00-18:00, Sat 10:00-14:00"
                   className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
-                <p className="text-xs text-muted-foreground">Shown in the Contact Us tab of your dealer page.</p>
+                <p className="text-xs text-muted-foreground">Separate the days with commas. They are shown as a list on your dealer page, and Sunday shows Closed unless you add it.</p>
               </div>
             </section>
           )}
