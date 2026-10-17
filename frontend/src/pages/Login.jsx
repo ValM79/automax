@@ -128,12 +128,12 @@ export default function Login() {
 
         {/* Footer links */}
         <div className="flex flex-col items-center gap-3 mt-5">
-          <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/forgot-password" replace className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Forgot password?
           </Link>
           <p className="text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <Link to="/create-account" className="text-foreground font-medium hover:underline">Sign up</Link>
+            <Link to="/create-account" replace className="text-foreground font-medium hover:underline">Sign up</Link>
           </p>
         </div>
       </div>
