@@ -19,6 +19,24 @@ const CAR_SUBSECTIONS = new Set([
 ]);
 const sectionOf = (subsection) => (CAR_SUBSECTIONS.has(subsection) ? 'Cars' : (subsection || 'Other'));
 
+// /seller-ads/example: a made-up dealer page that the Example card in Dealers Garage opens, so a dealer can see what
+// their own page will look like. Nothing here is real, and it never touches the server.
+const EXAMPLE_STATS = {
+  seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
+  county: 'Dublin', area: 'Swords', business_address: 'Your business address', opening_hours: 'Mon-Fri 9:00-18:00, Sat 10:00-16:00',
+  phone: '', trusted: true,
+};
+const exampleAd = (i, title, price, section, image) => ({
+  id: `example-${i}`, title, price: `€${price}`, priceNum: price, mileage: '65,000 km', location: 'Swords, Dublin', viewCount: null,
+  year: '2021', engine: 'Diesel', image, images: [image], photos: 1, sellerType: 'Dealer', isTrader: true, sellerId: 'example',
+  created_date: new Date(Date.now() - i * 86400000).toISOString(), section,
+});
+const EXAMPLE_ADS = [
+  exampleAd(1, 'Example: 2022 Saloon', 38900, 'Cars', '/img/927787060_generated_image.jpg'),
+  exampleAd(2, 'Example: 2021 Panel Van', 24500, 'Commercials', '/img/37b29cbc7_generated_image.jpg'),
+  exampleAd(3, 'Example: 2019 Camper', 52000, 'Campers', '/img/2106e76f6_generated_image.jpg'),
+];
+
 const TABS = [
   { id: 'stock', label: 'Our Stock' },
   { id: 'contact', label: 'Contact Us' },
@@ -39,6 +57,7 @@ function Spinner() {
 // Reviews tabs; a private seller gets a plain page with their live ads.
 export default function SellerAds() {
   const { sellerId } = useParams();
+  const isExample = sellerId === 'example';
   const { isFavorite, toggleFavorite } = useFavorites();
   const [ads, setAds] = useState([]);
   const [stats, setStats] = useState(null);
@@ -56,6 +75,12 @@ export default function SellerAds() {
     let alive = true;
     setLoading(true);
     setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
+    if (sellerId === 'example') {
+      setAds(EXAMPLE_ADS);
+      setStats(EXAMPLE_STATS);
+      setLoading(false);
+      return undefined;
+    }
     const loadAds = api.entities.UserAd.filter({ created_by_id: sellerId, status: 'active' }, '-created_date', 200)
       .then((records) => {
         const now = Date.now();
@@ -128,7 +153,7 @@ export default function SellerAds() {
   const filtersOn = !!(section || minPrice || maxPrice);
   const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); };
 
-  const phone = stats?.phone || ads.find((a) => a.phone)?.phone || '';
+  const phone = isExample ? 'Your phone number' : (stats?.phone || ads.find((a) => a.phone)?.phone || '');
   const phoneButton = (
     <button
       type="button"
@@ -140,7 +165,7 @@ export default function SellerAds() {
   );
 
   const adList = (list) => (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${isExample ? 'pointer-events-none select-none' : ''}`}>
       {list.map((ad) => (
         <ListingCard key={ad.id} item={ad} saved={isFavorite(ad.id)} onToggleSave={() => toggleFavorite(ad)} />
       ))}
@@ -190,6 +215,12 @@ export default function SellerAds() {
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
 
+      {isExample && (
+        <div className="bg-secondary text-center text-sm text-foreground px-4 py-2.5">
+          <span className="font-semibold">Example page.</span> This is how a dealership page looks. Dealers add their own photo, logo, ads and details.
+        </div>
+      )}
+
       {/* Banner: the dealer's own photo (or our default picture) with their logo, name and location */}
       <div className="relative">
         <img src={stats?.cover_url || BANNER} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -205,9 +236,11 @@ export default function SellerAds() {
             <span className="text-white">{name}</span>
           </div>
           <div className="flex items-center gap-4 sm:gap-5">
-            {stats?.avatar_url && (
+            {(stats?.avatar_url || isExample) && (
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0">
-                <img src={stats.avatar_url} alt="" className="w-full h-full object-contain" />
+                {stats?.avatar_url
+                  ? <img src={stats.avatar_url} alt="" className="w-full h-full object-contain" />
+                  : <Building2 className="w-1/2 h-1/2 text-muted-foreground" strokeWidth={1.5} />}
               </div>
             )}
             <div className="min-w-0">
