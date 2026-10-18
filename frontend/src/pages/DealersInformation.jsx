@@ -3,6 +3,19 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { Link } from 'react-router-dom';
 
+// How a Dealer account works, step by step. Plain text only: it describes what the site does today.
+function Section({ title, children }) {
+  return (
+    <section className="mb-10">
+      <h2 className="text-xl font-bold text-foreground mb-3">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+const list = 'list-decimal pl-5 space-y-2 text-foreground';
+const bullets = 'list-disc pl-5 space-y-2 text-foreground';
+
 export default function DealersInformation() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -13,11 +26,84 @@ export default function DealersInformation() {
           <span>›</span>
           <span className="text-foreground font-medium">Dealers information</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-4">Dealers information</h1>
-        <p className="text-muted-foreground">Information for dealers will be added here soon.</p>
-        <p className="text-muted-foreground mt-4">
-          Questions? Contact us at <a href="mailto:dealers@automax.ie" className="text-primary font-semibold hover:underline">dealers@automax.ie</a>
+        <h1 className="text-3xl font-bold text-foreground mb-3">Dealers information</h1>
+        <p className="text-muted-foreground mb-10">
+          How to set up your dealer account, place your ads and keep them under control. A Dealer account is for a business that buys and sells vehicles. It gets its own card in Dealers Garage and its own page.
         </p>
+
+        <Section title="1. Create your Dealer account">
+          <ol className={list}>
+            <li>Press <strong>Sign in/up</strong>, then <strong>Sign up</strong>.</li>
+            <li>Under <strong>Account Type</strong> choose <strong>Dealer</strong>.</li>
+            <li>Enter your <strong>Business Name</strong> (this is the name buyers see), your email and a password.</li>
+            <li>Press <strong>Create account</strong>, then enter the code we email you to confirm your address.</li>
+          </ol>
+          <p className="text-muted-foreground mt-3">
+            The moment your account exists, your dealership has a card in Dealers Garage and a page of its own. You do not need to place an ad first.
+          </p>
+        </Section>
+
+        <Section title="2. Set up your dealer page">
+          <p className="text-foreground mb-3">Open <strong>My Account</strong>, then <strong>Profile</strong>. A Dealer account has its own profile with these parts:</p>
+          <ul className={bullets}>
+            <li><strong>Add Logo</strong> at the top: your logo, shown on your card and on your page.</li>
+            <li><strong>About Your Dealership</strong>: a few lines about what you sell and how long you have been trading (up to 500 characters). It is shown in the Contact Us tab of your page.</li>
+            <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garage and the banner of your page. Use a wide photo.</li>
+            <li><strong>Opening Hours</strong>: type the days separated by commas, for example <em>Mon-Fri 9:00-18:00, Sat 10:00-16:00</em>. They are shown as a list. If you do not mention Sunday it shows <em>Closed</em>.</li>
+            <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
+            <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
+          </ul>
+          <p className="text-foreground mt-3">Press <strong>Save Changes</strong> at the bottom of the page. The photo and logo are saved as soon as you choose them. To see how your page looks to buyers, press <strong>View my dealer page</strong> at the top of your Profile.</p>
+        </Section>
+
+        <Section title="3. Place an ad">
+          <ol className={list}>
+            <li>Open <strong>My Account</strong> and press <strong>Add your Ad</strong>. (The <strong>Place Ad</strong> button does the same.)</li>
+            <li>Choose the <strong>category</strong> that fits the vehicle: cars, vans, motorbikes, campers and so on. Your page groups your stock by these categories, so buyers can filter by section.</li>
+            <li>Add your photos (up to 12), then fill in the title, description, price and the vehicle details.</li>
+            <li>Check your contact details and business details. They are filled in from your Profile.</li>
+            <li>Choose an ad package (Basic, Standard or Premium). They differ in how long the ad runs and in extras such as bumps to the top. The price is shown before you pay.</li>
+            <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
+          </ol>
+          <p className="text-muted-foreground mt-3">
+            Each ad is paid for when you place it. A Dealer&apos;s ads are shown on the Dealer&apos;s own page only. They do not appear in the Cars For Sale list or in the other category and make pages. Buyers find them through your card in Dealers Garage, or through a link to your page.
+          </p>
+        </Section>
+
+        <Section title="4. Control your ads">
+          <p className="text-foreground mb-3">Open <strong>My Account</strong>, then <strong>My Ads</strong>. Each ad shows its price, how many times it was viewed and saved, and how many days it has left. Press the three dots on an ad to:</p>
+          <ul className={bullets}>
+            <li><strong>View</strong>: see the ad as a buyer sees it.</li>
+            <li><strong>Renew my Ad</strong>: run the ad again for another period. You choose a package and pay, as when placing it.</li>
+            <li><strong>Edit</strong>: change the photos, price, description or any other detail. Change the price here when you reduce it.</li>
+            <li><strong>Mark as Sold</strong>: take a sold vehicle off your page. Do this as soon as a vehicle is sold so buyers do not ask about it.</li>
+            <li><strong>Delete</strong>: remove the ad for good. This cannot be undone.</li>
+          </ul>
+          <p className="text-muted-foreground mt-3">An ad ends by itself when the days of its package run out. Use <strong>Renew my Ad</strong> if you want to keep it listed.</p>
+        </Section>
+
+        <Section title="5. Answer buyers">
+          <ul className={bullets}>
+            <li>Buyers can send you a message from any of your ads. Open <strong>My Account</strong>, then <strong>Messages</strong> to read and answer them.</li>
+            <li>To get an email when a message arrives, keep <strong>Message alerts</strong> switched on under Notification Preferences in your Profile.</li>
+            <li>Your phone number and opening hours are on your page, in the Our Stock sidebar and in the Contact Us tab.</li>
+          </ul>
+        </Section>
+
+        <Section title="Good to know">
+          <ul className={bullets}>
+            <li>Your page has three tabs: <strong>Our Stock</strong> (your live ads, with a section filter, a price filter and a sort option), <strong>Contact Us</strong> and <strong>Reviews</strong>.</li>
+            <li>Keep your stock up to date. Mark vehicles as sold and renew the ads you still want listed.</li>
+            <li>Clear, bright photos and a full description get more messages.</li>
+          </ul>
+        </Section>
+
+        <div className="bg-card border border-border rounded-2xl p-6 text-center">
+          <p className="text-foreground font-semibold mb-1">Questions from a dealer?</p>
+          <p className="text-muted-foreground">
+            Email us at <a href="mailto:dealers@automax.ie" className="text-primary font-semibold hover:underline">dealers@automax.ie</a>
+          </p>
+        </div>
       </div>
       <Footer />
     </div>
