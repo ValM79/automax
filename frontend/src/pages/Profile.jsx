@@ -291,10 +291,7 @@ export default function Profile() {
           {user.seller_type === 'dealer' && (
             <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 text-sm text-foreground flex flex-wrap items-center justify-between gap-3">
               <p>Your dealership has its own card in Dealers Garage and its own page. Add your logo, a business photo and your details to make it stand out.</p>
-              <div className="flex flex-wrap items-center gap-4">
-                <Link to="/place-ad" className="inline-flex items-center justify-center h-10 px-5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors whitespace-nowrap">Add your Ad</Link>
-                <Link to={`/seller-ads/${user.id}`} className="font-semibold text-primary hover:underline whitespace-nowrap">View my dealer page</Link>
-              </div>
+              <Link to={`/seller-ads/${user.id}`} className="font-semibold text-primary hover:underline whitespace-nowrap">View my dealer page</Link>
             </div>
           )}
 
