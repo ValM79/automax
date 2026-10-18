@@ -260,7 +260,7 @@ export default function SellerAds() {
             <span>›</span>
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <span>›</span>
-            <Link to="/dealers-garage" className="hover:text-white transition-colors">Dealers Garage</Link>
+            <Link to="/dealers-garage" className="hover:text-white transition-colors">Dealers Garages</Link>
             <span>›</span>
             <span className="text-white">{name}</span>
           </div>

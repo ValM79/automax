@@ -122,9 +122,9 @@ export default function Dealers() {
           <div className="flex items-center gap-2 text-sm text-white/80 mb-6">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>
             <span>›</span>
-            <span className="text-white">Dealers Garage</span>
+            <span className="text-white">Dealers Garages</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-5">Dealers Garage</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-5">Dealers Garages</h1>
           <div className="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
             <select value={dealerId} onChange={pick(setDealerId)} className={selectClass} aria-label="Dealership">
               <option value="">Search Dealers</option>
