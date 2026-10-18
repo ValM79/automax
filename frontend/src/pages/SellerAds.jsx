@@ -8,7 +8,6 @@ import Footer from '../components/automarket/Footer';
 import ListingCard from '../components/automarket/ListingCard';
 import AvatarBadge from '../components/automarket/AvatarBadge';
 import { useFavorites } from '../hooks/useFavorites';
-import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 
 const BANNER = '/img/b29eb1163_generated_image.jpg'; // used behind the dealer's name when they have not added a photo
@@ -85,8 +84,6 @@ export default function SellerAds() {
   const { sellerId } = useParams();
   const isExample = sellerId === 'example';
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { user } = useAuth();
-  const isOwner = !!user && user.id === sellerId; // the dealer looking at their own page
   const [ads, setAds] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -283,11 +280,6 @@ export default function SellerAds() {
               </p>
             </div>
           </div>
-          {isOwner && (
-            <Link to="/place-ad" className="mt-5 sm:mt-0 sm:absolute sm:right-4 sm:bottom-10 inline-flex items-center justify-center h-11 px-6 rounded-lg bg-white text-foreground text-sm font-semibold hover:bg-white/90 transition-colors">
-              Add your Ad
-            </Link>
-          )}
         </div>
       </div>
 
@@ -377,10 +369,7 @@ export default function SellerAds() {
                 </label>
               </div>
               {ads.length === 0 ? (
-                <div className="text-center py-16">
-                  <p className="text-muted-foreground">{isOwner ? 'You have no live ads yet.' : 'This dealership has no live ads right now.'}</p>
-                  {isOwner && <Link to="/place-ad" className="mt-4 inline-flex items-center justify-center h-11 px-6 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">Add your Ad</Link>}
-                </div>
+                <p className="text-muted-foreground text-center py-16">This dealership has no live ads right now.</p>
               ) : shown.length === 0 ? (
                 <p className="text-muted-foreground text-center py-16">No ads match these filters.</p>
               ) : adList(shown)}
