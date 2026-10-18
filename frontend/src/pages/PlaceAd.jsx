@@ -251,7 +251,7 @@ export default function PlaceAd() {
     if (adSavedRef.current) return;
     adSavedRef.current = true;
     localStorage.removeItem('pendingAd');
-    navigate('/my-ads');
+    navigate(user.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
   }, [isLoadingAuth, user]);
 
   const isBikeCategory = isBikePackageSubsection(form.subsection);
@@ -1253,7 +1253,7 @@ export default function PlaceAd() {
                       // StoreKit redelivers the transaction next launch instead
                       // of losing the purchase.
                       await IAPPlugin.finishTransaction({ transactionId: purchase.transactionId });
-                      navigate('/my-ads');
+                      navigate(user?.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
                       return;
                     } catch (verifyErr) {
                       setSellError('We received your payment but could not activate the ad yet. Please check My Ads in a moment, or contact support.');
