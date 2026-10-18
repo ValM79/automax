@@ -290,7 +290,7 @@ export default function Profile() {
         <div className="space-y-6">
           {user.seller_type === 'dealer' && (
             <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 text-sm text-foreground flex flex-wrap items-center justify-between gap-3">
-              <p>Your dealership has its own card in Dealers Garage and its own page. Add your logo, a business photo and your details to make it stand out.</p>
+              <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business photo and your details to make it stand out.</p>
               <Link to={`/seller-ads/${user.id}`} className="font-semibold text-primary hover:underline whitespace-nowrap">View my dealer page</Link>
             </div>
           )}
@@ -333,7 +333,7 @@ export default function Profile() {
                   )}
                 </p>
                 {coverError && <p className="text-xs text-red-600">{coverError}</p>}
-                <p className="text-xs text-muted-foreground">A photo of your premises or stock. It is the background of your card in Dealers Garage and the banner of your dealer page.</p>
+                <p className="text-xs text-muted-foreground">A photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your dealer page.</p>
               </div>
               <div className="space-y-1.5 mt-5">
                 <label className="block text-sm font-medium text-foreground">Opening Hours</label>

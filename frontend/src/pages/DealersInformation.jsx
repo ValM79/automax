@@ -28,7 +28,7 @@ export default function DealersInformation() {
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-3">Dealers information</h1>
         <p className="text-muted-foreground mb-10">
-          How to set up your dealer account, place your ads and keep them under control. A Dealer account is for a business that buys and sells vehicles. It gets its own card in Dealers Garage and its own page.
+          How to set up your dealer account, place your ads and keep them under control. A Dealer account is for a business that buys and sells vehicles. It gets its own card in Dealers Garages and its own page.
         </p>
 
         <Section title="1. Create your Dealer account">
@@ -39,7 +39,7 @@ export default function DealersInformation() {
             <li>Press <strong>Create account</strong>, then enter the code we email you to confirm your address.</li>
           </ol>
           <p className="text-muted-foreground mt-3">
-            The moment your account exists, your dealership has a card in Dealers Garage and a page of its own. You do not need to place an ad first.
+            The moment your account exists, your dealership has a card in Dealers Garages and a page of its own. You do not need to place an ad first.
           </p>
         </Section>
 
@@ -48,7 +48,7 @@ export default function DealersInformation() {
           <ul className={bullets}>
             <li><strong>Add Logo</strong> at the top: your logo, shown on your card and on your page.</li>
             <li><strong>About Your Dealership</strong>: a few lines about what you sell and how long you have been trading (up to 500 characters). It is shown in the Contact Us tab of your page.</li>
-            <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garage and the banner of your page. Use a wide photo.</li>
+            <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your page. Use a wide photo.</li>
             <li><strong>Opening Hours</strong>: type the days separated by commas, for example <em>Mon-Fri 9:00-18:00, Sat 10:00-16:00</em>. They are shown as a list. If you do not mention Sunday it shows <em>Closed</em>.</li>
             <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
             <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
@@ -66,7 +66,7 @@ export default function DealersInformation() {
             <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
           </ol>
           <p className="text-muted-foreground mt-3">
-            Each ad is paid for when you place it. A Dealer&apos;s ads are shown on the Dealer&apos;s own page only. They do not appear in the Cars For Sale list or in the other category and make pages. Buyers find them through your card in Dealers Garage, or through a link to your page.
+            Each ad is paid for when you place it. A Dealer&apos;s ads are shown on the Dealer&apos;s own page only. They do not appear in the Cars For Sale list or in the other category and make pages. Buyers find them through your card in Dealers Garages, or through a link to your page.
           </p>
         </Section>
 
