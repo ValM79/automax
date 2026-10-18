@@ -22,8 +22,8 @@ function DealerLogo({ url }) {
   );
 }
 
-// One dealership card. A dealer can add a photo of the business (cover): it becomes the card background, under a light
-// wash so the text, in the blue of the AutoMax logo, stays readable on any photo, bright or dark. A dealer with a logo gets the logo box at the right. No cover = plain white card,
+// One dealership card. A dealer can add a photo of the business (cover): it becomes the card background, shown as it is
+// (no shade or wash over it), with the text in the blue of the AutoMax logo. A dealer with a logo gets the logo box at the right. No cover = plain white card,
 // no logo = no logo box, so a dealer with neither still gets a clean card.
 function DealerCard({ dealer, onClick, example = false }) {
   const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
@@ -39,10 +39,7 @@ function DealerCard({ dealer, onClick, example = false }) {
       onClick={onClick}
       className={`relative overflow-hidden w-full text-left rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4 bg-card ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
       {onPhoto && (
-        <>
-          <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/75 to-white/20" />
-        </>
+        <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
       )}
       <div className="relative min-w-0">
         <div className="flex flex-wrap items-center gap-2">
