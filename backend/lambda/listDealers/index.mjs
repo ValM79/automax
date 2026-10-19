@@ -14,7 +14,10 @@ import { ddb, TABLES, json } from '../_lib/common.mjs';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CACHE_MS = 60 * 1000;
 const MAX_DEALERS = 300;
-let cache = null;
+// Only the slow part (counting every live ad) is kept for a minute. The dealer profiles (name, logo, photo, location) are
+// read fresh on every call, so a change saved on the Profile page shows on the card straight away. (The whole answer
+// used to be kept for a minute in each warm copy of this function, so a removed photo kept showing for a while.)
+let adsCache = null;
 
 // every kind of car section is shown as one "Cars" tag, like DoneDeal's dealer cards
 const CAR_SUBSECTIONS = new Set([
@@ -70,8 +73,15 @@ async function dealerProfiles() {
   return out;
 }
 
+async function cachedLiveAds() {
+  if (adsCache && Date.now() - adsCache.at < CACHE_MS) return adsCache.sellers;
+  const sellers = await liveAdsBySeller();
+  adsCache = { at: Date.now(), sellers };
+  return sellers;
+}
+
 async function buildDealers() {
-  const [sellers, profiles] = await Promise.all([liveAdsBySeller(), dealerProfiles()]);
+  const [sellers, profiles] = await Promise.all([cachedLiveAds(), dealerProfiles()]);
   const cdn = `https://${process.env.PHOTOS_CDN_DOMAIN}/`;
   const dealers = [];
   for (const p of profiles) {
@@ -96,10 +106,7 @@ async function buildDealers() {
 
 export const handler = async () => {
   try {
-    if (cache && Date.now() - cache.at < CACHE_MS) return json(200, cache.body);
-    const body = { dealers: await buildDealers() };
-    cache = { at: Date.now(), body };
-    return json(200, body);
+    return json(200, { dealers: await buildDealers() });
   } catch (error) {
     console.error('listDealers error:', error);
     return json(500, { error: 'Could not load dealerships' });

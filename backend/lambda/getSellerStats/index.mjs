@@ -102,13 +102,16 @@ export const handler = async (event) => {
     // a Cognito user id (sub): reject anything else so it cannot break out of the filter string
     if (!seller_id || !/^[A-Za-z0-9-]{8,64}$/.test(seller_id)) return json(400, { error: 'Invalid seller' });
 
-    const hit = cache.get(seller_id);
-    if (hit && Date.now() - hit.at < CACHE_MS) return json(200, hit.body);
-
-    const [{ active, total }, since, profile] = await Promise.all([countAds(seller_id), memberSince(seller_id), sellerProfile(seller_id)]);
-    const body = { member_since: since, active_ads: active, total_ads: total, ...profile };
-    cache.set(seller_id, { at: Date.now(), body });
-    return json(200, body);
+    // The ad counts and the join date change slowly, so they are kept for a minute. The profile part (logo, photo, name,
+    // address, hours...) is read fresh every time, so a saved change shows on the dealer page straight away.
+    let slow = cache.get(seller_id);
+    if (!slow || Date.now() - slow.at >= CACHE_MS) {
+      const [{ active, total }, since] = await Promise.all([countAds(seller_id), memberSince(seller_id)]);
+      slow = { at: Date.now(), member_since: since, active_ads: active, total_ads: total };
+      cache.set(seller_id, slow);
+    }
+    const profile = await sellerProfile(seller_id);
+    return json(200, { member_since: slow.member_since, active_ads: slow.active_ads, total_ads: slow.total_ads, ...profile });
   } catch (error) {
     console.error('getSellerStats error:', error);
     return json(500, { error: 'Could not load seller details' });
