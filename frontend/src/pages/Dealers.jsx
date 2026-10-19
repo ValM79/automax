@@ -43,7 +43,7 @@ function DealerCard({ dealer, onClick, example = false }) {
       {hasPhoto && (
         <>
           <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/5" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/45 to-black/30" />
         </>
       )}
       <div className={`relative flex-1 min-w-0 p-5 sm:p-7 ${hasPhoto ? 'pb-14 sm:pb-7 sm:max-w-[45%]' : ''}`}>
