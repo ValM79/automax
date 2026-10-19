@@ -3,7 +3,7 @@ import { isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
 import BackButton from '../components/automarket/BackButton';
-import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera } from 'lucide-react';
+import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -416,56 +416,6 @@ export default function Profile() {
                 {Object.values(timeErrors).some(Boolean) && <p className="text-xs text-red-600">Write the hours like 09:00 - 18:00, or type Closed.</p>}
               </div>
 
-              <div className="space-y-3 mt-6">
-                <label className="block text-sm font-medium text-foreground">How buyers can contact you</label>
-                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. Your phone number button is always there when you have added a number.</p>
-                {[
-                  ['message', 'Message', 'Buyers write to you inside AutoMax, about one of your live ads. You answer in Messages.'],
-                  ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
-                  ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
-                ].map(([key, label, hint]) => (
-                  <label key={key} className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!form.ways[key]}
-                      onChange={(e) => setForm((f) => ({
-                        ...f,
-                        ways: { ...f.ways, [key]: e.target.checked },
-                        ...(key === 'email' && e.target.checked && !f.contactEmail ? { contactEmail: f.email } : {}),
-                      }))}
-                      className="w-4 h-4 mt-0.5 accent-primary cursor-pointer"
-                    />
-                    <span>
-                      <span className="text-sm font-medium text-foreground">{label}</span>
-                      <span className="block text-xs text-muted-foreground">{hint}</span>
-                    </span>
-                  </label>
-                ))}
-                {form.ways.whatsapp && (
-                  <div className="space-y-1.5 pl-7">
-                    <label className="block text-sm font-medium text-foreground">WhatsApp number</label>
-                    <input
-                      type="tel"
-                      value={form.whatsappNumber}
-                      onChange={(e) => setForm((f) => ({ ...f, whatsappNumber: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
-                      placeholder="e.g. 087 123 4567 (leave empty to use your phone number)"
-                      className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                    />
-                  </div>
-                )}
-                {form.ways.email && (
-                  <div className="space-y-1.5 pl-7">
-                    <label className="block text-sm font-medium text-foreground">Contact email</label>
-                    <input
-                      type="email"
-                      value={form.contactEmail}
-                      onChange={set('contactEmail')}
-                      placeholder="sales@yourdealership.ie"
-                      className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                    />
-                  </div>
-                )}
-              </div>
             </section>
           )}
 
@@ -594,36 +544,99 @@ export default function Profile() {
             </div>
           </section>
 
-          {/* Notification Preferences */}
-          <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Bell className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Notification Preferences</h2>
-            </div>
-            <div className="space-y-4">
-              {[
-                { key: 'messages', title: 'Message alerts', text: 'Email me when someone sends a message about my listings' },
-                { key: 'savedSearches', title: 'Saved search alerts', text: 'Email me when new listings match my saved searches' },
-                { key: 'promotions', title: 'Promotions & offers', text: 'Email me about featured ad deals and platform promotions' },
-              ].map((row, i) => (
-                <React.Fragment key={row.key}>
-                  {i > 0 && <div className="border-t border-border" />}
-                  <label className="flex items-center justify-between gap-4 cursor-pointer">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{row.title}</p>
-                      <p className="text-xs text-muted-foreground">{row.text}</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={notify[row.key]}
-                      onChange={(e) => setNotify((n) => ({ ...n, [row.key]: e.target.checked }))}
-                      className="w-5 h-5 rounded accent-primary shrink-0"
-                    />
-                  </label>
-                </React.Fragment>
-              ))}
-            </div>
-          </section>
+          {/* A Dealer sets how buyers contact them here, in the place of the email alerts (which a Dealer does not need) */}
+          {user.seller_type === 'dealer' ? (
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">How buyers can contact you</h2>
+              </div>
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. Your phone number button is always there when you have added a number.</p>
+                {[
+                  ['message', 'Message', 'Buyers write to you inside AutoMax, about one of your live ads. You answer in Messages.'],
+                  ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
+                  ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
+                ].map(([key, label, hint]) => (
+                  <div key={key} className="space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!form.ways[key]}
+                        onChange={(e) => setForm((f) => ({
+                          ...f,
+                          ways: { ...f.ways, [key]: e.target.checked },
+                          ...(key === 'email' && e.target.checked && !f.contactEmail ? { contactEmail: f.email } : {}),
+                        }))}
+                        className="w-4 h-4 mt-0.5 accent-primary cursor-pointer"
+                      />
+                      <span>
+                        <span className="text-sm font-medium text-foreground">{label}</span>
+                        <span className="block text-xs text-muted-foreground">{hint}</span>
+                      </span>
+                    </label>
+                    {key === 'whatsapp' && form.ways.whatsapp && (
+                      <div className="space-y-1.5 pl-7">
+                        <label className="block text-sm font-medium text-foreground">WhatsApp number</label>
+                        <input
+                          type="tel"
+                          value={form.whatsappNumber}
+                          onChange={(e) => setForm((f) => ({ ...f, whatsappNumber: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                          placeholder="e.g. 087 123 4567 (leave empty to use your phone number)"
+                          className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                        />
+                      </div>
+                    )}
+                    {key === 'email' && form.ways.email && (
+                      <div className="space-y-1.5 pl-7">
+                        <label className="block text-sm font-medium text-foreground">Contact email</label>
+                        <input
+                          type="email"
+                          value={form.contactEmail}
+                          onChange={set('contactEmail')}
+                          placeholder="sales@yourdealership.ie"
+                          className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : (
+            <>
+            {/* Notification Preferences */}
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Bell className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">Notification Preferences</h2>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { key: 'messages', title: 'Message alerts', text: 'Email me when someone sends a message about my listings' },
+                  { key: 'savedSearches', title: 'Saved search alerts', text: 'Email me when new listings match my saved searches' },
+                  { key: 'promotions', title: 'Promotions & offers', text: 'Email me about featured ad deals and platform promotions' },
+                ].map((row, i) => (
+                  <React.Fragment key={row.key}>
+                    {i > 0 && <div className="border-t border-border" />}
+                    <label className="flex items-center justify-between gap-4 cursor-pointer">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{row.title}</p>
+                        <p className="text-xs text-muted-foreground">{row.text}</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={notify[row.key]}
+                        onChange={(e) => setNotify((n) => ({ ...n, [row.key]: e.target.checked }))}
+                        className="w-5 h-5 rounded accent-primary shrink-0"
+                      />
+                    </label>
+                  </React.Fragment>
+                ))}
+              </div>
+            </section>
+            </>
+          )}
 
           {/* Account Info (read-only) */}
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
