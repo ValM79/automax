@@ -294,10 +294,11 @@ export default function Profile() {
   const isTrader = isBusinessType(user.seller_type); // business account
   const accountKind = accountLabel(user.seller_type);
 
-  const phoneField = (
+  // half: as wide as the County box, with the Edit button hanging to its right (a Dealer's Contact Information)
+  const phoneField = (half) => (
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-foreground">Phone Number</label>
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 ${half ? 'sm:relative' : ''}`}>
               <input
                 type="tel"
                 value={form.phone}
@@ -309,7 +310,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={() => setEditingPhone((v) => !v)}
-                className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
+                className={`border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0 ${half ? 'sm:absolute sm:left-full sm:ml-3 sm:top-0' : ''}`}>
                 {editingPhone ? 'Done' : 'Edit'}
               </button>
             </div>
@@ -343,7 +344,7 @@ export default function Profile() {
   // Phone, county and area (in a Dealer's profile they are laid out differently, see the Contact Information section)
   const contactFields = (
     <>
-      {phoneField}
+      {phoneField(false)}
       {countyField}
       {areaField(true)}
     </>
@@ -552,7 +553,7 @@ export default function Profile() {
                       </div>
                     </div>
                     <div className="sm:col-span-2">{areaField(true)}</div>
-                    <div className="sm:col-span-2">{phoneField}</div>
+                    <div className="sm:col-span-2 sm:w-[calc(50%-0.5rem)]">{phoneField(true)}</div>
                   </>
                 )}
               </div>
