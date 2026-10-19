@@ -426,7 +426,7 @@ export default function Profile() {
                 <h2 className="text-lg font-bold text-foreground">{user.seller_type === 'dealer' ? 'Dealership Details' : 'Business Details'}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+                <div className={`space-y-1.5 ${user.seller_type === 'dealer' ? 'sm:col-span-2' : ''}`}>
                   <label className="block text-sm font-medium text-foreground">Business Name</label>
                   <input
                     type="text"
@@ -436,16 +436,18 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
-                  <input
-                    type="text"
-                    value={form.vatNumber}
-                    onChange={set('vatNumber')}
-                    placeholder="e.g. IE6439073E"
-                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                  />
-                </div>
+                {user.seller_type !== 'dealer' && (
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                    <input
+                      type="text"
+                      value={form.vatNumber}
+                      onChange={set('vatNumber')}
+                      placeholder="e.g. IE6439073E"
+                      className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    />
+                  </div>
+                )}
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="block text-sm font-medium text-foreground">Business Address</label>
                   <input
@@ -467,6 +469,18 @@ export default function Profile() {
               <h2 className="text-lg font-bold text-foreground">Account Details</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {user.seller_type === 'dealer' ? (
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                  <input
+                    type="text"
+                    value={form.vatNumber}
+                    onChange={set('vatNumber')}
+                    placeholder="e.g. IE6439073E"
+                    className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                  />
+                </div>
+              ) : (
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">{isTrader ? 'Contact Name' : 'Full Name'}</label>
                 <input
@@ -477,6 +491,7 @@ export default function Profile() {
                   className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                 />
               </div>
+              )}
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">Email</label>
                 <div className="relative">
