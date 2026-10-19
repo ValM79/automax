@@ -22,47 +22,56 @@ function DealerLogo({ url }) {
   );
 }
 
-// One dealership card. A dealer can add a photo of the business (cover): it becomes the card background, shown as it is
-// (no shade or wash over it). The text sits on a white panel at the left, in thin black, so it can be read on any photo. A dealer with a logo gets the logo box at the right. No cover = plain white card,
-// no logo = no logo box, so a dealer with neither still gets a clean card.
+// One dealership card: a white card with the text at the left (plenty of room) and, at the right, the dealer's photo with
+// the logo and a Visit Showroom label on it. No photo = just the logo and the label; no logo = no logo box.
+const BLUE = 'text-blue-900';
+
 function DealerCard({ dealer, onClick, example = false }) {
   const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
   const [coverFailed, setCoverFailed] = useState(false);
   useEffect(() => { setCoverFailed(false); }, [coverUrl]);
-  const onPhoto = !!coverUrl && !coverFailed;
+  const hasPhoto = !!coverUrl && !coverFailed;
+  const hasLogo = !!avatarUrl || example;
   const place = [county, area].filter(Boolean).join(', ');
-  const muted = onPhoto ? 'text-black font-light' : 'text-muted-foreground';
   const Root = onClick ? 'button' : 'div';
+  const visit = <span className={`text-xs font-medium ${BLUE} bg-white px-2.5 py-1 rounded shadow-sm`}>Visit Showroom</span>;
   return (
     <Root
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`relative overflow-hidden w-full text-left rounded-lg shadow-sm p-5 sm:p-6 flex items-start justify-between gap-4 bg-card ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
-      {onPhoto && (
-        <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-      )}
-      <div className={`relative min-w-0 ${onPhoto ? 'bg-white rounded-lg shadow-sm px-4 py-3 self-start' : ''}`}>
+      className={`w-full text-left bg-card rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
+      <div className="flex-1 min-w-0 p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className={`text-xl ${onPhoto ? 'font-light text-black' : 'font-semibold text-foreground'}`}>{name}</h2>
-          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded ${onPhoto ? 'font-light bg-secondary text-black' : 'font-semibold bg-secondary text-muted-foreground'}`}>Example</span>}
+          <h2 className={`text-xl font-semibold ${BLUE}`}>{name}</h2>
+          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-blue-900/10 ${BLUE}`}>Example</span>}
         </div>
         {trusted && (
-          <p className={`flex items-center gap-1.5 text-sm mt-2 ${muted}`}>
-            <ShieldCheck className={`w-4 h-4 ${onPhoto ? 'text-black' : 'text-primary'}`} /> Verified Dealer
+          <p className={`flex items-center gap-1.5 text-sm mt-2 ${BLUE}`}>
+            <ShieldCheck className="w-4 h-4" /> Verified Dealer
           </p>
         )}
-        {place && <p className={`text-sm mt-2 ${muted}`}>{place}</p>}
-        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${muted}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
-        <div className="flex flex-wrap gap-2 mt-3">
+        {place && <p className={`text-sm mt-2 ${BLUE}`}>{place}</p>}
+        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${BLUE}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
+        <div className="flex flex-wrap gap-2 mt-4">
           {sections.map((t) => (
-            <span key={t} className={`text-xs px-2 py-1 rounded ${onPhoto ? 'font-light bg-secondary text-black' : 'bg-secondary text-foreground'}`}>{t}</span>
+            <span key={t} className={`text-xs px-2 py-1 rounded bg-white border border-blue-900/20 ${BLUE}`}>{t}</span>
           ))}
         </div>
       </div>
-      <div className="relative flex flex-col items-end gap-2 shrink-0">
-        {(avatarUrl || example) && <DealerLogo url={avatarUrl} />}
-        <span className={`text-xs ${onPhoto ? 'font-light text-black bg-white px-2 py-0.5 rounded' : 'font-medium text-primary'}`}>See Showroom</span>
-      </div>
+      {hasPhoto ? (
+        <div className="relative h-44 sm:h-auto sm:w-72 lg:w-96 shrink-0">
+          <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+            {hasLogo && <DealerLogo url={avatarUrl} />}
+            {visit}
+          </div>
+        </div>
+      ) : (
+        <div className="shrink-0 p-5 sm:p-7 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 sm:gap-2">
+          {hasLogo && <DealerLogo url={avatarUrl} />}
+          {visit}
+        </div>
+      )}
     </Root>
   );
 }
