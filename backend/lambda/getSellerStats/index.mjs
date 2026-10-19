@@ -44,7 +44,7 @@ async function countAds(sellerId) {
 // A business account (trader or dealer) also gets what its dealer page shows: business name, cover photo, county,
 // area, address, opening hours, phone number and the "trusted" mark. These are the details a business chooses to
 // show buyers anyway. Never an email, VAT number or personal name.
-const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'opening_times', 'about', 'phone', 'trusted_dealer', 'contact_ways', 'whatsapp_number', 'contact_email'];
+const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'opening_times', 'about', 'phone', 'trusted_dealer', 'contact_ways', 'whatsapp_number', 'contact_email', 'business_address_2', 'eircode'];
 
 // Opening hours by day, only the known days and only values of the form "09:00 - 18:00" or "Closed".
 function openingTimes(t) {
@@ -92,6 +92,8 @@ async function sellerProfile(sellerId) {
         county: text(p.county, 40),
         area: text(p.area, 60),
         business_address: text(p.business_address, 200),
+        business_address_2: text(p.business_address_2, 200),
+        eircode: text(p.eircode, 8),
         opening_hours: text(p.opening_hours, 200),
         opening_times: openingTimes(p.opening_times),
         about: text(p.about, 500),

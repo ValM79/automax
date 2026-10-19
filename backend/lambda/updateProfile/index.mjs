@@ -32,6 +32,8 @@ const EDITABLE_FIELDS = [
   'contact_ways',
   'whatsapp_number',
   'contact_email',
+  'business_address_2',
+  'eircode',
 ];
 
 export const handler = async (event) => {
@@ -79,6 +81,12 @@ export const handler = async (event) => {
       const v = String(body.contact_email || '').trim();
       if (v && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(v)) return json(400, { error: 'Invalid contact email' });
       body.contact_email = v.slice(0, 120);
+    }
+    // Eircode: 7 letters / digits written "A65 F4E2" (or empty).
+    if ('eircode' in body) {
+      const v = String(body.eircode || '').replace(/\s+/g, '').toUpperCase();
+      if (v && !/^[A-Z0-9]{7}$/.test(v)) return json(400, { error: 'Invalid Eircode' });
+      body.eircode = v ? `${v.slice(0, 3)} ${v.slice(3)}` : '';
     }
     if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
