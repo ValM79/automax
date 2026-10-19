@@ -4,11 +4,14 @@ import { DAY_KEYS, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappLink } from '@/lib/contactWays';
 import MessageModal from '../components/automarket/MessageModal';
 import MobileSelect from '../components/automarket/MobileSelect';
+import MakeSelector from '../components/automarket/MakeSelector';
+import ModelSelector from '../components/automarket/ModelSelector';
+import BodyTypeSelector from '../components/automarket/BodyTypeSelector';
 import { priceOptions } from '@/lib/priceOptions';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail } from 'lucide-react';
+import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -20,12 +23,6 @@ import { api } from '@/api/apiClient';
 const BANNER = '/img/b29eb1163_generated_image.jpg'; // used behind the dealer's name when they have not added a photo
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Every kind of car section is one "Cars" section, the same grouping the Dealers Garage cards use.
-const CAR_SUBSECTIONS = new Set([
-  'Cars', 'New Cars', 'Dealers Garage', 'Dealership Cars', 'Cars from Dealerships', 'Electric & Hybrid Cars',
-  'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables',
-]);
-const sectionOf = (subsection) => (CAR_SUBSECTIONS.has(subsection) ? 'Cars' : (subsection || 'Other'));
 
 // /seller-ads/example: a made-up dealer page that the Example card in Dealers Garage opens, so a dealer can see what
 // their own page will look like. Nothing here is real, and it never touches the server.
@@ -115,7 +112,8 @@ export default function SellerAds() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('stock');
-  const [section, setSection] = useState('');
+  const EMPTY_VEHICLE = { make: '', model: '', bodyType: '' };
+  const [vehicles, setVehicles] = useState([EMPTY_VEHICLE]); // up to 3 make / model / body type choices, like the Cars For Sale filters
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
@@ -126,7 +124,7 @@ export default function SellerAds() {
     if (!sellerId) return;
     let alive = true;
     setLoading(true);
-    setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
+    setTab('stock'); setVehicles([EMPTY_VEHICLE]); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
     if (sellerId === 'example') {
       setAds(EXAMPLE_ADS);
       setStats(EXAMPLE_STATS);
@@ -161,7 +159,9 @@ export default function SellerAds() {
             phone: ad.phone,
             sellerId: ad.created_by_id,
             created_date: ad.created_date,
-            section: sectionOf(ad.subsection),
+            vehicleMake: ad.vehicleMake,
+            vehicleModel: ad.vehicleModel,
+            bodyType: ad.bodyType,
           }));
       })
       .catch(() => []);
@@ -187,18 +187,20 @@ export default function SellerAds() {
       : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
   const place = [stats?.county, stats?.area].filter(Boolean).join(', ');
 
-  const sections = useMemo(() => {
-    const counts = new Map();
-    ads.forEach((a) => counts.set(a.section, (counts.get(a.section) || 0) + 1));
-    return [...counts.entries()].sort((a, b) => (a[0] === 'Cars' ? -1 : b[0] === 'Cars' ? 1 : a[0].localeCompare(b[0])));
-  }, [ads]);
-
   const shown = useMemo(() => {
     const toNumber = (v) => (v ? Number(String(v).replace(/[€,]/g, '')) : null); // the price boxes hold text like '€5,000'
     const min = toNumber(minPrice);
     const max = toNumber(maxPrice);
+    const picked = vehicles.filter((v) => v.make || v.model || v.bodyType);
+    const lower = (x) => String(x || '').toLowerCase();
+    // same idea as Cars For Sale: the make / model is looked for in the ad title (and in the make / model the dealer entered)
+    const matchesVehicle = (a, v) => (
+      (!v.make || lower(a.title).includes(lower(v.make)) || lower(a.vehicleMake).includes(lower(v.make))) &&
+      (!v.model || lower(a.title).includes(lower(v.model)) || lower(a.vehicleModel).includes(lower(v.model))) &&
+      (!v.bodyType || lower(a.bodyType).includes(lower(v.bodyType)))
+    );
     const list = ads.filter((a) => (
-      (!section || a.section === section) &&
+      (picked.length === 0 || picked.some((v) => matchesVehicle(a, v))) &&
       (min === null || a.priceNum >= min) &&
       (max === null || a.priceNum <= max)
     ));
@@ -208,10 +210,11 @@ export default function SellerAds() {
     else if (sort === 'oldest') list.sort((a, b) => when(a) - when(b));
     else list.sort((a, b) => when(b) - when(a)); // newest first
     return list;
-  }, [ads, section, minPrice, maxPrice, sort]);
+  }, [ads, vehicles, minPrice, maxPrice, sort]);
 
-  const filtersOn = !!(section || minPrice || maxPrice || sort !== 'newest');
-  const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
+  const filtersOn = !!(vehicles.some((v) => v.make || v.model || v.bodyType) || minPrice || maxPrice || sort !== 'newest');
+  const resetFilters = () => { setVehicles([EMPTY_VEHICLE]); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
+  const setVehicle = (i, patch) => setVehicles((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
 
   // The ways a buyer can contact this dealer (the dealer picks them on their Profile).
   const ways = waysOf(stats?.contact_ways);
@@ -375,21 +378,21 @@ export default function SellerAds() {
               </div>
 
               <div className={`${filtersOpen ? '' : 'hidden'} lg:block`}>
-              <p className="text-sm text-muted-foreground mt-5 mb-2">Section</p>
-              <div className="flex flex-col gap-1.5">
-                {[['', ads.length], ...sections].map(([label, count]) => {
-                  const active = section === label;
-                  return (
-                    <button
-                      key={label || 'all'}
-                      type="button"
-                      onClick={() => setSection(label)}
-                      className={`flex items-center justify-between h-11 px-4 rounded-lg text-sm text-left transition-colors ${active ? 'border-2 border-foreground font-semibold text-foreground' : 'border border-transparent text-foreground hover:bg-secondary'}`}>
-                      <span>{label || 'All Sections'}</span>
-                      <span className="text-muted-foreground font-normal">{count}</span>
-                    </button>
-                  );
-                })}
+              <p className="text-sm text-muted-foreground mt-5 mb-2">Make, Model, Body type</p>
+              <div className="flex flex-col gap-3">
+                {vehicles.map((v, i) => (
+                  <div key={i} className="flex flex-col gap-2">
+                    {i > 0 && <div className="border-t border-border pt-2" />}
+                    <MakeSelector value={v.make} onChange={(val) => setVehicle(i, { make: val, model: '' })} />
+                    <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicle(i, { model: val })} />
+                    <BodyTypeSelector value={v.bodyType} onChange={(val) => setVehicle(i, { bodyType: val })} />
+                  </div>
+                ))}
+                {vehicles.length < 3 && (
+                  <button type="button" onClick={() => setVehicles((prev) => [...prev, EMPTY_VEHICLE])} className="flex items-center gap-2 text-primary text-sm font-medium hover:underline">
+                    <Plus className="w-4 h-4" /> Add another vehicle
+                  </button>
+                )}
               </div>
 
               <p className="text-sm text-muted-foreground mt-6 mb-1">Price</p>
