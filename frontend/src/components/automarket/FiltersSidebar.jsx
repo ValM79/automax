@@ -4,6 +4,7 @@ import MobileSelect from './MobileSelect';
 import MakeSelector from './MakeSelector';
 import ModelSelector from './ModelSelector';
 import BodyTypeSelector from './BodyTypeSelector';
+import { priceOptions } from '@/lib/priceOptions';
 
 const makes = ['All makes', 'Audi', 'BMW', 'Ford', 'Hyundai', 'Nissan', 'Renault', 'Toyota', 'Volkswagen'];
 const models = ['All models', 'Corolla', 'Golf', 'Focus', 'IX20', 'A4', '3 Series'];
@@ -12,7 +13,6 @@ const years = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => String(2026 - i)
 const counties = ['All Ireland', 'Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare', 'Other'];
 
 const radii = ['+5km', '+10km', '+20km', '+50km', '+100km', 'Nationwide'];
-const priceOptions = ['€100', '€500', '€1,000', '€2,000', '€3,000', '€4,000', '€5,000', '€6,000', '€7,000', '€8,000', '€9,000', '€10,000', '€12,000', '€15,000', '€18,000', '€20,000', '€25,000', '€30,000', '€35,000', '€40,000', '€50,000', '€60,000', '€70,000', '€80,000', '€100,000', '€150,000'];
 const mileageOptions = ['0 km', '5,000 km', '10,000 km', '20,000 km', '30,000 km', '40,000 km', '50,000 km', '60,000 km', '75,000 km', '100,000 km', '125,000 km', '150,000 km', '175,000 km', '200,000 km', '250,000 km', '300,000 km', '400,000 km'];
 const fuelTypes = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid', 'LPG', 'Other'];
 const transmissions = ['Manual', 'Automatic', 'Semi-Automatic'];

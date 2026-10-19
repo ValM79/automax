@@ -3,6 +3,8 @@ import { sellerTypeOf, isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappLink } from '@/lib/contactWays';
 import MessageModal from '../components/automarket/MessageModal';
+import MobileSelect from '../components/automarket/MobileSelect';
+import { priceOptions } from '@/lib/priceOptions';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
@@ -58,7 +60,6 @@ const TABS = [
   { id: 'reviews', label: 'Reviews' },
 ];
 
-const inputClass = 'w-full h-11 px-3 text-sm border border-border rounded-lg bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40';
 
 // Opening hours are typed as one line ("Mon-Fri 9:00-18:00, Sat 10:00-16:00"). They are shown as a column, one row per
 // part, with the days on the left and the times on the right. If the dealer lists days but never mentions Sunday,
@@ -193,8 +194,9 @@ export default function SellerAds() {
   }, [ads]);
 
   const shown = useMemo(() => {
-    const min = minPrice === '' ? null : Number(minPrice);
-    const max = maxPrice === '' ? null : Number(maxPrice);
+    const toNumber = (v) => (v ? Number(String(v).replace(/[€,]/g, '')) : null); // the price boxes hold text like '€5,000'
+    const min = toNumber(minPrice);
+    const max = toNumber(maxPrice);
     const list = ads.filter((a) => (
       (!section || a.section === section) &&
       (min === null || a.priceNum >= min) &&
@@ -390,10 +392,11 @@ export default function SellerAds() {
                 })}
               </div>
 
-              <p className="text-sm text-muted-foreground mt-6 mb-2">Price (€)</p>
-              <div className="grid grid-cols-2 gap-3">
-                <input type="number" inputMode="numeric" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Min Price" className={inputClass} aria-label="Minimum price" />
-                <input type="number" inputMode="numeric" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Max Price" className={inputClass} aria-label="Maximum price" />
+              <p className="text-sm text-muted-foreground mt-6 mb-1">Price</p>
+              <p className="text-xs text-muted-foreground mb-2">€ EUR</p>
+              <div className="grid grid-cols-2 gap-2">
+                <MobileSelect value={minPrice} onChange={setMinPrice} options={priceOptions} placeholder="From" />
+                <MobileSelect value={maxPrice} onChange={setMaxPrice} options={priceOptions} placeholder="To" />
               </div>
 
               <p className="text-sm text-muted-foreground mt-6 mb-2">Sort by</p>
