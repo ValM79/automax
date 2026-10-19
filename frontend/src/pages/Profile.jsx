@@ -282,6 +282,52 @@ export default function Profile() {
   const isTrader = isBusinessType(user.seller_type); // business account
   const accountKind = accountLabel(user.seller_type);
 
+  // Phone, county and area: in the Contact Information section (in a Dealer's profile, in the merged Contact Information section)
+  const contactFields = (
+    <>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">Phone Number</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                  disabled={!editingPhone}
+                  placeholder="e.g. 086 123 4567"
+                  className="flex-1 min-w-0 h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={() => setEditingPhone((v) => !v)}
+                  className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
+                  {editingPhone ? 'Done' : 'Edit'}
+                </button>
+              </div>
+              <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-foreground">County</label>
+              <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
+                <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
+                <SelectContent>
+                  {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <label className="block text-sm font-medium text-foreground">Area / Town</label>
+              <AreaSelect
+                value={form.area}
+                onChange={(v) => setForm((f) => ({ ...f, area: v }))}
+                options={areas}
+                listDisabled={!form.county}
+                placeholder="Type your area or town"
+              />
+              <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
+            </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -424,7 +470,7 @@ export default function Profile() {
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <Building2 className="w-5 h-5 text-primary" />
-                <h2 className="text-lg font-bold text-foreground">{user.seller_type === 'dealer' ? 'Dealership Details' : 'Business Details'}</h2>
+                <h2 className="text-lg font-bold text-foreground">{user.seller_type === 'dealer' ? 'Contact Information' : 'Business Details'}</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className={`space-y-1.5 ${user.seller_type === 'dealer' ? 'sm:col-span-2' : ''}`}>
@@ -459,6 +505,7 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
+                {user.seller_type === 'dealer' && contactFields}
               </div>
             </section>
           )}
@@ -467,7 +514,7 @@ export default function Profile() {
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
               <User className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Account Details</h2>
+              <h2 className="text-lg font-bold text-foreground">{user.seller_type === 'dealer' ? 'Dealership Details' : 'Account Details'}</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {user.seller_type === 'dealer' ? (
@@ -509,55 +556,18 @@ export default function Profile() {
             </div>
           </section>
 
-          {/* Contact Information */}
+          {/* Contact Information (a Dealer has these fields inside its own Contact Information section, further up) */}
+          {user.seller_type !== 'dealer' && (
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
               <Phone className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Contact Information</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">Phone Number</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
-                    disabled={!editingPhone}
-                    placeholder="e.g. 086 123 4567"
-                    className="flex-1 min-w-0 h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setEditingPhone((v) => !v)}
-                    className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
-                    {editingPhone ? 'Done' : 'Edit'}
-                  </button>
-                </div>
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">County</label>
-                <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
-                  <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
-                  <SelectContent>
-                    {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="block text-sm font-medium text-foreground">Area / Town</label>
-                <AreaSelect
-                  value={form.area}
-                  onChange={(v) => setForm((f) => ({ ...f, area: v }))}
-                  options={areas}
-                  listDisabled={!form.county}
-                  placeholder="Type your area or town"
-                />
-                <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
-              </div>
+              {contactFields}
             </div>
           </section>
+          )}
 
           {/* A Dealer sets how buyers contact them here, in the place of the email alerts (which a Dealer does not need) */}
           {user.seller_type === 'dealer' ? (
