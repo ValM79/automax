@@ -22,8 +22,9 @@ function DealerLogo({ url }) {
   );
 }
 
-// One dealership card: a white card with the text at the left (plenty of room) and, at the right, the dealer's photo with
-// the logo and a Visit Showroom label on it. No photo = just the logo and the label; no logo = no logo box.
+// One dealership card: a white card with the text at the left (plenty of room) and the dealer's photo filling the right
+// half, with the logo on it. The Visit Showroom label sits on the white side, at the bottom right next to the photo.
+// No photo = the logo and the label at the right of the card; no logo = no logo box.
 const BLUE = 'text-black';
 
 function DealerCard({ dealer, onClick, example = false }) {
@@ -39,8 +40,8 @@ function DealerCard({ dealer, onClick, example = false }) {
     <Root
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`w-full text-left bg-card rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
-      <div className="flex-1 min-w-0 p-5 sm:p-7">
+      className={`w-full text-left bg-card rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row ${hasPhoto ? 'sm:min-h-[11rem]' : ''} ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
+      <div className="relative flex-1 min-w-0 p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={`text-xl font-semibold ${BLUE}`}>{name}</h2>
           {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-secondary ${BLUE}`}>Example</span>}
@@ -57,14 +58,12 @@ function DealerCard({ dealer, onClick, example = false }) {
             <span key={t} className={`text-xs px-2 py-1 rounded bg-white border border-border ${BLUE}`}>{t}</span>
           ))}
         </div>
+        {hasPhoto && <div className="mt-4 flex justify-end sm:mt-0 sm:absolute sm:bottom-5 sm:right-6">{visit}</div>}
       </div>
       {hasPhoto ? (
         <div className="relative h-44 sm:h-auto sm:w-1/2 shrink-0">
           <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-            {hasLogo && <DealerLogo url={avatarUrl} />}
-            {visit}
-          </div>
+          {hasLogo && <div className="absolute top-3 right-3"><DealerLogo url={avatarUrl} /></div>}
         </div>
       ) : (
         <div className="shrink-0 p-5 sm:p-7 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 sm:gap-2">
