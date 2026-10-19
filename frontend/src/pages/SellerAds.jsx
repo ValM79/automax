@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { sellerTypeOf, isBusinessType, accountLabel } from '@/lib/accountType';
+import { DAY_KEYS, hasTimes } from '@/lib/openingHours';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, ShieldCheck, Phone, Clock, Building2 } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
@@ -24,7 +25,8 @@ const sectionOf = (subsection) => (CAR_SUBSECTIONS.has(subsection) ? 'Cars' : (s
 // their own page will look like. Nothing here is real, and it never touches the server.
 const EXAMPLE_STATS = {
   seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
-  county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: 'Mon-Fri 9:00-18:00, Sat 10:00-16:00',
+  county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
+  opening_times: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed', bank: 'Closed' },
   phone: '', trusted: true,
 };
 const exampleAd = (i, title, price, section, image) => ({
@@ -60,7 +62,16 @@ function hoursRows(text) {
   return rows;
 }
 
-function OpeningHours({ text }) {
+function OpeningHours({ times, text }) {
+  if (hasTimes(times)) {
+    return (
+      <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-foreground">
+        {DAY_KEYS.filter(([key]) => times[key]).map(([key, label]) => (
+          <React.Fragment key={key}><dt className="font-medium">{label}</dt><dd>{times[key]}</dd></React.Fragment>
+        ))}
+      </dl>
+    );
+  }
   return (
     <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-foreground">
       {hoursRows(text).map(([days, times], i) => (times
@@ -338,10 +349,10 @@ export default function SellerAds() {
               </div>
 
               <div className="border-t border-border mt-6 pt-5 space-y-4 text-sm">
-                {stats?.opening_hours && (
+                {(hasTimes(stats?.opening_times) || stats?.opening_hours) && (
                   <div>
                     <p className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</p>
-                    <OpeningHours text={stats.opening_hours} />
+                    <OpeningHours times={stats.opening_times} text={stats.opening_hours} />
                   </div>
                 )}
                 {place && (
@@ -388,7 +399,7 @@ export default function SellerAds() {
               </div>
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</dt>
-                <dd className="text-foreground mt-1">{stats?.opening_hours ? <OpeningHours text={stats.opening_hours} /> : 'Not added yet'}</dd>
+                <dd className="text-foreground mt-1">{(hasTimes(stats?.opening_times) || stats?.opening_hours) ? <OpeningHours times={stats.opening_times} text={stats.opening_hours} /> : 'Not added yet'}</dd>
               </div>
             </dl>
             <div className="mt-6">{phoneButton}</div>

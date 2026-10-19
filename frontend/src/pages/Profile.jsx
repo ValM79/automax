@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { isBusinessType, accountLabel } from '@/lib/accountType';
+import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import BackButton from '../components/automarket/BackButton';
 import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -30,8 +31,10 @@ export default function Profile() {
     businessAddress: '',
     vatNumber: '',
     openingHours: '',
+    times: {},
     about: '',
   });
+  const [timeErrors, setTimeErrors] = useState({});
   const [editingPhone, setEditingPhone] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -72,6 +75,7 @@ export default function Profile() {
       businessAddress: user.business_address || '',
       vatNumber: user.vat_number || '',
       openingHours: user.opening_hours || '',
+      times: user.opening_times && typeof user.opening_times === 'object' ? { ...user.opening_times } : {},
       about: user.about || '',
     }));
   }, [isLoadingAuth, user]);
@@ -184,9 +188,33 @@ export default function Profile() {
     }
   };
 
+  const setTime = (key, value) => setForm((f) => ({ ...f, times: { ...f.times, [key]: value } }));
+  // When the dealer leaves a box, tidy what they typed ("9-18" becomes "09:00 - 18:00"), or mark the box if it cannot be read.
+  const tidyTime = (key) => {
+    const n = normalizeTime(form.times[key]);
+    setTimeErrors((e) => ({ ...e, [key]: n === null }));
+    if (n !== null) setTime(key, n);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
+    let openingTimes = null;
+    if (user.seller_type === 'dealer') {
+      const cleaned = {};
+      const errors = {};
+      for (const [key] of DAY_KEYS) {
+        const n = normalizeTime(form.times[key]);
+        if (n === null) errors[key] = true; else if (n) cleaned[key] = n;
+      }
+      setTimeErrors(errors);
+      if (Object.keys(errors).length) {
+        setSaveError('Opening hours: write each time like 09:00 - 18:00, or type Closed.');
+        setSaving(false);
+        return;
+      }
+      openingTimes = cleaned;
+    }
     try {
       await api.auth.updateMe({
         display_name: form.name,
@@ -199,7 +227,9 @@ export default function Profile() {
         business_name: form.businessName,
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
-        ...(user.seller_type === 'dealer' ? { opening_hours: form.openingHours, about: form.about } : {}),
+        ...(user.seller_type === 'dealer'
+          ? { opening_times: openingTimes, about: form.about, ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}) }
+          : {}),
       });
       // Re-read the saved profile so leaving and coming back to this page shows what was saved.
       await refreshUser();
@@ -335,17 +365,31 @@ export default function Profile() {
                 {coverError && <p className="text-xs text-red-600">{coverError}</p>}
                 <p className="text-xs text-muted-foreground">A photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your dealer page.</p>
               </div>
-              <div className="space-y-1.5 mt-5">
+              <div className="space-y-2 mt-5">
                 <label className="block text-sm font-medium text-foreground">Opening Hours</label>
-                <input
-                  type="text"
-                  value={form.openingHours}
-                  onChange={set('openingHours')}
-                  maxLength={200}
-                  placeholder="e.g. Mon-Fri 9:00-18:00, Sat 10:00-14:00"
-                  className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
-                />
-                <p className="text-xs text-muted-foreground">Separate the days with commas. They are shown as a list on your dealer page, and Sunday shows Closed unless you add it.</p>
+                <p className="text-xs text-muted-foreground">For each day type your hours like 09:00 - 18:00, or press Closed. A day you leave empty is not shown on your dealer page.</p>
+                {!hasTimes(form.times) && form.openingHours && (
+                  <p className="text-xs text-muted-foreground bg-secondary rounded-md px-3 py-2">Your earlier hours: {form.openingHours}. They are replaced when you save the days below.</p>
+                )}
+                <div className="space-y-2">
+                  {DAY_KEYS.map(([key, label]) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <span className="w-28 sm:w-32 shrink-0 text-sm font-medium text-foreground">{label}</span>
+                      <input
+                        type="text"
+                        value={form.times[key] || ''}
+                        onChange={(e) => setTime(key, e.target.value)}
+                        onBlur={() => tidyTime(key)}
+                        maxLength={20}
+                        placeholder="09:00 - 18:00"
+                        aria-label={`${label} opening hours`}
+                        className={`flex-1 min-w-0 h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${timeErrors[key] ? 'border-red-500' : 'border-border'}`}
+                      />
+                      <button type="button" onClick={() => { setTime(key, 'Closed'); setTimeErrors((e) => ({ ...e, [key]: false })); }} className="text-xs font-medium text-primary hover:underline shrink-0">Closed</button>
+                    </div>
+                  ))}
+                </div>
+                {Object.values(timeErrors).some(Boolean) && <p className="text-xs text-red-600">Write the hours like 09:00 - 18:00, or type Closed.</p>}
               </div>
             </section>
           )}

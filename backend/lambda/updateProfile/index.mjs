@@ -27,6 +27,7 @@ const EDITABLE_FIELDS = [
   'avatar_url',
   'cover_url',
   'opening_hours',
+  'opening_times',
   'about',
 ];
 
@@ -46,6 +47,19 @@ export const handler = async (event) => {
       const mine = `https://${process.env.PHOTOS_CDN_DOMAIN}/ads/${user.id}/`;
       if (v && !(typeof v === 'string' && v.startsWith(mine) && v.length < 300)) return json(400, { error: 'Invalid photo' });
       body[field] = v || '';
+    }
+    // Opening hours by day: { mon, tue, wed, thu, fri, sat, sun, bank }, each "09:00 - 18:00" or "Closed" (empty days are dropped).
+    if ('opening_times' in body) {
+      const t = body.opening_times;
+      if (!t || typeof t !== 'object' || Array.isArray(t)) return json(400, { error: 'Invalid opening hours' });
+      const clean = {};
+      for (const key of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'bank']) {
+        const v = String(t[key] ?? '').trim();
+        if (!v) continue;
+        if (v !== 'Closed' && !/^\d{2}:\d{2} - \d{2}:\d{2}$/.test(v)) return json(400, { error: 'Invalid opening hours' });
+        clean[key] = v;
+      }
+      body.opening_times = clean;
     }
     if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
