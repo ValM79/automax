@@ -44,7 +44,7 @@ async function countAds(sellerId) {
 // A business account (trader or dealer) also gets what its dealer page shows: business name, cover photo, county,
 // area, address, opening hours, phone number and the "trusted" mark. These are the details a business chooses to
 // show buyers anyway. Never an email, VAT number or personal name.
-const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'opening_times', 'about', 'phone', 'trusted_dealer'];
+const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'opening_times', 'about', 'phone', 'trusted_dealer', 'contact_ways', 'whatsapp_number', 'contact_email'];
 
 // Opening hours by day, only the known days and only values of the form "09:00 - 18:00" or "Closed".
 function openingTimes(t) {
@@ -55,6 +55,17 @@ function openingTimes(t) {
     if (v === 'Closed' || /^\d{2}:\d{2} - \d{2}:\d{2}$/.test(v)) out[key] = v;
   }
   return out;
+}
+
+// Only the contact ways the dealer switched on are returned, and a WhatsApp number or email only when its way is on.
+function contactWays(p) {
+  const w = p.contact_ways && typeof p.contact_ways === 'object' ? p.contact_ways : {};
+  const ways = { message: w.message !== false, whatsapp: w.whatsapp === true, email: w.email === true };
+  return {
+    contact_ways: ways,
+    ...(ways.whatsapp && p.whatsapp_number ? { whatsapp_number: String(p.whatsapp_number).slice(0, 30) } : {}),
+    ...(ways.email && p.contact_email ? { contact_email: String(p.contact_email).slice(0, 120) } : {}),
+  };
 }
 
 async function sellerProfile(sellerId) {
@@ -82,6 +93,7 @@ async function sellerProfile(sellerId) {
         opening_hours: text(p.opening_hours, 200),
         opening_times: openingTimes(p.opening_times),
         about: text(p.about, 500),
+        ...contactWays(p),
         phone: text(p.phone, 30),
         trusted: p.trusted_dealer === true,
       });

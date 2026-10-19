@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
+import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
 import BackButton from '../components/automarket/BackButton';
 import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -33,6 +34,9 @@ export default function Profile() {
     openingHours: '',
     times: {},
     about: '',
+    ways: { message: true, whatsapp: false, email: false },
+    whatsappNumber: '',
+    contactEmail: '',
   });
   const [timeErrors, setTimeErrors] = useState({});
   const [editingPhone, setEditingPhone] = useState(false);
@@ -77,6 +81,9 @@ export default function Profile() {
       openingHours: user.opening_hours || '',
       times: user.opening_times && typeof user.opening_times === 'object' ? { ...user.opening_times } : {},
       about: user.about || '',
+      ways: waysOf(user.contact_ways),
+      whatsappNumber: user.whatsapp_number || '',
+      contactEmail: user.contact_email || '',
     }));
   }, [isLoadingAuth, user]);
 
@@ -214,6 +221,16 @@ export default function Profile() {
         return;
       }
       openingTimes = cleaned;
+      if (form.ways.whatsapp && form.whatsappNumber.trim() && !whatsappDigits(form.whatsappNumber)) {
+        setSaveError('WhatsApp number: please enter a phone number, for example 087 123 4567.');
+        setSaving(false);
+        return;
+      }
+      if (form.ways.email && !isEmail(form.contactEmail)) {
+        setSaveError('Contact email: please enter the email address buyers can write to.');
+        setSaving(false);
+        return;
+      }
     }
     try {
       await api.auth.updateMe({
@@ -228,7 +245,14 @@ export default function Profile() {
         business_address: form.businessAddress,
         vat_number: form.vatNumber,
         ...(user.seller_type === 'dealer'
-          ? { opening_times: openingTimes, about: form.about, ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}) }
+          ? {
+            opening_times: openingTimes,
+            about: form.about,
+            contact_ways: form.ways,
+            whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
+            contact_email: form.ways.email ? form.contactEmail.trim() : '',
+            ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}),
+          }
           : {}),
       });
       // Re-read the saved profile so leaving and coming back to this page shows what was saved.
@@ -390,6 +414,57 @@ export default function Profile() {
                   ))}
                 </div>
                 {Object.values(timeErrors).some(Boolean) && <p className="text-xs text-red-600">Write the hours like 09:00 - 18:00, or type Closed.</p>}
+              </div>
+
+              <div className="space-y-3 mt-6">
+                <label className="block text-sm font-medium text-foreground">How buyers can contact you</label>
+                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. Your phone number button is always there when you have added a number.</p>
+                {[
+                  ['message', 'Message', 'Buyers write to you inside AutoMax, about one of your live ads. You answer in Messages.'],
+                  ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
+                  ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
+                ].map(([key, label, hint]) => (
+                  <label key={key} className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!form.ways[key]}
+                      onChange={(e) => setForm((f) => ({
+                        ...f,
+                        ways: { ...f.ways, [key]: e.target.checked },
+                        ...(key === 'email' && e.target.checked && !f.contactEmail ? { contactEmail: f.email } : {}),
+                      }))}
+                      className="w-4 h-4 mt-0.5 accent-primary cursor-pointer"
+                    />
+                    <span>
+                      <span className="text-sm font-medium text-foreground">{label}</span>
+                      <span className="block text-xs text-muted-foreground">{hint}</span>
+                    </span>
+                  </label>
+                ))}
+                {form.ways.whatsapp && (
+                  <div className="space-y-1.5 pl-7">
+                    <label className="block text-sm font-medium text-foreground">WhatsApp number</label>
+                    <input
+                      type="tel"
+                      value={form.whatsappNumber}
+                      onChange={(e) => setForm((f) => ({ ...f, whatsappNumber: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                      placeholder="e.g. 087 123 4567 (leave empty to use your phone number)"
+                      className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    />
+                  </div>
+                )}
+                {form.ways.email && (
+                  <div className="space-y-1.5 pl-7">
+                    <label className="block text-sm font-medium text-foreground">Contact email</label>
+                    <input
+                      type="email"
+                      value={form.contactEmail}
+                      onChange={set('contactEmail')}
+                      placeholder="sales@yourdealership.ie"
+                      className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                    />
+                  </div>
+                )}
               </div>
             </section>
           )}

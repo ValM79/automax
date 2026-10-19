@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { sellerTypeOf, isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, hasTimes } from '@/lib/openingHours';
+import { waysOf, whatsappLink } from '@/lib/contactWays';
+import MessageModal from '../components/automarket/MessageModal';
+import { useAuth } from '@/lib/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ShieldCheck, Phone, Clock, Building2 } from 'lucide-react';
+import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -25,6 +29,7 @@ const sectionOf = (subsection) => (CAR_SUBSECTIONS.has(subsection) ? 'Cars' : (s
 // their own page will look like. Nothing here is real, and it never touches the server.
 const EXAMPLE_STATS = {
   seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
+  contact_ways: { message: true, whatsapp: true, email: true },
   county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
   opening_times: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed', bank: 'Closed' },
   phone: '', trusted: true,
@@ -102,6 +107,9 @@ export default function SellerAds() {
   const { sellerId } = useParams();
   const isExample = sellerId === 'example';
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showMessage, setShowMessage] = useState(false);
   const [ads, setAds] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -202,6 +210,37 @@ export default function SellerAds() {
 
   const filtersOn = !!(section || minPrice || maxPrice || sort !== 'newest');
   const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
+
+  // The ways a buyer can contact this dealer (the dealer picks them on their Profile).
+  const ways = waysOf(stats?.contact_ways);
+  const newestAd = ads[0]; // an in-site message is always about one of the dealer's live ads
+  const waLink = whatsappLink(stats?.whatsapp_number || stats?.phone, name ? `Hello ${name}, I found you on AutoMax.` : '');
+  const sendDealerMessage = async (text) => {
+    await api.functions.invoke('contactSeller', { ad_id: newestAd.id, message: text });
+  };
+  const openMessage = () => {
+    if (isExample) return;
+    if (!user) { navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`); return; }
+    setShowMessage(true);
+  };
+  const waysButtonClass = 'w-full h-11 border border-primary text-primary bg-card rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors';
+  const contactButtons = (
+    <div className="flex flex-col gap-2.5">
+      {ways.message && (newestAd || isExample) && (
+        <button type="button" onClick={openMessage} className={waysButtonClass}><MessageSquare className="w-4 h-4" /> Message</button>
+      )}
+      {ways.whatsapp && (waLink || isExample) && (
+        isExample
+          ? <span className={waysButtonClass}><MessageCircle className="w-4 h-4" /> WhatsApp</span>
+          : <a href={waLink} target="_blank" rel="noopener noreferrer" className={waysButtonClass}><MessageCircle className="w-4 h-4" /> WhatsApp</a>
+      )}
+      {ways.email && (stats?.contact_email || isExample) && (
+        isExample
+          ? <span className={waysButtonClass}><Mail className="w-4 h-4" /> Email</span>
+          : <a href={`mailto:${stats.contact_email}`} className={waysButtonClass}><Mail className="w-4 h-4" /> Email</a>
+      )}
+    </div>
+  );
 
   const phone = isExample ? 'Your phone number' : (stats?.phone || ads.find((a) => a.phone)?.phone || '');
   const phoneButton = (
@@ -422,8 +461,10 @@ export default function SellerAds() {
                 <dd className="text-foreground mt-1">{(hasTimes(stats?.opening_times) || stats?.opening_hours) ? <OpeningHours times={stats.opening_times} text={stats.opening_hours} /> : 'Not added yet'}</dd>
               </div>
             </dl>
-            <div className="mt-6">{phoneButton}</div>
-            <p className="mt-4 text-xs text-muted-foreground">To message this dealership, open one of their ads and press Send message.</p>
+            <div className="mt-6 space-y-2.5">
+              {contactButtons}
+              {phoneButton}
+            </div>
           </div>
         )}
 
@@ -434,6 +475,13 @@ export default function SellerAds() {
           </div>
         )}
       </div>
+
+      <MessageModal
+        open={showMessage}
+        onClose={() => setShowMessage(false)}
+        sellerName={name}
+        adTitle={newestAd?.title}
+        onSend={sendDealerMessage} />
 
       <Footer />
     </div>

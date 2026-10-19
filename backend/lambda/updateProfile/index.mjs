@@ -29,6 +29,9 @@ const EDITABLE_FIELDS = [
   'opening_hours',
   'opening_times',
   'about',
+  'contact_ways',
+  'whatsapp_number',
+  'contact_email',
 ];
 
 export const handler = async (event) => {
@@ -60,6 +63,22 @@ export const handler = async (event) => {
         clean[key] = v;
       }
       body.opening_times = clean;
+    }
+    // How buyers may contact a Dealer: message / WhatsApp / email switches, a WhatsApp number and a contact email.
+    if ('contact_ways' in body) {
+      const w = body.contact_ways;
+      if (!w || typeof w !== 'object' || Array.isArray(w)) return json(400, { error: 'Invalid contact options' });
+      body.contact_ways = { message: w.message !== false, whatsapp: w.whatsapp === true, email: w.email === true };
+    }
+    if ('whatsapp_number' in body) {
+      const v = String(body.whatsapp_number || '').trim();
+      if (v && !/^[+\d][\d\s()-]{5,24}$/.test(v)) return json(400, { error: 'Invalid WhatsApp number' });
+      body.whatsapp_number = v;
+    }
+    if ('contact_email' in body) {
+      const v = String(body.contact_email || '').trim();
+      if (v && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(v)) return json(400, { error: 'Invalid contact email' });
+      body.contact_email = v.slice(0, 120);
     }
     if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
