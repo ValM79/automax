@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
+import { normalizeEircode } from '@/lib/eircode';
 import BackButton from '../components/automarket/BackButton';
 import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -35,6 +36,8 @@ export default function Profile() {
     times: {},
     about: '',
     ways: { message: true, phone: true, whatsapp: false, email: false },
+    businessAddress2: '',
+    eircode: '',
     whatsappNumber: '',
     contactEmail: '',
   });
@@ -82,6 +85,8 @@ export default function Profile() {
       times: user.opening_times && typeof user.opening_times === 'object' ? { ...user.opening_times } : {},
       about: user.about || '',
       ways: waysOf(user.contact_ways),
+      businessAddress2: user.business_address_2 || '',
+      eircode: user.eircode || '',
       whatsappNumber: user.whatsapp_number || '',
       contactEmail: user.contact_email || '',
     }));
@@ -221,6 +226,11 @@ export default function Profile() {
         return;
       }
       openingTimes = cleaned;
+      if (normalizeEircode(form.eircode) === null) {
+        setSaveError('Eircode: please write it like A65 F4E2.');
+        setSaving(false);
+        return;
+      }
       if (form.ways.whatsapp && form.whatsappNumber.trim() && !whatsappDigits(form.whatsappNumber)) {
         setSaveError('WhatsApp number: please enter a phone number, for example 087 123 4567.');
         setSaving(false);
@@ -249,6 +259,8 @@ export default function Profile() {
             opening_times: openingTimes,
             about: form.about,
             contact_ways: form.ways,
+            business_address_2: form.businessAddress2.trim(),
+            eircode: normalizeEircode(form.eircode) || '',
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
             ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}),
@@ -282,49 +294,58 @@ export default function Profile() {
   const isTrader = isBusinessType(user.seller_type); // business account
   const accountKind = accountLabel(user.seller_type);
 
-  // Phone, county and area: in the Contact Information section (in a Dealer's profile, in the merged Contact Information section)
+  const phoneField = (
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">Phone Number</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
+                disabled={!editingPhone}
+                placeholder="e.g. 086 123 4567"
+                className="flex-1 min-w-0 h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
+              />
+              <button
+                type="button"
+                onClick={() => setEditingPhone((v) => !v)}
+                className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
+                {editingPhone ? 'Done' : 'Edit'}
+              </button>
+            </div>
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
+          </div>
+  );
+  const countyField = (
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-foreground">County</label>
+            <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
+              <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
+              <SelectContent>
+                {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+  );
+  const areaField = (wide) => (
+          <div className={`space-y-1.5 ${wide ? 'sm:col-span-2' : ''}`}>
+            <label className="block text-sm font-medium text-foreground">Area / Town</label>
+            <AreaSelect
+              value={form.area}
+              onChange={(v) => setForm((f) => ({ ...f, area: v }))}
+              options={areas}
+              listDisabled={!form.county}
+              placeholder="Type your area or town"
+            />
+            <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
+          </div>
+  );
+  // Phone, county and area (in a Dealer's profile they are laid out differently, see the Contact Information section)
   const contactFields = (
     <>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground">Phone Number</label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/[^0-9 +\-()]/g, '') }))}
-                  disabled={!editingPhone}
-                  placeholder="e.g. 086 123 4567"
-                  className="flex-1 min-w-0 h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground disabled:bg-secondary disabled:text-muted-foreground"
-                />
-                <button
-                  type="button"
-                  onClick={() => setEditingPhone((v) => !v)}
-                  className="border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0">
-                  {editingPhone ? 'Done' : 'Edit'}
-                </button>
-              </div>
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground">County</label>
-              <Select value={form.county} onValueChange={(v) => setForm((f) => ({ ...f, county: v, area: '' }))}>
-                <SelectTrigger className="h-10 bg-card"><SelectValue placeholder="Select your county" /></SelectTrigger>
-                <SelectContent>
-                  {IRISH_COUNTIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5 sm:col-span-2">
-              <label className="block text-sm font-medium text-foreground">Area / Town</label>
-              <AreaSelect
-                value={form.area}
-                onChange={(v) => setForm((f) => ({ ...f, area: v }))}
-                options={areas}
-                listDisabled={!form.county}
-                placeholder="Type your area or town"
-              />
-              <p className="text-xs text-muted-foreground">Type your own area or town, or press the arrow to pick from the towns in your county. Used so buyers can gauge collection distance.</p>
-            </div>
+      {phoneField}
+      {countyField}
+      {areaField(true)}
     </>
   );
 
@@ -505,7 +526,37 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
-                {user.seller_type === 'dealer' && contactFields}
+                {user.seller_type === 'dealer' && (
+                  <>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label className="block text-sm font-medium text-foreground">Business Address line 2 (optional)</label>
+                      <input
+                        type="text"
+                        value={form.businessAddress2}
+                        onChange={set('businessAddress2')}
+                        placeholder="Address line 2"
+                        className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {countyField}
+                      {areaField(false)}
+                    </div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label className="block text-sm font-medium text-foreground">Eircode</label>
+                      <input
+                        type="text"
+                        value={form.eircode}
+                        onChange={set('eircode')}
+                        onBlur={() => { const n = normalizeEircode(form.eircode); if (n !== null) setForm((f) => ({ ...f, eircode: n })); }}
+                        maxLength={8}
+                        placeholder="e.g. A65 F4E2"
+                        className={`w-full sm:max-w-xs h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">{phoneField}</div>
+                  </>
+                )}
               </div>
             </section>
           )}

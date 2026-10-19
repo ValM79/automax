@@ -51,8 +51,8 @@ export default function DealersInformation() {
             <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your page. Use a wide photo.</li>
             <li><strong>Opening Hours</strong>: a row for every day of the week and one for Bank Holiday. Type your hours like <em>09:00 - 18:00</em>, or press <strong>Closed</strong>. A day you leave empty is not shown on your page.</li>
             <li><strong>How buyers can contact you</strong>: tick <strong>Message</strong>, <strong>Phone</strong>, <strong>WhatsApp</strong> and <strong>Email</strong> for the ways you want (it is its own section further down your Profile). Message and Phone also appear in the filters column of your page; WhatsApp and Email appear in the Contact Us tab only. Phone is ticked to start with: untick it if you do not want buyers to phone you. For WhatsApp you can give a WhatsApp number (or leave it empty to use your phone number). For Email you choose the contact email to show. It is shown publicly on your page.</li>
-            <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
-            <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
+            <li><strong>Contact Information</strong>: your business name, business address (two lines), county, area or town, Eircode and phone number. The county and area are the location shown on your card, and the address is shown in the Contact Us tab.</li>
+            <li><strong>Dealership Details</strong>: your VAT number (if you have one) and your account email.</li>
           </ul>
           <p className="text-foreground mt-3">Press <strong>Save Changes</strong> at the bottom of the page. The photo and logo are saved as soon as you choose them. To see how your page looks to buyers, press <strong>View my dealer page</strong>, the button under Save Changes at the bottom of your Profile.</p>
         </Section>

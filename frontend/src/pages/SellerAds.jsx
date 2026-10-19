@@ -29,7 +29,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const EXAMPLE_STATS = {
   seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
   contact_ways: { message: true, phone: true, whatsapp: true, email: true },
-  county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
+  county: 'Dublin', area: 'Swords', business_address: 'Your business address', business_address_2: 'Address line 2', eircode: 'A65 F4E2', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
   opening_times: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed', bank: 'Closed' },
   phone: '', trusted: true,
 };
@@ -464,7 +464,7 @@ export default function SellerAds() {
             <dl className="space-y-5 text-sm">
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" /> Address</dt>
-                <dd className="text-foreground mt-1">{stats?.business_address || place || 'Not added yet'}</dd>
+                <dd className="text-foreground mt-1 whitespace-pre-line">{[stats?.business_address, stats?.business_address_2, (stats?.business_address || stats?.business_address_2) ? place : '', stats?.eircode].filter(Boolean).join('\n') || place || 'Not added yet'}</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</dt>
