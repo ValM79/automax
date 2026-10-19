@@ -297,6 +297,12 @@ export default function Profile() {
 
         <h1 className="text-2xl font-bold text-foreground mb-6">My Profile</h1>
 
+        {user.seller_type === 'dealer' && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 mb-6 text-sm text-foreground">
+            <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business photo and your details to make it stand out.</p>
+          </div>
+        )}
+
         {requestSent && (
           <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Your delete request has been sent to our support team. We will contact you by email to confirm.
@@ -342,11 +348,6 @@ export default function Profile() {
         </div>
 
         <div className="space-y-6">
-          {user.seller_type === 'dealer' && (
-            <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 text-sm text-foreground flex flex-wrap items-center justify-between gap-3">
-              <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business photo and your details to make it stand out.</p>
-            </div>
-          )}
 
           {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours.
               Only a Dealer account has a card and a page in Dealers Garage. */}
