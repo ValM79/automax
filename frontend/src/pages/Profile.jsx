@@ -538,9 +538,7 @@ export default function Profile() {
                     </div>
                     <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {countyField}
-                      {areaField(false)}
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
+                      <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-foreground">Eircode</label>
                       <input
                         type="text"
@@ -549,9 +547,11 @@ export default function Profile() {
                         onBlur={() => { const n = normalizeEircode(form.eircode); if (n !== null) setForm((f) => ({ ...f, eircode: n })); }}
                         maxLength={8}
                         placeholder="e.g. A65 F4E2"
-                        className={`w-full sm:max-w-xs h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
+                        className={`w-full h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
                       />
+                      </div>
                     </div>
+                    <div className="sm:col-span-2">{areaField(true)}</div>
                     <div className="sm:col-span-2">{phoneField}</div>
                   </>
                 )}
