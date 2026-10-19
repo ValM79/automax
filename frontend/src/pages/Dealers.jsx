@@ -22,10 +22,9 @@ function DealerLogo({ url }) {
   );
 }
 
-// One dealership card: a white card with the text at the left (plenty of room) and, at the right, the dealer's photo with
-// the logo and a Visit Showroom label on it. No photo = just the logo and the label; no logo = no logo box.
-const BLUE = 'text-black';
-
+// One dealership card. With a photo, the photo is the card background (under a mild dark shade at the left so the white text
+// can be read), the text is white at the left, Visit Showroom is in the middle of the card and the logo is at the right,
+// vertically centred. No photo = a white card with black text and the logo and the label at the right; no logo = no logo box.
 function DealerCard({ dealer, onClick, example = false }) {
   const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
   const [coverFailed, setCoverFailed] = useState(false);
@@ -34,40 +33,44 @@ function DealerCard({ dealer, onClick, example = false }) {
   const hasLogo = !!avatarUrl || example;
   const place = [county, area].filter(Boolean).join(', ');
   const Root = onClick ? 'button' : 'div';
-  const visit = <span className={`text-xs font-medium ${BLUE}`}>Visit Showroom</span>;
+  const ink = hasPhoto ? 'text-white' : 'text-black';
+  const visit = <span className={`text-xs font-medium ${ink}`}>Visit Showroom</span>;
   return (
     <Root
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`w-full text-left bg-card rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
-      <div className="flex-1 min-w-0 p-5 sm:p-7">
+      className={`relative overflow-hidden w-full text-left rounded-lg shadow-sm flex ${hasPhoto ? 'bg-foreground min-h-[11rem]' : 'bg-card'} ${onClick ? 'hover:shadow-md transition-shadow' : ''}`}>
+      {hasPhoto && (
+        <>
+          <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/5" />
+        </>
+      )}
+      <div className={`relative flex-1 min-w-0 p-5 sm:p-7 ${hasPhoto ? 'pb-14 sm:pb-7 sm:max-w-[45%]' : ''}`}>
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className={`text-xl font-semibold ${BLUE}`}>{name}</h2>
-          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-secondary ${BLUE}`}>Example</span>}
+          <h2 className={`text-xl font-semibold ${ink}`}>{name}</h2>
+          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded ${hasPhoto ? 'bg-white/20 text-white' : 'bg-secondary text-black'}`}>Example</span>}
         </div>
         {trusted && (
-          <p className={`flex items-center gap-1.5 text-sm mt-2 ${BLUE}`}>
+          <p className={`flex items-center gap-1.5 text-sm mt-2 ${ink}`}>
             <ShieldCheck className="w-4 h-4" /> Verified Dealer
           </p>
         )}
-        {place && <p className={`text-sm mt-2 ${BLUE}`}>{place}</p>}
-        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${BLUE}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
+        {place && <p className={`text-sm mt-2 ${ink}`}>{place}</p>}
+        <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${ink}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
         <div className="flex flex-wrap gap-2 mt-4">
           {sections.map((t) => (
-            <span key={t} className={`text-xs px-2 py-1 rounded bg-white border border-border ${BLUE}`}>{t}</span>
+            <span key={t} className="text-xs px-2 py-1 rounded bg-white border border-border text-black">{t}</span>
           ))}
         </div>
       </div>
       {hasPhoto ? (
-        <div className="relative h-44 sm:h-auto sm:w-1/2 shrink-0">
-          <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-            {hasLogo && <DealerLogo url={avatarUrl} />}
-            {visit}
-          </div>
-        </div>
+        <>
+          <div className="absolute inset-x-0 bottom-4 text-center sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">{visit}</div>
+          {hasLogo && <div className="absolute top-4 right-4 sm:top-1/2 sm:-translate-y-1/2 sm:right-7"><DealerLogo url={avatarUrl} /></div>}
+        </>
       ) : (
-        <div className="shrink-0 p-5 sm:p-7 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-3 sm:gap-2">
+        <div className="shrink-0 p-5 sm:p-7 flex flex-col items-end gap-2">
           {hasLogo && <DealerLogo url={avatarUrl} />}
           {visit}
         </div>
