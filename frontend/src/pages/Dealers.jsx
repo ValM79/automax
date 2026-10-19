@@ -24,7 +24,7 @@ function DealerLogo({ url }) {
 
 // One dealership card: a white card with the text at the left (plenty of room) and, at the right, the dealer's photo with
 // the logo and a Visit Showroom label on it. No photo = just the logo and the label; no logo = no logo box.
-const BLUE = 'text-blue-900';
+const BLUE = 'text-black';
 
 function DealerCard({ dealer, onClick, example = false }) {
   const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
@@ -43,7 +43,7 @@ function DealerCard({ dealer, onClick, example = false }) {
       <div className="flex-1 min-w-0 p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className={`text-xl font-semibold ${BLUE}`}>{name}</h2>
-          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-blue-900/10 ${BLUE}`}>Example</span>}
+          {example && <span className={`text-xs uppercase tracking-wide px-2 py-0.5 rounded bg-secondary ${BLUE}`}>Example</span>}
         </div>
         {trusted && (
           <p className={`flex items-center gap-1.5 text-sm mt-2 ${BLUE}`}>
@@ -54,7 +54,7 @@ function DealerCard({ dealer, onClick, example = false }) {
         <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${BLUE}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
         <div className="flex flex-wrap gap-2 mt-4">
           {sections.map((t) => (
-            <span key={t} className={`text-xs px-2 py-1 rounded bg-white border border-blue-900/20 ${BLUE}`}>{t}</span>
+            <span key={t} className={`text-xs px-2 py-1 rounded bg-white border border-border ${BLUE}`}>{t}</span>
           ))}
         </div>
       </div>
