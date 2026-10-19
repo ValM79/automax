@@ -345,7 +345,6 @@ export default function Profile() {
           {user.seller_type === 'dealer' && (
             <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 text-sm text-foreground flex flex-wrap items-center justify-between gap-3">
               <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business photo and your details to make it stand out.</p>
-              <Link to={`/seller-ads/${user.id}`} className="font-semibold text-primary hover:underline whitespace-nowrap">View my dealer page</Link>
             </div>
           )}
 
@@ -679,6 +678,13 @@ export default function Profile() {
             className="w-full bg-primary text-primary-foreground h-12 rounded-lg hover:bg-primary/90 transition-colors font-medium text-base disabled:opacity-60">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
+          {user.seller_type === 'dealer' && (
+            <Link
+              to={`/seller-ads/${user.id}`}
+              className="w-full h-12 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors font-medium text-base flex items-center justify-center">
+              View my dealer page
+            </Link>
+          )}
         </div>
 
         {/* Delete Account */}

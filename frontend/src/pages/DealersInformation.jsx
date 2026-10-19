@@ -54,7 +54,7 @@ export default function DealersInformation() {
             <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
             <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
           </ul>
-          <p className="text-foreground mt-3">Press <strong>Save Changes</strong> at the bottom of the page. The photo and logo are saved as soon as you choose them. To see how your page looks to buyers, press <strong>View my dealer page</strong> at the top of your Profile.</p>
+          <p className="text-foreground mt-3">Press <strong>Save Changes</strong> at the bottom of the page. The photo and logo are saved as soon as you choose them. To see how your page looks to buyers, press <strong>View my dealer page</strong>, the button under Save Changes at the bottom of your Profile.</p>
         </Section>
 
         <Section title="3. Place an ad">
