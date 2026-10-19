@@ -39,7 +39,6 @@ const EXAMPLE_ADS = [
 ];
 
 const SORTS = [
-  ['best', 'Best match'],
   ['newest', 'Newest'],
   ['oldest', 'Oldest'],
   ['price-high', 'Highest price'],
@@ -99,7 +98,7 @@ export default function SellerAds() {
   const [section, setSection] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sort, setSort] = useState('best');
+  const [sort, setSort] = useState('newest');
   const [phoneShown, setPhoneShown] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false); // on a phone the filters start folded so the ads are not pushed down
 
@@ -107,7 +106,7 @@ export default function SellerAds() {
     if (!sellerId) return;
     let alive = true;
     setLoading(true);
-    setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('best'); setPhoneShown(false);
+    setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
     if (sellerId === 'example') {
       setAds(EXAMPLE_ADS);
       setStats(EXAMPLE_STATS);
@@ -186,13 +185,12 @@ export default function SellerAds() {
     if (sort === 'price-low') list.sort((a, b) => a.priceNum - b.priceNum);
     else if (sort === 'price-high') list.sort((a, b) => b.priceNum - a.priceNum);
     else if (sort === 'oldest') list.sort((a, b) => when(a) - when(b));
-    else if (sort === 'newest') list.sort((a, b) => when(b) - when(a));
-    else list.sort((a, b) => Number(!!b.spotlight) - Number(!!a.spotlight) || when(b) - when(a)); // best match: spotlighted ads first, then newest
+    else list.sort((a, b) => when(b) - when(a)); // newest first
     return list;
   }, [ads, section, minPrice, maxPrice, sort]);
 
-  const filtersOn = !!(section || minPrice || maxPrice || sort !== 'best');
-  const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); setSort('best'); };
+  const filtersOn = !!(section || minPrice || maxPrice || sort !== 'newest');
+  const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
 
   const phone = isExample ? 'Your phone number' : (stats?.phone || ads.find((a) => a.phone)?.phone || '');
   const phoneButton = (
