@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft, PlusCircle } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -41,10 +41,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const isRootPage = location.pathname === '/';
-  // A Dealer account has an "Add your Ad" entry right under Profile in the My Account list.
-  const accountItems = user?.seller_type === 'dealer'
-    ? [userMenuItems[0], { label: 'Add your Ad', icon: PlusCircle }, ...userMenuItems.slice(1)]
-    : userMenuItems;
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -168,22 +164,13 @@ export default function Navbar() {
                 </button>
                 {showUserMenu &&
               <div className="absolute right-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-lg py-1 z-50">
-                    {accountItems.map((item, i) =>
+                    {userMenuItems.map((item, i) =>
                 item.divider ?
                 <div key={i} className="border-t border-border my-1" /> :
                 item.label === 'Profile' ?
                 <Link
                   key={item.label}
                   to="/profile"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
-                          <item.icon className="w-4 h-4 text-muted-foreground" />
-                          {item.label}
-                        </Link> :
-                item.label === 'Add your Ad' ?
-                <Link
-                  key={item.label}
-                  to="/place-ad"
                   onClick={() => setShowUserMenu(false)}
                   className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <item.icon className="w-4 h-4 text-muted-foreground" />

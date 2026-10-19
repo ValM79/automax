@@ -16,7 +16,6 @@ export function useUserAdsByMake(make) {
       .then(ads => {
         const now = Date.now();
         const matched = ads.filter(ad => {
-          if (ad.sellerKind === 'dealer') return false; // a Dealer's ads live on its own dealer page only
           if (ad.listingDays && ad.created_date) {
             const expiresAt = new Date(ad.created_date).getTime() + ad.listingDays * 24 * 60 * 60 * 1000;
             if (now > expiresAt) return false;
@@ -48,7 +47,6 @@ export function useUserAds(subsections, refetchKey = 0) {
         const now = Date.now();
         const filtered = ads.filter(ad => {
           if (!subsections.includes(ad.subsection)) return false;
-          if (ad.sellerKind === 'dealer') return false; // a Dealer's ads live on its own dealer page only
           // Check if listing has expired based on listingDays and created_date
           if (ad.listingDays && ad.created_date) {
             const createdAt = new Date(ad.created_date).getTime();

@@ -492,7 +492,7 @@ export default function PlaceAd() {
                   disabled={user?.seller_type === 'dealership'}
                 />
                 {user?.seller_type === 'dealership' && <p className="text-xs text-muted-foreground mt-1">Dealership ads are listed in Dealership Cars and in the car make pages.</p>}
-                {user?.seller_type === 'dealer' && <p className="text-xs text-muted-foreground mt-1">As a Dealer, your ads appear on your own dealer page in Dealers Garages.</p>}
+                {user?.seller_type === 'dealer' && <p className="text-xs text-muted-foreground mt-1">As a Dealer, your ad appears on your dealer page in Dealers Garages and in the category you choose.</p>}
                 {formErrors.subsection && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.subsection}</p>}
               </div>
 

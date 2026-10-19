@@ -58,7 +58,7 @@ export default function DealersInformation() {
 
         <Section title="3. Place an ad">
           <ol className={list}>
-            <li>Open <strong>My Account</strong> and press <strong>Add your Ad</strong>. (The <strong>Place Ad</strong> button does the same.)</li>
+            <li>Press the <strong>Place Ad</strong> button.</li>
             <li>Choose the <strong>category</strong> that fits the vehicle: cars, vans, motorbikes, campers and so on. Your page groups your stock by these categories, so buyers can filter by section.</li>
             <li>Add your photos (up to 12), then fill in the title, description, price and the vehicle details.</li>
             <li>Check your contact details and business details. They are filled in from your Profile.</li>
@@ -66,7 +66,7 @@ export default function DealersInformation() {
             <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
           </ol>
           <p className="text-muted-foreground mt-3">
-            Each ad is paid for when you place it. A Dealer&apos;s ads are shown on the Dealer&apos;s own page only. They do not appear in the Cars For Sale list or in the other category and make pages. Buyers find them through your card in Dealers Garages, or through a link to your page.
+            Each ad is paid for when you place it. Your ad appears on your dealer page and in the category you chose, so buyers can find it in the category lists and through your card in Dealers Garages.
           </p>
         </Section>
 
