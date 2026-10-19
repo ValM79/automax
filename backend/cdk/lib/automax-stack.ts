@@ -123,6 +123,25 @@ export class AutomaxStack extends cdk.Stack {
       sortKey: { name: 'created_date', type: dynamodb.AttributeType.STRING },
     });
 
+    // Reviews of a Dealer (lambda/dealerReviews). One item per reviewer per dealer; the id is a hash of both.
+    const reviewTable = new dynamodb.Table(this, 'DealerReviewTable', {
+      tableName: 'Automax-DealerReview',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+    });
+    reviewTable.addGlobalSecondaryIndex({
+      indexName: 'byDealer',
+      partitionKey: { name: 'dealer_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_date', type: dynamodb.AttributeType.STRING },
+    });
+    reviewTable.addGlobalSecondaryIndex({
+      indexName: 'byReviewer',
+      partitionKey: { name: 'reviewer_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_date', type: dynamodb.AttributeType.STRING },
+    });
+
     const reportAdTable = new dynamodb.Table(this, 'ReportAdTable', {
       tableName: 'Automax-ReportAd',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -508,6 +527,7 @@ export class AutomaxStack extends cdk.Stack {
       environment: {
         USERAD_TABLE: userAdTable.tableName,
         MESSAGE_TABLE: messageTable.tableName,
+        REVIEW_TABLE: reviewTable.tableName,
         REPORTAD_TABLE: reportAdTable.tableName,
         VERIFICATIONCODE_TABLE: verificationCodeTable.tableName,
         USERPROFILE_TABLE: userProfileTable.tableName,
@@ -598,6 +618,12 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'listDealers', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Reviews of a Dealer: public list, and write / reply / report for signed-in users (checked inside the function).
+    const dealerReviewsFn = new lambdaNode.NodejsFunction(this, 'DealerReviewsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'dealerReviews', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const verifyCodeFn = new lambdaNode.NodejsFunction(this, 'VerifyCodeFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'verifyCode', 'index.mjs'),
@@ -644,6 +670,13 @@ export class AutomaxStack extends cdk.Stack {
       appSecrets.grantRead(fn);
     }
     applePurchaseTable.grantReadWriteData(verifyAppleTransactionFn);
+    // Reviews: dealerReviews reads who messaged whom (to allow a review) and the profiles, and writes the reviews;
+    // deleteAccount removes a user's reviews with the rest of their data.
+    reviewTable.grantReadWriteData(dealerReviewsFn);
+    reviewTable.grantReadWriteData(deleteAccountFn);
+    messageTable.grantReadData(dealerReviewsFn);
+    userProfileTable.grantReadData(dealerReviewsFn);
+    appSecrets.grantRead(dealerReviewsFn);
     photosBucket.grantReadWrite(entityApiFn);
     photosBucket.grantPut(presignUploadFn);
     deleteAccountFn.addToRolePolicy(
@@ -730,6 +763,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
     route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
+    route('/functions/dealerReviews', apigw.HttpMethod.POST, dealerReviewsFn, false);
     route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);
     route('/functions/toggleAdSave', apigw.HttpMethod.POST, toggleAdSaveFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);
