@@ -34,7 +34,7 @@ function DealerCard({ dealer, onClick, example = false }) {
   const hasLogo = !!avatarUrl || example;
   const place = [county, area].filter(Boolean).join(', ');
   const Root = onClick ? 'button' : 'div';
-  const visit = <span className={`text-xs font-medium ${BLUE} bg-white px-2.5 py-1 rounded shadow-sm`}>Visit Showroom</span>;
+  const visit = <span className={`text-xs font-medium ${BLUE}`}>Visit Showroom</span>;
   return (
     <Root
       type={onClick ? 'button' : undefined}
