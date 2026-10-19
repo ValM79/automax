@@ -28,7 +28,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // their own page will look like. Nothing here is real, and it never touches the server.
 const EXAMPLE_STATS = {
   seller_type: 'dealer', business_name: 'Your Dealership Name', avatar_url: null, cover_url: '/img/927787060_generated_image.jpg',
-  contact_ways: { message: true, whatsapp: true, email: true },
+  contact_ways: { message: true, phone: true, whatsapp: true, email: true },
   county: 'Dublin', area: 'Swords', business_address: 'Your business address', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
   opening_times: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed', bank: 'Closed' },
   phone: '', trusted: true,
@@ -218,10 +218,9 @@ export default function SellerAds() {
 
   // The ways a buyer can contact this dealer (the dealer picks them on their Profile).
   const ways = waysOf(stats?.contact_ways);
-  const newestAd = ads[0]; // an in-site message is always about one of the dealer's live ads
   const waLink = whatsappLink(stats?.whatsapp_number || stats?.phone, name ? `Hello ${name}, I found you on AutoMax.` : '');
   const sendDealerMessage = async (text) => {
-    await api.functions.invoke('contactSeller', { ad_id: newestAd.id, message: text });
+    await api.functions.invoke('contactSeller', { seller_id: sellerId, message: text });
   };
   const openMessage = () => {
     if (isExample) return;
@@ -231,7 +230,7 @@ export default function SellerAds() {
   const waysButtonClass = 'w-full h-11 border border-primary text-primary bg-card rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors';
   const contactButtons = (
     <div className="flex flex-col gap-2.5">
-      {ways.message && (newestAd || isExample) && (
+      {ways.message && (
         <button type="button" onClick={openMessage} className={waysButtonClass}><MessageSquare className="w-4 h-4" /> Message</button>
       )}
       {ways.whatsapp && (waLink || isExample) && (
@@ -248,7 +247,7 @@ export default function SellerAds() {
   );
 
   const phone = isExample ? 'Your phone number' : (stats?.phone || ads.find((a) => a.phone)?.phone || '');
-  const phoneButton = (
+  const phoneButton = !ways.phone ? null : (
     <button
       type="button"
       onClick={() => setPhoneShown(true)}
@@ -434,7 +433,12 @@ export default function SellerAds() {
                     <p className="text-foreground mt-1">{place}</p>
                   </div>
                 )}
-                {phoneButton}
+                {(ways.message || phoneButton) && (
+                  <div className="space-y-2.5">
+                    {phoneButton}
+                    {ways.message && <button type="button" onClick={openMessage} className={waysButtonClass}><MessageSquare className="w-4 h-4" /> Message</button>}
+                  </div>
+                )}
               </div>
             </aside>
 
@@ -468,8 +472,8 @@ export default function SellerAds() {
               </div>
             </dl>
             <div className="mt-6 space-y-2.5">
-              {contactButtons}
               {phoneButton}
+              {contactButtons}
             </div>
           </div>
         )}
@@ -486,7 +490,7 @@ export default function SellerAds() {
         open={showMessage}
         onClose={() => setShowMessage(false)}
         sellerName={name}
-        adTitle={newestAd?.title}
+        adTitle="your dealership"
         onSend={sendDealerMessage} />
 
       <Footer />

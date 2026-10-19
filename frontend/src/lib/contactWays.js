@@ -1,8 +1,9 @@
 // How a Dealer lets buyers contact them (set on the Profile, shown in the Contact Us tab of the dealer page):
-//   message   an in-site message about one of their live ads (on by default)
+//   message   an in-site message to the dealer (on by default)
+//   phone     the "Show phone number" button (on by default)
 //   whatsapp  opens WhatsApp on their WhatsApp number (or their phone number if none is given)
 //   email     opens the buyer's mail app on the contact email the dealer chose to show
-export const DEFAULT_WAYS = { message: true, whatsapp: false, email: false };
+export const DEFAULT_WAYS = { message: true, phone: true, whatsapp: false, email: false };
 
 export const waysOf = (w) => ({ ...DEFAULT_WAYS, ...(w && typeof w === 'object' ? w : {}) });
 
