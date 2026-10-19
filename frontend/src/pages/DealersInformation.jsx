@@ -49,7 +49,7 @@ export default function DealersInformation() {
             <li><strong>Add Logo</strong> at the top: your logo, shown on your card and on your page.</li>
             <li><strong>About Your Dealership</strong>: a few lines about what you sell and how long you have been trading (up to 500 characters). It is shown in the Contact Us tab of your page.</li>
             <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your page. Use a wide photo.</li>
-            <li><strong>Opening Hours</strong>: type the days separated by commas, for example <em>Mon-Fri 9:00-18:00, Sat 10:00-16:00</em>. They are shown as a list. If you do not mention Sunday it shows <em>Closed</em>.</li>
+            <li><strong>Opening Hours</strong>: a row for every day of the week and one for Bank Holiday. Type your hours like <em>09:00 - 18:00</em>, or press <strong>Closed</strong>. A day you leave empty is not shown on your page.</li>
             <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
             <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
           </ul>
