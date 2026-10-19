@@ -38,6 +38,14 @@ const EXAMPLE_ADS = [
   exampleAd(3, 'Example: 2019 Camper', 52000, 'Campers', '/img/2106e76f6_generated_image.jpg'),
 ];
 
+const SORTS = [
+  ['best', 'Best match'],
+  ['newest', 'Newest'],
+  ['oldest', 'Oldest'],
+  ['price-high', 'Highest price'],
+  ['price-low', 'Lowest price'],
+];
+
 const TABS = [
   { id: 'stock', label: 'Our Stock' },
   { id: 'contact', label: 'Contact Us' },
@@ -91,7 +99,7 @@ export default function SellerAds() {
   const [section, setSection] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sort, setSort] = useState('newest');
+  const [sort, setSort] = useState('best');
   const [phoneShown, setPhoneShown] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false); // on a phone the filters start folded so the ads are not pushed down
 
@@ -99,7 +107,7 @@ export default function SellerAds() {
     if (!sellerId) return;
     let alive = true;
     setLoading(true);
-    setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
+    setTab('stock'); setSection(''); setMinPrice(''); setMaxPrice(''); setSort('best'); setPhoneShown(false);
     if (sellerId === 'example') {
       setAds(EXAMPLE_ADS);
       setStats(EXAMPLE_STATS);
@@ -174,13 +182,17 @@ export default function SellerAds() {
       (min === null || a.priceNum >= min) &&
       (max === null || a.priceNum <= max)
     ));
+    const when = (a) => new Date(a.created_date || 0).getTime();
     if (sort === 'price-low') list.sort((a, b) => a.priceNum - b.priceNum);
     else if (sort === 'price-high') list.sort((a, b) => b.priceNum - a.priceNum);
-    return list; // newest first is the order the ads arrive in
+    else if (sort === 'oldest') list.sort((a, b) => when(a) - when(b));
+    else if (sort === 'newest') list.sort((a, b) => when(b) - when(a));
+    else list.sort((a, b) => Number(!!b.spotlight) - Number(!!a.spotlight) || when(b) - when(a)); // best match: spotlighted ads first, then newest
+    return list;
   }, [ads, section, minPrice, maxPrice, sort]);
 
-  const filtersOn = !!(section || minPrice || maxPrice);
-  const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); };
+  const filtersOn = !!(section || minPrice || maxPrice || sort !== 'best');
+  const resetFilters = () => { setSection(''); setMinPrice(''); setMaxPrice(''); setSort('best'); };
 
   const phone = isExample ? 'Your phone number' : (stats?.phone || ads.find((a) => a.phone)?.phone || '');
   const phoneButton = (
@@ -335,6 +347,24 @@ export default function SellerAds() {
                 <input type="number" inputMode="numeric" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Min Price" className={inputClass} aria-label="Minimum price" />
                 <input type="number" inputMode="numeric" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Max Price" className={inputClass} aria-label="Maximum price" />
               </div>
+
+              <p className="text-sm text-muted-foreground mt-6 mb-2">Sort by</p>
+              <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Sort by">
+                {SORTS.map(([value, label]) => {
+                  const active = sort === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => setSort(value)}
+                      className={`flex items-center h-11 px-4 rounded-lg text-sm text-left transition-colors ${active ? 'border-2 border-foreground font-semibold text-foreground' : 'border border-transparent text-foreground hover:bg-secondary'}`}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
               </div>
 
               <div className="border-t border-border mt-6 pt-5 space-y-4 text-sm">
@@ -359,14 +389,6 @@ export default function SellerAds() {
                 <p className="text-sm text-foreground">
                   <span className="font-bold">{shown.length}</span> {shown.length === 1 ? 'ad' : 'ads'} from <span className="font-bold">{name}</span>{stats?.county ? <> in <span className="font-bold">{stats.county}</span></> : null}
                 </p>
-                <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                  Sort by:
-                  <select value={sort} onChange={(e) => setSort(e.target.value)} className="h-9 rounded-lg border border-border bg-card text-foreground px-2 text-sm">
-                    <option value="newest">Newest</option>
-                    <option value="price-low">Price: low to high</option>
-                    <option value="price-high">Price: high to low</option>
-                  </select>
-                </label>
               </div>
               {ads.length === 0 ? (
                 <p className="text-muted-foreground text-center py-16">This dealership has no live ads right now.</p>
