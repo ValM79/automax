@@ -234,7 +234,7 @@ export default function Messages() {
               <div className="flex-1 min-w-0">
                 <p className="text-base font-bold text-foreground truncate">{activeThread.other.name || activeThread.other.email || 'AutoMax user'}</p>
                 {activeThread.adTitle && (
-                  <Link to={`/vehicle/${activeThread.adId}`} className="text-xs text-primary hover:underline truncate block">
+                  <Link to={String(activeThread.adId).startsWith('dealer:') ? `/seller-ads/${String(activeThread.adId).slice(7)}` : `/vehicle/${activeThread.adId}`} className="text-xs text-primary hover:underline truncate block">
                     Re: {activeThread.adTitle}
                   </Link>
                 )}

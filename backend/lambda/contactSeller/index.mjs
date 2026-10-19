@@ -16,12 +16,33 @@ export const handler = async (event) => {
     if (!user) return json(401, { error: 'Unauthorized' });
 
     const body = JSON.parse(event.body || '{}');
-    const { ad_id, message, reply_to_message_id } = body;
+    const { message, reply_to_message_id, seller_id } = body;
+    // A message to a Dealer from their dealer page is not about one ad: its conversation key is "dealer:<the dealer's id>".
+    const ad_id = body.ad_id || (seller_id ? `dealer:${seller_id}` : '');
     if (!message || !ad_id) return json(400, { error: 'Missing message or ad_id' });
 
-    const adRes = await ddb.send(new GetCommand({ TableName: TABLES.UserAd, Key: { id: ad_id } }));
-    const ad = adRes.Item;
-    if (!ad) return json(404, { error: 'Ad not found' });
+    let ad;
+    const isDealerPage = String(ad_id).startsWith('dealer:');
+    if (isDealerPage) {
+      const dealerId = String(ad_id).slice('dealer:'.length);
+      if (!/^[A-Za-z0-9-]{8,64}$/.test(dealerId)) return json(400, { error: 'Invalid dealer' });
+      const profileRes = await ddb.send(new GetCommand({ TableName: TABLES.User, Key: { id: dealerId } }));
+      const dealer = profileRes.Item;
+      if (!dealer || dealer.seller_type !== 'dealer') return json(404, { error: 'Dealer not found' });
+      // a Dealer who switched Message off cannot be written to first; replies in an existing conversation still work
+      if (!reply_to_message_id && dealer.contact_ways?.message === false) return json(403, { error: 'This dealer is not taking messages' });
+      ad = {
+        id: ad_id,
+        title: `${dealer.business_name || 'Dealership'} (dealer page)`,
+        created_by_id: dealerId,
+        fullName: dealer.display_name || dealer.business_name || '',
+        email: dealer.email || '',
+      };
+    } else {
+      const adRes = await ddb.send(new GetCommand({ TableName: TABLES.UserAd, Key: { id: ad_id } }));
+      ad = adRes.Item;
+      if (!ad) return json(404, { error: 'Ad not found' });
+    }
 
     const verifiedAdTitle = ad.title || '';
     const cleanAdTitle = sanitize(verifiedAdTitle);
@@ -42,7 +63,7 @@ export const handler = async (event) => {
     } else {
       // Contacting yourself is never useful and just creates a one-person conversation.
       if (ad.created_by_id && ad.created_by_id === user.id) {
-        return json(400, { error: "You can't send a message to your own ad" });
+        return json(400, { error: isDealerPage ? "You can't send a message to your own dealer page" : "You can't send a message to your own ad" });
       }
       recipientUserId = ad.created_by_id || '';
       recipientName = ad.fullName || '';
@@ -86,7 +107,9 @@ export const handler = async (event) => {
         const cleanRecipientName = sanitize(recipientName);
         const intro = isReply
           ? `${cleanSenderName || 'A user'} (${cleanSenderEmail}) has replied to your message about "${cleanAdTitle}".`
-          : `You have received a new message about your ad "${cleanAdTitle}".\n\nFrom: ${cleanSenderName || 'A user'} (${cleanSenderEmail})`;
+          : isDealerPage
+            ? `You have received a new message through your dealer page.\n\nFrom: ${cleanSenderName || 'A user'} (${cleanSenderEmail})`
+            : `You have received a new message about your ad "${cleanAdTitle}".\n\nFrom: ${cleanSenderName || 'A user'} (${cleanSenderEmail})`;
         const { RESEND_API_KEY } = await getSecrets();
         const resendRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',

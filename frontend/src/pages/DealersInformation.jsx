@@ -50,7 +50,7 @@ export default function DealersInformation() {
             <li><strong>About Your Dealership</strong>: a few lines about what you sell and how long you have been trading (up to 500 characters). It is shown in the Contact Us tab of your page.</li>
             <li><strong>Business Photo</strong> (press <strong>Add Business Photo</strong>): a photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your page. Use a wide photo.</li>
             <li><strong>Opening Hours</strong>: a row for every day of the week and one for Bank Holiday. Type your hours like <em>09:00 - 18:00</em>, or press <strong>Closed</strong>. A day you leave empty is not shown on your page.</li>
-            <li><strong>How buyers can contact you</strong>: tick <strong>Message</strong>, <strong>WhatsApp</strong> and <strong>Email</strong> for the ways you want (it is its own section further down your Profile). They appear as buttons in the Contact Us tab of your page. For WhatsApp you can give a WhatsApp number (or leave it empty to use your phone number). For Email you choose the contact email to show. It is shown publicly on your page.</li>
+            <li><strong>How buyers can contact you</strong>: tick <strong>Message</strong>, <strong>Phone</strong>, <strong>WhatsApp</strong> and <strong>Email</strong> for the ways you want (it is its own section further down your Profile). Message and Phone also appear in the filters column of your page; WhatsApp and Email appear in the Contact Us tab only. Phone is ticked to start with: untick it if you do not want buyers to phone you. For WhatsApp you can give a WhatsApp number (or leave it empty to use your phone number). For Email you choose the contact email to show. It is shown publicly on your page.</li>
             <li><strong>Dealership Details</strong>: your business name, VAT number (if you have one) and business address.</li>
             <li><strong>Contact Information</strong>: your phone number, county and area or town. This is the location shown on your card.</li>
           </ul>
@@ -85,7 +85,7 @@ export default function DealersInformation() {
 
         <Section title="5. Answer buyers">
           <ul className={bullets}>
-            <li>Buyers can send you a message from any of your ads, and from your dealer page if you ticked Message (it is about your newest live ad). Open <strong>My Account</strong>, then <strong>Messages</strong> to read and answer them.</li>
+            <li>Buyers can send you a message from any of your ads, and from your dealer page if you ticked Message. Open <strong>My Account</strong>, then <strong>Messages</strong> to read and answer them.</li>
             <li>You get an email whenever a buyer sends you a message.</li>
             <li>Your phone number and opening hours are on your page, in the Our Stock sidebar and in the Contact Us tab.</li>
           </ul>

@@ -60,10 +60,12 @@ function openingTimes(t) {
 // Only the contact ways the dealer switched on are returned, and a WhatsApp number or email only when its way is on.
 function contactWays(p) {
   const w = p.contact_ways && typeof p.contact_ways === 'object' ? p.contact_ways : {};
-  const ways = { message: w.message !== false, whatsapp: w.whatsapp === true, email: w.email === true };
+  const ways = { message: w.message !== false, phone: w.phone !== false, whatsapp: w.whatsapp === true, email: w.email === true };
+  // WhatsApp uses its own number, or the phone number when none was given (the dealer chose WhatsApp, so that is fine).
+  const waNumber = p.whatsapp_number || p.phone;
   return {
     contact_ways: ways,
-    ...(ways.whatsapp && p.whatsapp_number ? { whatsapp_number: String(p.whatsapp_number).slice(0, 30) } : {}),
+    ...(ways.whatsapp && waNumber ? { whatsapp_number: String(waNumber).slice(0, 30) } : {}),
     ...(ways.email && p.contact_email ? { contact_email: String(p.contact_email).slice(0, 120) } : {}),
   };
 }
@@ -94,7 +96,8 @@ async function sellerProfile(sellerId) {
         opening_times: openingTimes(p.opening_times),
         about: text(p.about, 500),
         ...contactWays(p),
-        phone: text(p.phone, 30),
+        // the phone number is shown only if the dealer left Phone ticked
+        ...(p.contact_ways?.phone !== false ? { phone: text(p.phone, 30) } : { phone: '' }),
         trusted: p.trusted_dealer === true,
       });
     }

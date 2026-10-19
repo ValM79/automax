@@ -34,7 +34,7 @@ export default function Profile() {
     openingHours: '',
     times: {},
     about: '',
-    ways: { message: true, whatsapp: false, email: false },
+    ways: { message: true, phone: true, whatsapp: false, email: false },
     whatsappNumber: '',
     contactEmail: '',
   });
@@ -552,9 +552,10 @@ export default function Profile() {
                 <h2 className="text-lg font-bold text-foreground">How buyers can contact you</h2>
               </div>
               <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. Your phone number button is always there when you have added a number.</p>
+                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. </p>
                 {[
-                  ['message', 'Message', 'Buyers write to you inside AutoMax, about one of your live ads. You answer in Messages.'],
+                  ['message', 'Message', 'Buyers write to you inside AutoMax, from your dealer page. You answer in Messages.'],
+                  ['phone', 'Phone', 'Buyers can show your phone number. It is the number in your Contact Information.'],
                   ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
                   ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
                 ].map(([key, label, hint]) => (

@@ -68,7 +68,7 @@ export const handler = async (event) => {
     if ('contact_ways' in body) {
       const w = body.contact_ways;
       if (!w || typeof w !== 'object' || Array.isArray(w)) return json(400, { error: 'Invalid contact options' });
-      body.contact_ways = { message: w.message !== false, whatsapp: w.whatsapp === true, email: w.email === true };
+      body.contact_ways = { message: w.message !== false, phone: w.phone !== false, whatsapp: w.whatsapp === true, email: w.email === true };
     }
     if ('whatsapp_number' in body) {
       const v = String(body.whatsapp_number || '').trim();
