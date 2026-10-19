@@ -435,8 +435,8 @@ export default function SellerAds() {
                 )}
                 {(ways.message || phoneButton) && (
                   <div className="space-y-2.5">
-                    {ways.message && <button type="button" onClick={openMessage} className={waysButtonClass}><MessageSquare className="w-4 h-4" /> Message</button>}
                     {phoneButton}
+                    {ways.message && <button type="button" onClick={openMessage} className={waysButtonClass}><MessageSquare className="w-4 h-4" /> Message</button>}
                   </div>
                 )}
               </div>
@@ -472,8 +472,8 @@ export default function SellerAds() {
               </div>
             </dl>
             <div className="mt-6 space-y-2.5">
-              {contactButtons}
               {phoneButton}
+              {contactButtons}
             </div>
           </div>
         )}
