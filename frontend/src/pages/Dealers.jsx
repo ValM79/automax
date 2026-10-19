@@ -59,7 +59,7 @@ function DealerCard({ dealer, onClick, example = false }) {
         </div>
       </div>
       {hasPhoto ? (
-        <div className="relative h-44 sm:h-auto sm:w-72 lg:w-96 shrink-0">
+        <div className="relative h-44 sm:h-auto sm:w-1/2 shrink-0">
           <img src={coverUrl} alt="" onError={() => setCoverFailed(true)} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
             {hasLogo && <DealerLogo url={avatarUrl} />}
