@@ -379,6 +379,7 @@ const functions = {
   submitContactForm: makeFunctionClient('submitContactForm'),
   getSellerStats: makeFunctionClient('getSellerStats'),
   listDealers: makeFunctionClient('listDealers'),
+  dealerReviews: makeFunctionClient('dealerReviews'),
   recordAdView: makeFunctionClient('recordAdView'),
   toggleAdSave: makeFunctionClient('toggleAdSave'),
   verifyCode: makeFunctionClient('verifyCode'),

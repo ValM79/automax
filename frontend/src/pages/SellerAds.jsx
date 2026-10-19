@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { sellerTypeOf, isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappLink } from '@/lib/contactWays';
@@ -11,12 +11,13 @@ import { priceOptions } from '@/lib/priceOptions';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus } from 'lucide-react';
+import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus, Star } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ListingCard from '../components/automarket/ListingCard';
 import AvatarBadge from '../components/automarket/AvatarBadge';
+import DealerReviews from '../components/automarket/DealerReviews';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
 
@@ -43,6 +44,16 @@ const EXAMPLE_ADS = [
   exampleAd(2, 'Example: 2021 Panel Van', 24500, 'Commercials', '/img/37b29cbc7_generated_image.jpg'),
   exampleAd(3, 'Example: 2019 Camper', 52000, 'Campers', '/img/2106e76f6_generated_image.jpg'),
 ];
+
+// Two made-up reviews for the example page (read only: nobody can write or report on it).
+const EXAMPLE_REVIEWS = {
+  summary: { count: 2, average: 4.5 },
+  reviews: [
+    { id: 'example-r1', rating: 5, comment: 'Quick reply, the car was exactly as described. Would buy from them again.', reviewer_name: 'Sarah M.', created_date: new Date(Date.now() - 6 * 86400000).toISOString(), reply: 'Thank you Sarah, enjoy the car!', reply_date: new Date(Date.now() - 5 * 86400000).toISOString(), mine: false },
+    { id: 'example-r2', rating: 4, comment: 'Friendly and easy to deal with.', reviewer_name: 'Paul K.', created_date: new Date(Date.now() - 20 * 86400000).toISOString(), mine: false },
+  ],
+  viewer: { can_review: false, reason: 'sign_in', is_dealer: false },
+};
 
 const SORTS = [
   ['newest', 'Newest'],
@@ -118,6 +129,8 @@ export default function SellerAds() {
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
   const [phoneShown, setPhoneShown] = useState(false);
+  const [reviewData, setReviewData] = useState(null); // the dealerReviews "list" answer: summary, reviews, what this visitor may do
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false); // on a phone the filters start folded so the ads are not pushed down
 
   useEffect(() => {
@@ -186,6 +199,25 @@ export default function SellerAds() {
       ? (stats?.business_name || ads.find((a) => a.businessName)?.businessName || ads.find((a) => a.fullName)?.fullName || 'Seller')
       : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
   const place = [stats?.county, stats?.area].filter(Boolean).join(', ');
+
+  // A Dealer's reviews (loaded again when the visitor signs in or out, since what they may do depends on who they are)
+  const loadReviews = useCallback(async () => {
+    if (isExample) { setReviewData(EXAMPLE_REVIEWS); return; }
+    try {
+      const res = await api.functions.invoke('dealerReviews', { action: 'list', dealer_id: sellerId });
+      setReviewData(res?.data && !res.data.error ? res.data : null);
+    } catch {
+      setReviewData(null);
+    }
+  }, [sellerId, isExample]);
+  useEffect(() => {
+    if (!isBusiness) { setReviewData(null); return undefined; }
+    let alive = true;
+    setReviewsLoading(true);
+    loadReviews().finally(() => { if (alive) setReviewsLoading(false); });
+    return () => { alive = false; };
+  }, [isBusiness, loadReviews, user?.id]);
+  const reviewCount = reviewData?.summary?.count || 0;
 
   const shown = useMemo(() => {
     const toNumber = (v) => (v ? Number(String(v).replace(/[€,]/g, '')) : null); // the price boxes hold text like '€5,000'
@@ -341,6 +373,11 @@ export default function SellerAds() {
               <p className="mt-1.5 text-sm sm:text-base text-white/90 flex flex-wrap items-center gap-x-4 gap-y-1">
                 {place && <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {place}</span>}
                 {stats?.trusted && <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Verified Dealer</span>}
+                {reviewCount > 0 && (
+                  <button type="button" onClick={() => setTab('reviews')} className="inline-flex items-center gap-1.5 hover:underline">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" /> {reviewData.summary.average.toFixed(1)} ({reviewCount} review{reviewCount === 1 ? '' : 's'})
+                  </button>
+                )}
               </p>
             </div>
           </div>
@@ -358,7 +395,7 @@ export default function SellerAds() {
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
               className={`py-4 text-base sm:text-lg border-b-2 -mb-px transition-colors ${tab === t.id ? 'border-foreground text-foreground font-semibold' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-              {t.label}
+              {t.id === 'reviews' && reviewCount > 0 ? `${t.label} (${reviewCount})` : t.label}
             </button>
           ))}
         </div>
@@ -479,10 +516,17 @@ export default function SellerAds() {
         )}
 
         {tab === 'reviews' && (
-          <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl p-8 text-center">
-            <p className="text-lg font-semibold text-foreground mb-1">No reviews yet</p>
-            <p className="text-sm text-muted-foreground">Reviews from buyers will appear here.</p>
-          </div>
+          <DealerReviews
+            dealerId={sellerId}
+            dealerName={name}
+            data={reviewData}
+            loading={reviewsLoading}
+            user={user}
+            reload={loadReviews}
+            readOnly={isExample}
+            canMessage={ways.message}
+            onMessage={openMessage}
+            onSignIn={() => navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`)} />
         )}
       </div>
 

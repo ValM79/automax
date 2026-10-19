@@ -86,6 +86,7 @@ export default function DealersInformation() {
           <ul className={bullets}>
             <li>Buyers can send you a message from any of your ads, and from your dealer page if you ticked Message. Open <strong>My Account</strong>, then <strong>Messages</strong> to read and answer them.</li>
             <li>You get an email whenever a buyer sends you a message.</li>
+            <li><strong>Reviews</strong>: a buyer who has sent you a message through AutoMax can rate you from 1 to 5 stars and write a comment in the Reviews tab of your page. You get an email when a new review arrives. Press <strong>Reply</strong> under a review to answer it in public. You cannot edit or delete a review, but if one is false or abusive, press <strong>Report</strong> on it and we will check it.</li>
             <li>Your phone number and opening hours are on your page, in the Our Stock sidebar and in the Contact Us tab.</li>
           </ul>
         </Section>

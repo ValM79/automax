@@ -32,6 +32,32 @@ async function deleteAllByOwner(tableName, userId) {
   return count;
 }
 
+/** Deletes the reviews a user wrote and the reviews left on their dealer page (a Dealer account), via the two review GSIs. */
+async function deleteReviews(userId) {
+  let count = 0;
+  for (const [index, attr] of [['byReviewer', 'reviewer_id'], ['byDealer', 'dealer_id']]) {
+    let lastKey;
+    do {
+      const res = await ddb.send(
+        new QueryCommand({
+          TableName: TABLES.Review,
+          IndexName: index,
+          KeyConditionExpression: `${attr} = :uid`,
+          ExpressionAttributeValues: { ':uid': userId },
+          ProjectionExpression: 'id',
+          ExclusiveStartKey: lastKey,
+        })
+      );
+      for (const item of res.Items || []) {
+        await ddb.send(new DeleteCommand({ TableName: TABLES.Review, Key: { id: item.id } }));
+        count++;
+      }
+      lastKey = res.LastEvaluatedKey;
+    } while (lastKey);
+  }
+  return count;
+}
+
 export const handler = async (event) => {
   try {
     const user = await getUserFromEvent(event);
@@ -43,6 +69,7 @@ export const handler = async (event) => {
     // requester's own data, not a record another party legitimately holds.
     const adsDeleted = await deleteAllByOwner(TABLES.UserAd, user.id);
     const reportsDeleted = await deleteAllByOwner(TABLES.ReportAd, user.id);
+    const reviewsDeleted = await deleteReviews(user.id);
 
     await ddb.send(new DeleteCommand({ TableName: TABLES.User, Key: { id: user.id } }));
 
@@ -54,7 +81,7 @@ export const handler = async (event) => {
       console.warn('Cognito user deletion failed (profile row was still removed):', e.message);
     }
 
-    console.log(`Deleted account ${user.id}: ${adsDeleted} ad(s), ${reportsDeleted} report(s) removed`);
+    console.log(`Deleted account ${user.id}: ${adsDeleted} ad(s), ${reportsDeleted} report(s), ${reviewsDeleted} review(s) removed`);
     return json(200, { success: true });
   } catch (error) {
     console.error('Delete account error:', error.message || error);
