@@ -584,7 +584,7 @@ export default function Profile() {
                         maxLength={20}
                         placeholder="09:00 - 18:00"
                         aria-label={`${label} opening hours`}
-                        className={`flex-1 min-w-0 h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${timeErrors[key] ? 'border-red-500' : 'border-border'}`}
+                        className={`flex-1 min-w-0 sm:flex-none sm:w-[calc(50%-0.5rem)] h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${timeErrors[key] ? 'border-red-500' : 'border-border'}`}
                       />
                       <button type="button" onClick={() => { setTime(key, 'Closed'); setTimeErrors((e) => ({ ...e, [key]: false })); }} className="text-xs font-medium text-primary hover:underline shrink-0">Closed</button>
                     </div>
