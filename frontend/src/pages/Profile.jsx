@@ -4,7 +4,7 @@ import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
 import { normalizeEircode } from '@/lib/eircode';
 import BackButton from '../components/automarket/BackButton';
-import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare } from 'lucide-react';
+import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -398,26 +398,30 @@ export default function Profile() {
                 {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
               </h2>
               <p className="text-xs text-muted-foreground truncate">
-                {isTrader ? `${accountKind} account${form.name ? ' · ' + form.name : ''}` : 'Private account'}
+                {isTrader ? `${accountKind} account${form.name && user.seller_type !== 'dealer' ? ' · ' + form.name : ''}` : 'Private account'}
               </p>
-              <p className="text-xs mt-1.5 flex items-center gap-3">
-                <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
-                  <Camera className="w-3.5 h-3.5" />
-                  {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
-                </button>
-                {user.avatar_url && !photoBusy && (
-                  <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
-                )}
-              </p>
-              {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
+              {user.seller_type !== 'dealer' && (
+                <>
+                <p className="text-xs mt-1.5 flex items-center gap-3">
+                  <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
+                    <Camera className="w-3.5 h-3.5" />
+                    {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
+                  </button>
+                  {user.avatar_url && !photoBusy && (
+                    <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                  )}
+                </p>
+                {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
+                </>
+              )}
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
 
-          {/* Dealer page: the photo behind the dealership card and the dealer page banner, and the opening hours.
-              Only a Dealer account has a card and a page in Dealers Garage. */}
+          {/* Dealer page: the logo and the photo behind the dealership card and the dealer page banner.
+              Only a Dealer account has a card and a page in Dealers Garages. */}
           {user.seller_type === 'dealer' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
@@ -425,16 +429,23 @@ export default function Profile() {
                 <h2 className="text-lg font-bold text-foreground">Your Dealer Page</h2>
               </div>
               <div className="space-y-1.5 mb-5">
-                <label className="block text-sm font-medium text-foreground">About Your Dealership</label>
-                <textarea
-                  value={form.about}
-                  onChange={set('about')}
-                  maxLength={500}
-                  rows={4}
-                  placeholder="What you sell, how long you have been trading, what buyers can expect"
-                  className="w-full px-3 py-2 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground resize-y"
-                />
-                <p className="text-xs text-muted-foreground">{form.about.length}/500. Shown in the Contact Us tab of your dealer page.</p>
+                <label className="block text-sm font-medium text-foreground">Logo</label>
+                <div className="flex items-center gap-4">
+                  <AvatarBadge url={user.avatar_url} isTrader className="w-20 h-20" />
+                  <div>
+                    <p className="text-xs flex items-center gap-3">
+                      <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
+                        <Camera className="w-3.5 h-3.5" />
+                        {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
+                      </button>
+                      {user.avatar_url && !photoBusy && (
+                        <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                      )}
+                    </p>
+                    {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">Your logo is shown on your card and on your dealer page.</p>
+                  </div>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-foreground">Business Photo</label>
@@ -456,33 +467,6 @@ export default function Profile() {
                 {coverError && <p className="text-xs text-red-600">{coverError}</p>}
                 <p className="text-xs text-muted-foreground">A photo of your premises or stock. It is the background of your card in Dealers Garages and the banner of your dealer page.</p>
               </div>
-              <div className="space-y-2 mt-5">
-                <label className="block text-sm font-medium text-foreground">Opening Hours</label>
-                <p className="text-xs text-muted-foreground">For each day type your hours like 09:00 - 18:00, or press Closed. A day you leave empty is not shown on your dealer page.</p>
-                {!hasTimes(form.times) && form.openingHours && (
-                  <p className="text-xs text-muted-foreground bg-secondary rounded-md px-3 py-2">Your earlier hours: {form.openingHours}. They are replaced when you save the days below.</p>
-                )}
-                <div className="space-y-2">
-                  {DAY_KEYS.map(([key, label]) => (
-                    <div key={key} className="flex items-center gap-3">
-                      <span className="w-28 sm:w-32 shrink-0 text-sm font-medium text-foreground">{label}</span>
-                      <input
-                        type="text"
-                        value={form.times[key] || ''}
-                        onChange={(e) => setTime(key, e.target.value)}
-                        onBlur={() => tidyTime(key)}
-                        maxLength={20}
-                        placeholder="09:00 - 18:00"
-                        aria-label={`${label} opening hours`}
-                        className={`flex-1 min-w-0 h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${timeErrors[key] ? 'border-red-500' : 'border-border'}`}
-                      />
-                      <button type="button" onClick={() => { setTime(key, 'Closed'); setTimeErrors((e) => ({ ...e, [key]: false })); }} className="text-xs font-medium text-primary hover:underline shrink-0">Closed</button>
-                    </div>
-                  ))}
-                </div>
-                {Object.values(timeErrors).some(Boolean) && <p className="text-xs text-red-600">Write the hours like 09:00 - 18:00, or type Closed.</p>}
-              </div>
-
             </section>
           )}
 
@@ -504,6 +488,20 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
+                {user.seller_type === 'dealer' && (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="block text-sm font-medium text-foreground">About Your Dealership</label>
+                  <textarea
+                    value={form.about}
+                    onChange={set('about')}
+                    maxLength={500}
+                    rows={4}
+                    placeholder="What you sell, how long you have been trading, what buyers can expect"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground resize-y"
+                  />
+                  <p className="text-xs text-muted-foreground">{form.about.length}/500. Shown in the Contact Us tab of your dealer page.</p>
+                </div>
+                )}
                 {user.seller_type !== 'dealer' && (
                   <div className="space-y-1.5">
                     <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
@@ -540,9 +538,7 @@ export default function Profile() {
                     </div>
                     <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {countyField}
-                      {areaField(false)}
-                    </div>
-                    <div className="space-y-1.5 sm:col-span-2">
+                      <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-foreground">Eircode</label>
                       <input
                         type="text"
@@ -551,12 +547,49 @@ export default function Profile() {
                         onBlur={() => { const n = normalizeEircode(form.eircode); if (n !== null) setForm((f) => ({ ...f, eircode: n })); }}
                         maxLength={8}
                         placeholder="e.g. A65 F4E2"
-                        className={`w-full sm:max-w-xs h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
+                        className={`w-full h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
                       />
+                      </div>
                     </div>
+                    <div className="sm:col-span-2">{areaField(true)}</div>
                     <div className="sm:col-span-2">{phoneField}</div>
                   </>
                 )}
+              </div>
+            </section>
+          )}
+
+          {/* Opening Hours (a Dealer): above Dealership Details */}
+          {user.seller_type === 'dealer' && (
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Clock className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">Opening Hours</h2>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">For each day type your hours like 09:00 - 18:00, or press Closed. A day you leave empty is not shown on your dealer page.</p>
+                {!hasTimes(form.times) && form.openingHours && (
+                  <p className="text-xs text-muted-foreground bg-secondary rounded-md px-3 py-2">Your earlier hours: {form.openingHours}. They are replaced when you save the days below.</p>
+                )}
+                <div className="space-y-2">
+                  {DAY_KEYS.map(([key, label]) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <span className="w-28 sm:w-32 shrink-0 text-sm font-medium text-foreground">{label}</span>
+                      <input
+                        type="text"
+                        value={form.times[key] || ''}
+                        onChange={(e) => setTime(key, e.target.value)}
+                        onBlur={() => tidyTime(key)}
+                        maxLength={20}
+                        placeholder="09:00 - 18:00"
+                        aria-label={`${label} opening hours`}
+                        className={`flex-1 min-w-0 h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${timeErrors[key] ? 'border-red-500' : 'border-border'}`}
+                      />
+                      <button type="button" onClick={() => { setTime(key, 'Closed'); setTimeErrors((e) => ({ ...e, [key]: false })); }} className="text-xs font-medium text-primary hover:underline shrink-0">Closed</button>
+                    </div>
+                  ))}
+                </div>
+                {Object.values(timeErrors).some(Boolean) && <p className="text-xs text-red-600">Write the hours like 09:00 - 18:00, or type Closed.</p>}
               </div>
             </section>
           )}
