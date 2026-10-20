@@ -209,7 +209,7 @@ export default function EditAd() {
     if (!form.description?.trim()) errors.description = 'Description is required';
     if (!form.price?.trim()) errors.price = 'Price is required';
     if (!form.subsection) errors.subsection = 'Category is required';
-    if (!form.fullName?.trim()) errors.fullName = 'Full name is required';
+    if (user?.seller_type !== 'dealer' && !form.fullName?.trim()) errors.fullName = 'Full name is required';
     if (!form.email?.trim()) errors.email = 'Email is required';
     if (!form.phone?.trim()) errors.phone = 'Phone is required';
     if (form.isTrader && !form.businessName?.trim()) errors.businessName = 'Business name is required for trader ads';
@@ -259,7 +259,7 @@ export default function EditAd() {
         roadTax: form.roadTax,
         nctExpiry: form.nctMonth && form.nctYear ? `${form.nctMonth}/${form.nctYear}` : '',
         taxExpiry: form.taxMonth && form.taxYear ? `${form.taxMonth}/${form.taxYear}` : '',
-        fullName: form.fullName,
+        fullName: user?.seller_type === 'dealer' ? (user.business_name || form.fullName) : form.fullName,
         email: form.email,
         phone: form.phone,
         adType: form.adType,
@@ -635,6 +635,7 @@ export default function EditAd() {
           {/* Contact Details Section */}
           <Section title="Contact Details" icon={<User className="w-5 h-5" />}>
             <div className="flex flex-col gap-4">
+              {user?.seller_type !== 'dealer' && (
               <div id="field-fullName">
                 <label className="block text-sm font-medium text-foreground mb-1.5">Full Name <span className="text-destructive">*</span></label>
                 <div className="relative">
@@ -644,6 +645,7 @@ export default function EditAd() {
                 </div>
                 {formErrors.fullName && <p className="text-xs text-destructive mt-1">{formErrors.fullName}</p>}
               </div>
+              )}
               <div id="field-phone">
                 <label className="block text-sm font-medium text-foreground mb-1.5">Phone <span className="text-destructive">*</span></label>
                 <div className="relative">

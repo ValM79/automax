@@ -169,6 +169,7 @@ export default function PlaceAd() {
     email: user?.email || ''
   });
   const profilePrefilled = useRef(false);
+  const isDealer = user?.seller_type === 'dealer'; // a Dealer has no personal name on their ads: the business name is used
 
   // Reflect the saved My Profile details in the contact section.
   useEffect(() => {
@@ -176,7 +177,7 @@ export default function PlaceAd() {
       profilePrefilled.current = true;
       setForm((f) => ({
         ...f,
-        fullName: user.display_name || user.full_name || f.fullName,
+        fullName: user.seller_type === 'dealer' ? (user.business_name || f.fullName) : (user.display_name || user.full_name || f.fullName),
         email: user.email || f.email,
         county: user.county || f.county,
         area: user.area || f.area,
@@ -265,7 +266,7 @@ export default function PlaceAd() {
     if (!form.title.trim()) errors.title = 'Please enter a title for your ad';
     if (!form.description.trim()) errors.description = 'Please enter a description for your ad';
     if (!form.price.trim()) errors.price = 'Please enter a price for your ad';
-    if (!form.fullName.trim()) errors.fullName = 'Please enter your full name';
+    if (!isDealer && !form.fullName.trim()) errors.fullName = 'Please enter your full name';
     if (!form.email.trim()) errors.email = 'Please enter your email address';
     if (!form.phone.trim()) errors.phone = 'Please enter your phone number';
     if (!form.area || form.area === '__other__') errors.area = 'Please select an area';
@@ -989,6 +990,7 @@ export default function PlaceAd() {
           {/* Section 5: Contact Details */}
           <Section title="Contact Details" icon={<User className="w-5 h-5" />}>
             <div className="flex flex-col gap-4">
+              {!isDealer && (
               <div id="field-fullName">
                 <label className="block text-sm font-medium text-foreground mb-1.5">Full Name <span className="text-destructive">*</span></label>
                 <div className="relative">
@@ -998,6 +1000,7 @@ export default function PlaceAd() {
                 </div>
                 {formErrors.fullName && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><span>⚠</span>{formErrors.fullName}</p>}
               </div>
+              )}
 
               <div id="field-phone">
                 <label className="block text-sm font-medium text-foreground mb-1.5">Phone <span className="text-destructive">*</span></label>
@@ -1192,7 +1195,7 @@ export default function PlaceAd() {
                     fullServiceHistory: form.fullServiceHistory,
                     noAccidents: form.noAccidents,
                     roadTax: form.roadTax,
-                    fullName: form.fullName,
+                    fullName: isDealer ? (form.businessName.trim() || form.fullName) : form.fullName,
                     email: form.email,
                     phone: form.phone,
                     adType: form.adType,
