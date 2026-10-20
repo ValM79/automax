@@ -543,9 +543,9 @@ export default function Profile() {
                 {user.seller_type === 'dealer' && (
                   <>
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="block text-sm font-medium text-foreground">Business Address line 2 (optional)</label>
                       <input
                         type="text"
+                        aria-label="Business address line 2 (optional)"
                         value={form.businessAddress2}
                         onChange={set('businessAddress2')}
                         placeholder="Address line 2"
