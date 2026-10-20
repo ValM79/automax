@@ -38,6 +38,11 @@ Usage & Technical Data
 • Pages visited, search queries entered, listings viewed, and time spent on the site.
 • Referral sources (how you found AutoMax).
 
+Dealer Pages & Reviews
+• If you open a Dealer account, the details you add to your dealer page are public: business name, logo, photo, address, county and area, opening hours, the phone number, email address and website you choose to show, and your "About" text.
+• A review you write about a dealer is public. It shows your first name and the first letter of your last name, your star rating, your comment, the date, and any reply from the dealer. We keep the link between a review and your account so you can edit or remove it, but we never publish your email address or account ID with it.
+• For each dealer page we keep simple daily totals (how many times it was opened and how many times its Phone, WhatsApp, Email and Website buttons were pressed). These totals contain no IP address, device identifier or account details, and the dealer cannot see who visited.
+
 Cookie & Tracking Data
 • We currently use only essential cookies required for the site to function (e.g. keeping you signed in, remembering your cookie preferences). We do not currently run analytics or advertising trackers. If this changes, we will update this policy and our Cookie Policy first, and request consent before any such cookie is set.`
   },
@@ -87,6 +92,10 @@ Transaction & Payment Records: Retained for 7 years in accordance with Irish Rev
 
 Communication Data (Messages): Retained for 12 months after the last message in a conversation.
 
+Reviews: Kept while the reviewer's account and the dealer's account exist. A review can be removed by the person who wrote it at any time. If the reviewer deletes their account, their reviews are deleted with it. If a dealer deletes their account, the reviews on their dealer page are deleted too.
+
+Dealer Page Statistics: The daily totals are deleted automatically after about 13 months.
+
 Support Correspondence: Retained for 3 years after the matter is resolved.
 
 Cookie Data: See individual retention periods in our Cookie Policy.`
@@ -107,6 +116,9 @@ All processors are bound by Data Processing Agreements (DPAs) and are required t
 
 Public Listings:
 Information you submit in an advertisement (e.g. vehicle details, photos, price, general location, and contact preferences) will be publicly visible to other users of the site. Do not include sensitive personal data in your ad description.
+
+Dealer Pages and Reviews:
+A Dealer's page and the reviews written about the dealer can be seen by anyone, whether or not they have an account. A dealer can see reviews and reply to them, but cannot see who wrote one beyond the name shown with it.
 
 Legal & Regulatory Authorities:
 We may disclose data to the Garda Síochána, the Data Protection Commission, Revenue Commissioners, or other competent authorities where required by law or court order.
@@ -200,7 +212,7 @@ export default function PrivacyPolicy() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
-          <p className="text-sm text-muted-foreground">Last updated: 31 August 2026 &nbsp;·&nbsp; Effective date: 18 June 2026</p>
+          <p className="text-sm text-muted-foreground">Last updated: 20 October 2026 &nbsp;·&nbsp; Effective date: 18 June 2026</p>
           <p className="text-sm text-muted-foreground mt-3">
             AutoMax is committed to protecting your privacy and handling your personal data in full compliance with the{' '}
             <strong>General Data Protection Regulation (GDPR)</strong>, the{' '}

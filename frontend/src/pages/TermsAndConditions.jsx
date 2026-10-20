@@ -17,7 +17,7 @@ export default function TermsAndConditions() {
         </div>
 
         <h1 className="text-3xl font-extrabold text-foreground mb-2">Terms & Conditions</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: June 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: October 2026</p>
 
         <div className="flex flex-col gap-8 text-sm text-foreground leading-relaxed">
 
@@ -105,7 +105,18 @@ export default function TermsAndConditions() {
             <p className="mt-3">By using the Platform you agree not to post objectionable content or engage in abusive behaviour, and you accept that violations may result in immediate removal of content and permanent loss of access.</p>
           </Section>
 
-          <Section title="12. Contact Us">
+          <Section title="12. Dealer Pages and Reviews">
+            <p>A Dealer account has its own public page on AutoMax. By opening one you agree that:</p>
+            <ul className="list-disc ml-5 mt-3 space-y-1.5 text-muted-foreground">
+              <li>The business details you add to your dealer page (name, logo, photo, address, opening hours, and the phone number, email address and website you choose to show) are public and must be accurate and yours to use.</li>
+              <li>You may reply to a review once, in public, and must keep replies polite and truthful. You cannot edit or delete reviews written about you.</li>
+              <li>You may switch reviews off in your Profile. Reviews you already have are kept and appear again if you switch them back on.</li>
+            </ul>
+            <p className="mt-3">Anyone who has sent a dealer a message through AutoMax may write one review of that dealer. A review must be based on your own experience, honest, and free of offensive, defamatory or personal content. You must not write a review of a business you own, work for or compete with, or in return for payment or any other benefit, and dealers must not ask for, buy or write reviews of themselves.</p>
+            <p className="mt-3">Anyone signed in can report a review using the <strong>Report</strong> link under it. We may hide or remove a review, and suspend an account, where these Terms are broken. To ask us to look at a review, contact <a href="mailto:support@automax.ie" className="text-primary hover:underline">support@automax.ie</a>.</p>
+          </Section>
+
+          <Section title="13. Contact Us">
             <p>If you have any questions about these Terms & Conditions, please contact us:</p>
             <div className="mt-3 space-y-1 text-muted-foreground">
               <p><strong className="text-foreground">AutoMax</strong> — operated by Don</p>

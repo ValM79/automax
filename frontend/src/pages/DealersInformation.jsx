@@ -92,6 +92,16 @@ export default function DealersInformation() {
           </ul>
         </Section>
 
+        <Section title="6. See how your page is doing">
+          <p className="text-foreground mb-3">Open <strong>My Account</strong>, then <strong>Dealer Stats</strong>. For the last 7 or 30 days it shows:</p>
+          <ul className={bullets}>
+            <li>how many times your dealer page was opened, with a chart for each day;</li>
+            <li>how many buyers pressed <strong>Show phone number</strong>, <strong>WhatsApp</strong>, <strong>Email</strong> and <strong>View Website</strong>;</li>
+            <li>how many messages you received, and your review rating.</li>
+          </ul>
+          <p className="text-muted-foreground mt-3">A visit is counted once for each browsing session, and your own visits are not counted. Only totals are kept: you cannot see who visited.</p>
+        </Section>
+
         <Section title="Good to know">
           <ul className={bullets}>
             <li>Your page has three tabs: <strong>Our Stock</strong> (your live ads, with a section filter, a price filter and a sort option), <strong>Contact Us</strong> and <strong>Reviews</strong>.</li>

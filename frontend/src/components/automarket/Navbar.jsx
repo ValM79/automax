@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, BarChart3, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -38,6 +38,10 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const dealersMenuRef = useRef(null);
   const { user } = useAuth();
+  // A Dealer also has Dealer Stats, after Messages
+  const menuItems = user?.seller_type === 'dealer'
+    ? [...userMenuItems.slice(0, 3), { label: 'Dealer Stats', icon: BarChart3 }, ...userMenuItems.slice(3)]
+    : userMenuItems;
   const navigate = useNavigate();
   const location = useLocation();
   const isRootPage = location.pathname === '/';
@@ -164,13 +168,22 @@ export default function Navbar() {
                 </button>
                 {showUserMenu &&
               <div className="absolute right-0 mt-2 w-52 bg-card border border-border rounded-xl shadow-lg py-1 z-50">
-                    {userMenuItems.map((item, i) =>
+                    {menuItems.map((item, i) =>
                 item.divider ?
                 <div key={i} className="border-t border-border my-1" /> :
                 item.label === 'Profile' ?
                 <Link
                   key={item.label}
                   to="/profile"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
+                          <item.icon className="w-4 h-4 text-muted-foreground" />
+                          {item.label}
+                        </Link> :
+                item.label === 'Dealer Stats' ?
+                <Link
+                  key={item.label}
+                  to="/dealer-stats"
                   onClick={() => setShowUserMenu(false)}
                   className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <item.icon className="w-4 h-4 text-muted-foreground" />
