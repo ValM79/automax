@@ -444,7 +444,7 @@ export default function Profile() {
                 <Store className="w-5 h-5 text-primary" />
                 <h2 className="text-lg font-bold text-foreground">Your Dealer Page</h2>
               </div>
-              <div className="space-y-1.5 mb-5">
+              <div className="space-y-3 mb-5">
                 <label className="block text-sm font-medium text-foreground">Logo</label>
                 <div className="flex items-center gap-4">
                   <DealerLogo url={user.avatar_url} className="w-20 h-20" />
@@ -463,7 +463,7 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-3">
                 <label className="block text-sm font-medium text-foreground">Business page Banner</label>
                 <input ref={coverInput} type="file" accept="image/*" className="hidden" onChange={changeCover} />
                 <div className="relative w-full h-36 sm:h-44 rounded-lg border border-border bg-secondary overflow-hidden flex items-center justify-center">
