@@ -4,6 +4,7 @@ import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
 import { normalizeEircode } from '@/lib/eircode';
 import { normalizeWebsite } from '@/lib/website';
+import DealerLogo from '../components/automarket/DealerLogo';
 import BackButton from '../components/automarket/BackButton';
 import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare, Clock, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -404,7 +405,9 @@ export default function Profile() {
         {/* Profile header card: a person for a private seller, the business for a trader */}
         <div className="bg-card rounded-xl border border-border mb-6 px-5 sm:px-6 py-4">
           <div className="flex items-center gap-4">
-            <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />
+            {user.seller_type === 'dealer'
+              ? <DealerLogo url={user.avatar_url} className="w-16 h-16" />
+              : <AvatarBadge url={user.avatar_url} isTrader={isTrader} className="w-16 h-16" />}
             <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={changePhoto} />
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">
@@ -444,7 +447,7 @@ export default function Profile() {
               <div className="space-y-1.5 mb-5">
                 <label className="block text-sm font-medium text-foreground">Logo</label>
                 <div className="flex items-center gap-4">
-                  <AvatarBadge url={user.avatar_url} isTrader className="w-20 h-20" />
+                  <DealerLogo url={user.avatar_url} className="w-20 h-20" />
                   <div>
                     <p className="text-xs flex items-center gap-3">
                       <button type="button" onClick={() => photoInput.current && photoInput.current.click()} disabled={photoBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
@@ -456,7 +459,7 @@ export default function Profile() {
                       )}
                     </p>
                     {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">Your logo is shown on your card and on your dealer page.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Your logo is shown on your card and on your dealer page. Until you add one, the AutoMax logo is shown.</p>
                   </div>
                 </div>
               </div>

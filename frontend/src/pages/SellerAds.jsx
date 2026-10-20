@@ -17,6 +17,8 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ListingCard from '../components/automarket/ListingCard';
 import AvatarBadge from '../components/automarket/AvatarBadge';
+import DealerLogo from '../components/automarket/DealerLogo';
+import { openingStatus } from '@/lib/openingStatus';
 import DealerReviews from '../components/automarket/DealerReviews';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
@@ -200,6 +202,7 @@ export default function SellerAds() {
       : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
   const place = [stats?.county, stats?.area].filter(Boolean).join(', ');
 
+  const openStatus = openingStatus(stats?.opening_times);
   const reviewsOn = stats?.reviews_enabled !== false; // a Dealer can switch reviews off in their Profile (then there is no Reviews tab)
   // A Dealer's reviews (loaded again when the visitor signs in or out, since what they may do depends on who they are)
   const loadReviews = useCallback(async () => {
@@ -362,18 +365,13 @@ export default function SellerAds() {
             <span className="text-white">{name}</span>
           </div>
           <div className="flex items-center gap-4 sm:gap-5">
-            {(stats?.avatar_url || isExample) && (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0">
-                {stats?.avatar_url
-                  ? <img src={stats.avatar_url} alt="" className="w-full h-full object-contain" />
-                  : <Building2 className="w-1/2 h-1/2 text-muted-foreground" strokeWidth={1.5} />}
-              </div>
-            )}
+            <DealerLogo url={stats?.avatar_url} bordered={false} />
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-4xl font-bold break-words">{name}</h1>
               <p className="mt-1.5 text-sm sm:text-base text-white/90 flex flex-wrap items-center gap-x-4 gap-y-1">
                 {place && <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {place}</span>}
                 {stats?.trusted && <span className="inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Verified Dealer</span>}
+                {openStatus && <span className="inline-flex items-center gap-1.5"><span className={`w-2 h-2 rounded-full ${openStatus.open ? 'bg-green-400' : 'bg-neutral-300'}`} /> {openStatus.text}</span>}
                 {reviewCount > 0 && (
                   <button type="button" onClick={() => setTab('reviews')} className="inline-flex items-center gap-1.5 hover:underline">
                     <Star className="w-4 h-4 text-amber-400 fill-amber-400" /> {reviewData.summary.average.toFixed(1)} ({reviewCount} review{reviewCount === 1 ? '' : 's'})
