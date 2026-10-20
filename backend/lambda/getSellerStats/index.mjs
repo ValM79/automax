@@ -9,6 +9,7 @@ import { QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
 import { CognitoIdentityProviderClient, ListUsersCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { ddb, TABLES, json } from '../_lib/common.mjs';
 import { normalizeWebsite } from '../_lib/website.mjs';
+import { openingTimes } from '../_lib/openingTimes.mjs';
 
 const cognito = new CognitoIdentityProviderClient({});
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -46,17 +47,6 @@ async function countAds(sellerId) {
 // area, address, opening hours, phone number and the "trusted" mark. These are the details a business chooses to
 // show buyers anyway. Never an email, VAT number or personal name.
 const FIELDS = ['avatar_url', 'cover_url', 'seller_type', 'business_name', 'county', 'area', 'business_address', 'opening_hours', 'opening_times', 'about', 'phone', 'trusted_dealer', 'contact_ways', 'whatsapp_number', 'contact_email', 'business_address_2', 'eircode', 'website', 'reviews_enabled'];
-
-// Opening hours by day, only the known days and only values of the form "09:00 - 18:00" or "Closed".
-function openingTimes(t) {
-  const out = {};
-  if (!t || typeof t !== 'object') return out;
-  for (const key of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'bank']) {
-    const v = typeof t[key] === 'string' ? t[key].trim() : '';
-    if (v === 'Closed' || /^\d{2}:\d{2} - \d{2}:\d{2}$/.test(v)) out[key] = v;
-  }
-  return out;
-}
 
 // Only the contact ways the dealer switched on are returned, and a WhatsApp number or email only when its way is on.
 function contactWays(p) {

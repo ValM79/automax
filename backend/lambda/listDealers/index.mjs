@@ -8,8 +8,9 @@
 // anyway: business name, logo, county/area, number of live ads and the sections they sell in. Never an email,
 // phone number, street address or VAT number. "trusted" can only be switched on by the site owner directly in the
 // database (it is not one of the fields a user may edit on their own profile).
-import { QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { QueryCommand, BatchGetCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json } from '../_lib/common.mjs';
+import { openingTimes } from '../_lib/openingTimes.mjs';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CACHE_MS = 60 * 1000;
@@ -73,6 +74,23 @@ async function dealerProfiles() {
   return out;
 }
 
+// The opening hours are not in the bySellerType index (an index's columns cannot be changed afterwards), so they are read
+// from the profiles directly, 100 at a time. They are used for the "Open now" line on each card.
+async function openingTimesById(ids) {
+  const out = new Map();
+  for (let i = 0; i < ids.length; i += 100) {
+    let keys = ids.slice(i, i + 100).map((id) => ({ id }));
+    for (let attempt = 0; keys.length && attempt < 3; attempt += 1) {
+      const res = await ddb.send(new BatchGetCommand({
+        RequestItems: { [TABLES.User]: { Keys: keys, ProjectionExpression: 'id, opening_times' } },
+      }));
+      for (const item of res.Responses?.[TABLES.User] || []) out.set(item.id, item.opening_times);
+      keys = res.UnprocessedKeys?.[TABLES.User]?.Keys || [];
+    }
+  }
+  return out;
+}
+
 async function cachedLiveAds() {
   if (adsCache && Date.now() - adsCache.at < CACHE_MS) return adsCache.sellers;
   const sellers = await liveAdsBySeller();
@@ -82,6 +100,7 @@ async function cachedLiveAds() {
 
 async function buildDealers() {
   const [sellers, profiles] = await Promise.all([cachedLiveAds(), dealerProfiles()]);
+  const hours = await openingTimesById(profiles.map((p) => p.id)).catch((e) => { console.log('Could not read opening hours:', e.message); return new Map(); });
   const cdn = `https://${process.env.PHOTOS_CDN_DOMAIN}/`;
   const dealers = [];
   for (const p of profiles) {
@@ -98,6 +117,7 @@ async function buildDealers() {
       stock: s.stock,
       sections: [...s.sections].sort((x, y) => (x === 'Cars' ? -1 : y === 'Cars' ? 1 : x.localeCompare(y))),
       trusted: p.trusted_dealer === true,
+      opening_times: openingTimes(hours.get(p.id)),
     });
   }
   dealers.sort((x, y) => Number(y.trusted) - Number(x.trusted) || y.stock - x.stock || x.name.localeCompare(y.name));

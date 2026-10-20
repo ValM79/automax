@@ -1,37 +1,26 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, Building2, Car } from 'lucide-react';
+import { ShieldCheck, Car } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { api } from '@/api/apiClient';
 import { IRISH_COUNTIES } from '@/lib/counties';
+import DealerLogo from '../components/automarket/DealerLogo';
+import { openingStatus } from '@/lib/openingStatus';
 
 const PAGE_SIZE = 10;
 const BANNER = '/img/b29eb1163_generated_image.jpg'; // the banner the old New Cars page had
-
-// The dealer's logo, square, at the right of the card. Falls back to a building icon if it fails to load.
-function DealerLogo({ url }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [url]);
-  return (
-    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-border bg-white flex items-center justify-center overflow-hidden shrink-0">
-      {url && !failed
-        ? <img src={url} alt="" onError={() => setFailed(true)} className="w-full h-full object-contain" />
-        : <Building2 className="w-1/2 h-1/2 text-muted-foreground" strokeWidth={1.5} />}
-    </div>
-  );
-}
 
 // One dealership card. With a photo, the photo is the card background (under a mild dark shade at the left so the white text
 // can be read), the text is white at the left, Visit Showroom is in the middle of the card and the logo is at the right,
 // vertically centred. No photo = a white card with black text and the logo and the label at the right; no logo = no logo box.
 function DealerCard({ dealer, onClick, example = false }) {
-  const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl } = dealer;
+  const { name, trusted, county, area, stock, sections, avatarUrl, coverUrl, openingTimes } = dealer;
   const [coverFailed, setCoverFailed] = useState(false);
   useEffect(() => { setCoverFailed(false); }, [coverUrl]);
   const hasPhoto = !!coverUrl && !coverFailed;
-  const hasLogo = !!avatarUrl || example;
   const place = [county, area].filter(Boolean).join(', ');
+  const status = openingStatus(openingTimes);
   const Root = onClick ? 'button' : 'div';
   const ink = hasPhoto ? 'text-white' : 'text-black';
   const visit = <span className={`text-xs font-medium ${ink}`}>Visit Showroom</span>;
@@ -57,6 +46,11 @@ function DealerCard({ dealer, onClick, example = false }) {
           </p>
         )}
         {place && <p className={`text-sm mt-2 ${ink}`}>{place}</p>}
+        {status && (
+          <p className={`flex items-center gap-1.5 text-sm mt-1 ${ink}`}>
+            <span className={`w-2 h-2 rounded-full shrink-0 ${status.open ? 'bg-green-500' : 'bg-neutral-400'}`} /> {status.text}
+          </p>
+        )}
         <p className={`text-sm ${place ? 'mt-1' : 'mt-2'} ${ink}`}>{stock === 0 ? 'No cars listed yet' : `${stock} ${stock === 1 ? 'car' : 'cars'} in stock`}</p>
         <div className="flex flex-wrap gap-2 mt-4">
           {sections.map((t) => (
@@ -67,11 +61,11 @@ function DealerCard({ dealer, onClick, example = false }) {
       {hasPhoto ? (
         <>
           <div className="absolute inset-x-0 bottom-4 text-center sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">{visit}</div>
-          {hasLogo && <div className="absolute top-4 right-4 sm:top-1/2 sm:-translate-y-1/2 sm:right-7"><DealerLogo url={avatarUrl} /></div>}
+          <div className="absolute top-4 right-4 sm:top-1/2 sm:-translate-y-1/2 sm:right-7"><DealerLogo url={avatarUrl} /></div>
         </>
       ) : (
         <div className="shrink-0 p-5 sm:p-7 flex flex-col items-end gap-2">
-          {hasLogo && <DealerLogo url={avatarUrl} />}
+          <DealerLogo url={avatarUrl} />
           {visit}
         </div>
       )}
@@ -85,6 +79,7 @@ function DealerCard({ dealer, onClick, example = false }) {
 const EXAMPLE_DEALER = {
   name: 'Your Dealership Name', trusted: true, county: 'Dublin', area: 'Swords', stock: 12,
   sections: ['Cars For Sale', 'Dealership Cars', 'Commercials'], avatarUrl: '', coverUrl: '/img/927787060_generated_image.jpg',
+  openingTimes: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed' },
 };
 
 // Dealers Garage: the directory of dealerships. The list comes from real Trader accounts that have at least one live ad,
@@ -184,7 +179,7 @@ export default function Dealers() {
               {shown.map((d) => (
                 <DealerCard
                   key={d.id}
-                  dealer={{ name: d.name, trusted: d.trusted, county: d.county, area: d.area, stock: d.stock, sections: d.sections, avatarUrl: d.avatar_url, coverUrl: d.cover_url }}
+                  dealer={{ name: d.name, trusted: d.trusted, county: d.county, area: d.area, stock: d.stock, sections: d.sections, avatarUrl: d.avatar_url, coverUrl: d.cover_url, openingTimes: d.opening_times }}
                   onClick={() => navigate(`/seller-ads/${d.id}`)} />
               ))}
             </div>
