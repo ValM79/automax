@@ -102,6 +102,10 @@ async function list(user, body) {
   const dealer = await getDealer(body.dealer_id);
   if (!dealer) return json(404, { error: 'Dealer not found' });
   const dealerId = dealer.id;
+  // A dealer who switched reviews off shows no reviews (they are kept, and come back if it is switched on again).
+  if (dealer.reviews_enabled === false) {
+    return json(200, { enabled: false, summary: { count: 0, average: 0 }, reviews: [], viewer: { can_review: false, reason: 'disabled', is_dealer: !!user && user.id === dealerId } });
+  }
   const items = await reviewsOf(dealerId);
   const count = items.length;
   const average = count ? Math.round((items.reduce((sum, r) => sum + r.rating, 0) / count) * 10) / 10 : 0;
@@ -147,6 +151,7 @@ async function submit(user, body) {
   const dealer = await getDealer(body.dealer_id);
   if (!dealer) return json(404, { error: 'Dealer not found' });
   if (user.id === dealer.id) return json(403, { error: "You can't review your own dealership" });
+  if (dealer.reviews_enabled === false) return json(403, { error: 'This dealer is not taking reviews' });
   if (!(await hasMessagedDealer(user.id, dealer.id))) {
     return json(403, { error: 'You can review a dealer once you have sent them a message through AutoMax' });
   }

@@ -3,8 +3,9 @@ import { isBusinessType, accountLabel } from '@/lib/accountType';
 import { DAY_KEYS, normalizeTime, hasTimes } from '@/lib/openingHours';
 import { waysOf, whatsappDigits, isEmail } from '@/lib/contactWays';
 import { normalizeEircode } from '@/lib/eircode';
+import { normalizeWebsite } from '@/lib/website';
 import BackButton from '../components/automarket/BackButton';
-import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare, Clock } from 'lucide-react';
+import { Info, User, Mail, Phone, Building2, Store, Shield, Trash2, Bell, Calendar, Camera, MessageSquare, Clock, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
@@ -38,6 +39,8 @@ export default function Profile() {
     ways: { message: true, phone: true, whatsapp: false, email: false },
     businessAddress2: '',
     eircode: '',
+    website: '',
+    reviewsEnabled: true,
     whatsappNumber: '',
     contactEmail: '',
   });
@@ -87,6 +90,8 @@ export default function Profile() {
       ways: waysOf(user.contact_ways),
       businessAddress2: user.business_address_2 || '',
       eircode: user.eircode || '',
+      website: user.website || '',
+      reviewsEnabled: user.reviews_enabled !== false,
       whatsappNumber: user.whatsapp_number || '',
       contactEmail: user.contact_email || '',
     }));
@@ -231,6 +236,11 @@ export default function Profile() {
         setSaving(false);
         return;
       }
+      if (normalizeWebsite(form.website) === null) {
+        setSaveError('Website: please enter your website address, for example www.yourdealership.ie.');
+        setSaving(false);
+        return;
+      }
       if (form.ways.whatsapp && form.whatsappNumber.trim() && !whatsappDigits(form.whatsappNumber)) {
         setSaveError('WhatsApp number: please enter a phone number, for example 087 123 4567.');
         setSaving(false);
@@ -261,6 +271,8 @@ export default function Profile() {
             contact_ways: form.ways,
             business_address_2: form.businessAddress2.trim(),
             eircode: normalizeEircode(form.eircode) || '',
+            website: normalizeWebsite(form.website) || '',
+            reviews_enabled: form.reviewsEnabled,
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
             ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}),
@@ -554,6 +566,20 @@ export default function Profile() {
                     </div>
                     <div className="sm:col-span-2">{areaField(true)}</div>
                     <div className="sm:col-span-2 sm:w-[calc(50%-0.5rem)]">{phoneField(true)}</div>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <label className="block text-sm font-medium text-foreground">Website (optional)</label>
+                      <input
+                        type="text"
+                        inputMode="url"
+                        value={form.website}
+                        onChange={set('website')}
+                        onBlur={() => { const n = normalizeWebsite(form.website); if (n) setForm((f) => ({ ...f, website: n })); }}
+                        maxLength={200}
+                        placeholder="www.yourdealership.ie"
+                        className={`w-full h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeWebsite(form.website) === null ? 'border-red-500' : 'border-border'}`}
+                      />
+                      <p className="text-xs text-muted-foreground">Shown as a View Website link in the Contact Us tab of your dealer page.</p>
+                    </div>
                   </>
                 )}
               </div>
@@ -656,6 +682,7 @@ export default function Profile() {
 
           {/* A Dealer sets how buyers contact them here, in the place of the email alerts (which a Dealer does not need) */}
           {user.seller_type === 'dealer' ? (
+            <>
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <MessageSquare className="w-5 h-5 text-primary" />
@@ -714,6 +741,27 @@ export default function Profile() {
                 ))}
               </div>
             </section>
+
+            {/* Reviews: a Dealer chooses whether buyers may review them (on by default) */}
+            <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
+              <div className="flex items-center gap-2 mb-5">
+                <Star className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">Reviews</h2>
+              </div>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.reviewsEnabled}
+                  onChange={(e) => setForm((f) => ({ ...f, reviewsEnabled: e.target.checked }))}
+                  className="w-4 h-4 mt-0.5 accent-primary cursor-pointer"
+                />
+                <span>
+                  <span className="text-sm font-medium text-foreground">Allow reviews on my dealer page</span>
+                  <span className="block text-xs text-muted-foreground">Buyers who have sent you a message can rate you and write a review. Untick it to hide the Reviews tab. Reviews you already have are kept and come back if you tick it again.</span>
+                </span>
+              </label>
+            </section>
+            </>
           ) : (
             <>
             {/* Notification Preferences */}
