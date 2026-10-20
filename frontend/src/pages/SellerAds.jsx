@@ -501,7 +501,15 @@ export default function SellerAds() {
             <dl className="space-y-5 text-sm">
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Building2 className="w-4 h-4" /> Address</dt>
-                <dd className="text-foreground mt-1 whitespace-pre-line">{[stats?.business_address, stats?.business_address_2, (stats?.business_address || stats?.business_address_2) ? place : '', stats?.eircode].filter(Boolean).join('\n') || place || 'Not added yet'}</dd>
+                {/* One line per part: street, address line 2, area, county, Eircode, then the dealer's email when they chose to show it */}
+                <dd className="text-foreground mt-1">
+                  <span className="block whitespace-pre-line">{[stats?.business_address, stats?.business_address_2, stats?.area, stats?.county, stats?.eircode].filter(Boolean).join('\n') || 'Not added yet'}</span>
+                  {ways.email && (stats?.contact_email || isExample) && (
+                    isExample
+                      ? <span className="block">Your email address</span>
+                      : <a href={`mailto:${stats.contact_email}`} className="block break-all hover:underline">{stats.contact_email}</a>
+                  )}
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</dt>
