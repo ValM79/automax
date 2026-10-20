@@ -11,7 +11,7 @@ import { priceOptions } from '@/lib/priceOptions';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus, Star } from 'lucide-react';
+import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus, Star, ExternalLink } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -32,7 +32,7 @@ const EXAMPLE_STATS = {
   contact_ways: { message: true, phone: true, whatsapp: true, email: true },
   county: 'Dublin', area: 'Swords', business_address: 'Your business address', business_address_2: 'Address line 2', eircode: 'A65 F4E2', about: 'A few lines about your dealership: what you sell, how long you have been trading and what buyers can expect.', opening_hours: '',
   opening_times: { mon: '09:00 - 18:00', tue: '09:00 - 18:00', wed: '09:00 - 18:00', thu: '09:00 - 18:00', fri: '09:00 - 18:00', sat: '10:00 - 16:00', sun: 'Closed', bank: 'Closed' },
-  phone: '', trusted: true,
+  phone: '', trusted: true, website: 'https://www.example.ie/', reviews_enabled: true,
 };
 const exampleAd = (i, title, price, section, image) => ({
   id: `example-${i}`, title, price: `€${price}`, priceNum: price, mileage: '65,000 km', location: 'Swords, Dublin', viewCount: null,
@@ -200,6 +200,7 @@ export default function SellerAds() {
       : (ads.find((a) => a.fullName)?.fullName || 'Private Seller');
   const place = [stats?.county, stats?.area].filter(Boolean).join(', ');
 
+  const reviewsOn = stats?.reviews_enabled !== false; // a Dealer can switch reviews off in their Profile (then there is no Reviews tab)
   // A Dealer's reviews (loaded again when the visitor signs in or out, since what they may do depends on who they are)
   const loadReviews = useCallback(async () => {
     if (isExample) { setReviewData(EXAMPLE_REVIEWS); return; }
@@ -211,12 +212,12 @@ export default function SellerAds() {
     }
   }, [sellerId, isExample]);
   useEffect(() => {
-    if (!isBusiness) { setReviewData(null); return undefined; }
+    if (!isBusiness || !reviewsOn) { setReviewData(null); return undefined; }
     let alive = true;
     setReviewsLoading(true);
     loadReviews().finally(() => { if (alive) setReviewsLoading(false); });
     return () => { alive = false; };
-  }, [isBusiness, loadReviews, user?.id]);
+  }, [isBusiness, reviewsOn, loadReviews, user?.id]);
   const reviewCount = reviewData?.summary?.count || 0;
 
   const shown = useMemo(() => {
@@ -387,7 +388,7 @@ export default function SellerAds() {
       {/* Tabs */}
       <div className="border-b border-border bg-card">
         <div className="w-full max-w-6xl mx-auto px-4 flex justify-center gap-8 sm:gap-14" role="tablist">
-          {TABS.map((t) => (
+          {TABS.filter((t) => t.id !== 'reviews' || reviewsOn).map((t) => (
             <button
               key={t.id}
               type="button"
@@ -511,6 +512,13 @@ export default function SellerAds() {
                   )}
                 </dd>
               </div>
+              {(stats?.website || isExample) && (
+                <div>
+                  {isExample
+                    ? <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">View Website <ExternalLink className="w-4 h-4" /></span>
+                    : <a href={stats.website} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:underline">View Website <ExternalLink className="w-4 h-4" /></a>}
+                </div>
+              )}
               <div>
                 <dt className="text-muted-foreground flex items-center gap-1.5"><Clock className="w-4 h-4" /> Opening hours</dt>
                 <dd className="text-foreground mt-1">{(hasTimes(stats?.opening_times) || stats?.opening_hours) ? <OpeningHours times={stats.opening_times} text={stats.opening_hours} /> : 'Not added yet'}</dd>
@@ -523,7 +531,7 @@ export default function SellerAds() {
           </div>
         )}
 
-        {tab === 'reviews' && (
+        {tab === 'reviews' && reviewsOn && (
           <DealerReviews
             dealerId={sellerId}
             dealerName={name}

@@ -9,6 +9,7 @@
 // the same protection.
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json, getUserFromEvent, sanitize } from '../_lib/common.mjs';
+import { normalizeWebsite } from '../_lib/website.mjs';
 
 // Whitelist of fields a user may set on their own profile. `role` is
 // intentionally not here.
@@ -34,6 +35,8 @@ const EDITABLE_FIELDS = [
   'contact_email',
   'business_address_2',
   'eircode',
+  'website',
+  'reviews_enabled',
 ];
 
 export const handler = async (event) => {
@@ -82,6 +85,13 @@ export const handler = async (event) => {
       if (v && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(v)) return json(400, { error: 'Invalid contact email' });
       body.contact_email = v.slice(0, 120);
     }
+    // A Dealer's own website (http / https only) and whether buyers may review them.
+    if ('website' in body) {
+      const v = normalizeWebsite(body.website);
+      if (v === null) return json(400, { error: 'Invalid website address' });
+      body.website = v;
+    }
+    if ('reviews_enabled' in body) body.reviews_enabled = body.reviews_enabled !== false;
     // Eircode: 7 letters / digits written "A65 F4E2" (or empty).
     if ('eircode' in body) {
       const v = String(body.eircode || '').replace(/\s+/g, '').toUpperCase();
