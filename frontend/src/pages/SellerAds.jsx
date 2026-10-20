@@ -131,6 +131,11 @@ export default function SellerAds() {
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
   const [phoneShown, setPhoneShown] = useState(false);
+  // Counting visits and clicks for the dealer's Dealer Stats (totals only; the server ignores the dealer's own visits)
+  const track = (event) => {
+    if (isExample || !sellerId) return;
+    api.functions.invoke('dealerStats', { action: 'track', dealer_id: sellerId, event }).catch(() => {});
+  };
   const [reviewData, setReviewData] = useState(null); // the dealerReviews "list" answer: summary, reviews, what this visitor may do
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false); // on a phone the filters start folded so the ads are not pushed down
@@ -222,6 +227,16 @@ export default function SellerAds() {
     return () => { alive = false; };
   }, [isBusiness, reviewsOn, loadReviews, user?.id]);
   const reviewCount = reviewData?.summary?.count || 0;
+  useEffect(() => {
+    if (isExample || !isBusiness || !sellerId) return;
+    try {
+      const k = `ds:view:${sellerId}`; // one view for each browsing session
+      if (sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, '1');
+    } catch { /* storage blocked: count it anyway */ }
+    track('view');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBusiness, sellerId, isExample]);
 
   const shown = useMemo(() => {
     const toNumber = (v) => (v ? Number(String(v).replace(/[€,]/g, '')) : null); // the price boxes hold text like '€5,000'
@@ -272,12 +287,12 @@ export default function SellerAds() {
       {ways.whatsapp && (waLink || isExample) && (
         isExample
           ? <span className={waysButtonClass}><MessageCircle className="w-4 h-4" /> WhatsApp</span>
-          : <a href={waLink} target="_blank" rel="noopener noreferrer" className={waysButtonClass}><MessageCircle className="w-4 h-4" /> WhatsApp</a>
+          : <a href={waLink} onClick={() => track('whatsapp')} target="_blank" rel="noopener noreferrer" className={waysButtonClass}><MessageCircle className="w-4 h-4" /> WhatsApp</a>
       )}
       {ways.email && (stats?.contact_email || isExample) && (
         isExample
           ? <span className={waysButtonClass}><Mail className="w-4 h-4" /> Email</span>
-          : <a href={`mailto:${stats.contact_email}`} className={waysButtonClass}><Mail className="w-4 h-4" /> Email</a>
+          : <a href={`mailto:${stats.contact_email}`} onClick={() => track('email')} className={waysButtonClass}><Mail className="w-4 h-4" /> Email</a>
       )}
     </div>
   );
@@ -286,7 +301,7 @@ export default function SellerAds() {
   const phoneButton = !ways.phone ? null : (
     <button
       type="button"
-      onClick={() => setPhoneShown(true)}
+      onClick={() => { if (!phoneShown && phone) track('phone'); setPhoneShown(true); }}
       disabled={!phone}
       className="w-full h-11 border border-primary text-primary bg-card rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
       <Phone className="w-4 h-4" /> {phone ? (phoneShown ? phone : 'Show phone number') : 'No phone number'}
@@ -514,7 +529,7 @@ export default function SellerAds() {
                 <div>
                   {isExample
                     ? <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">View Website <ExternalLink className="w-4 h-4" /></span>
-                    : <a href={stats.website} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:underline">View Website <ExternalLink className="w-4 h-4" /></a>}
+                    : <a href={stats.website} onClick={() => track('website')} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:underline">View Website <ExternalLink className="w-4 h-4" /></a>}
                 </div>
               )}
               <div>

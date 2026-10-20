@@ -142,6 +142,16 @@ export class AutomaxStack extends cdk.Stack {
       sortKey: { name: 'created_date', type: dynamodb.AttributeType.STRING },
     });
 
+    // Daily visit / click totals for each Dealer's page (lambda/dealerStats): one item per dealer per day, expiring after ~13 months.
+    const dealerStatTable = new dynamodb.Table(this, 'DealerStatTable', {
+      tableName: 'Automax-DealerStat',
+      partitionKey: { name: 'dealer_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'day', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      timeToLiveAttribute: 'ttl',
+    });
+
     const reportAdTable = new dynamodb.Table(this, 'ReportAdTable', {
       tableName: 'Automax-ReportAd',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -528,6 +538,7 @@ export class AutomaxStack extends cdk.Stack {
         USERAD_TABLE: userAdTable.tableName,
         MESSAGE_TABLE: messageTable.tableName,
         REVIEW_TABLE: reviewTable.tableName,
+        DEALERSTAT_TABLE: dealerStatTable.tableName,
         REPORTAD_TABLE: reportAdTable.tableName,
         VERIFICATIONCODE_TABLE: verificationCodeTable.tableName,
         USERPROFILE_TABLE: userProfileTable.tableName,
@@ -624,6 +635,12 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'dealerReviews', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Dealer Stats: public visit / click counting, and the dealer's own totals (checked inside the function).
+    const dealerStatsFn = new lambdaNode.NodejsFunction(this, 'DealerStatsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'dealerStats', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const verifyCodeFn = new lambdaNode.NodejsFunction(this, 'VerifyCodeFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'verifyCode', 'index.mjs'),
@@ -677,6 +694,11 @@ export class AutomaxStack extends cdk.Stack {
     messageTable.grantReadData(dealerReviewsFn);
     userProfileTable.grantReadData(dealerReviewsFn);
     appSecrets.grantRead(dealerReviewsFn);
+    // Dealer Stats: writes its counters, reads who was messaged and the reviews, and the profile (is this a Dealer?).
+    dealerStatTable.grantReadWriteData(dealerStatsFn);
+    messageTable.grantReadData(dealerStatsFn);
+    reviewTable.grantReadData(dealerStatsFn);
+    userProfileTable.grantReadData(dealerStatsFn);
     photosBucket.grantReadWrite(entityApiFn);
     photosBucket.grantPut(presignUploadFn);
     deleteAccountFn.addToRolePolicy(
@@ -764,6 +786,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
     route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
     route('/functions/dealerReviews', apigw.HttpMethod.POST, dealerReviewsFn, false);
+    route('/functions/dealerStats', apigw.HttpMethod.POST, dealerStatsFn, false);
     route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);
     route('/functions/toggleAdSave', apigw.HttpMethod.POST, toggleAdSaveFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);

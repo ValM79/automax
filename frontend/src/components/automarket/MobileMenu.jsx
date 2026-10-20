@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, X, User, Megaphone, MessageSquare, ThumbsUp, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { ChevronDown, X, User, Megaphone, MessageSquare, BarChart3, ThumbsUp, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/apiClient';
@@ -151,7 +151,9 @@ export default function MobileMenu({ open, onClose }) {
             <div className="py-2 mb-1">
               <p className="text-lg font-bold text-foreground">{user.full_name || user.email || 'User'}</p>
             </div>
-            {userMenuItems.map((item, i) =>
+            {(user?.seller_type === 'dealer'
+              ? [...userMenuItems.slice(0, 3), { label: 'Dealer Stats', icon: BarChart3, route: '/dealer-stats' }, ...userMenuItems.slice(3)]
+              : userMenuItems).map((item, i) =>
           item.divider ?
           <div key={i} className="border-t border-border my-2" /> :
 

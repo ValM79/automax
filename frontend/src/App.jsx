@@ -45,6 +45,7 @@ const Messages = lazy(() => import('./pages/Messages'));
 const BrowsingHistory = lazy(() => import('./pages/BrowsingHistory'));
 const HistoryChecks = lazy(() => import('./pages/HistoryChecks'));
 const PaymentHistory = lazy(() => import('./pages/PaymentHistory'));
+const DealerStats = lazy(() => import('./pages/DealerStats'));
 const Help = lazy(() => import('./pages/Help'));
 const ElectricHybridCars = lazy(() => import('./pages/ElectricHybridCars'));
 const BuyingTips = lazy(() => import('./pages/BuyingTips'));
@@ -133,6 +134,7 @@ const AnimatedRoutes = () => {
       <Route path="/browsing-history" element={<BrowsingHistory />} />
       <Route path="/history-checks" element={<HistoryChecks />} />
       <Route path="/payment-history" element={<PaymentHistory />} />
+      <Route path="/dealer-stats" element={<DealerStats />} />
       <Route path="/help" element={<Help />} />
       <Route path="/electric-hybrid-cars" element={<ElectricHybridCars />} />
       <Route path="/buying-tips" element={<BuyingTips />} />
