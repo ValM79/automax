@@ -380,7 +380,7 @@ export default function Profile() {
 
         {user.seller_type === 'dealer' && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 mb-6 text-sm text-foreground">
-            <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business photo and your details to make it stand out.</p>
+            <p>Your dealership has its own card in Dealers Garages and its own page. Add your logo, a business page banner and your details to make it stand out.</p>
           </div>
         )}
 
@@ -424,7 +424,7 @@ export default function Profile() {
                     {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                   </button>
                   {user.avatar_url && !photoBusy && (
-                    <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                    <button type="button" onClick={removePhoto} className="text-red-600 font-medium hover:underline">Remove</button>
                   )}
                 </p>
                 {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
@@ -455,29 +455,29 @@ export default function Profile() {
                         {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                       </button>
                       {user.avatar_url && !photoBusy && (
-                        <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                        <button type="button" onClick={removePhoto} className="text-red-600 font-medium hover:underline">Remove</button>
                       )}
                     </p>
                     {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">Your logo is shown on your card and on your dealer page. Until you add one, the AutoMax logo is shown.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Your logo is shown on your card and on your dealer page. Until you add one, a light grey box is shown.</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-foreground">Business Photo</label>
+                <label className="block text-sm font-medium text-foreground">Business page Banner</label>
                 <input ref={coverInput} type="file" accept="image/*" className="hidden" onChange={changeCover} />
                 <div className="relative w-full h-36 sm:h-44 rounded-lg border border-border bg-secondary overflow-hidden flex items-center justify-center">
                   {user.cover_url
                     ? <img src={user.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                    : <span className="text-sm text-muted-foreground">No business photo yet</span>}
+                    : <span className="text-sm text-muted-foreground">No banner yet</span>}
                 </div>
                 <p className="text-xs flex items-center gap-3 pt-1">
                   <button type="button" onClick={() => coverInput.current && coverInput.current.click()} disabled={coverBusy} className="inline-flex items-center gap-1.5 text-primary font-medium hover:underline disabled:opacity-60">
                     <Camera className="w-3.5 h-3.5" />
-                    {coverBusy ? 'Uploading…' : user.cover_url ? 'Change Business Photo' : 'Add Business Photo'}
+                    {coverBusy ? 'Uploading…' : user.cover_url ? 'Change Banner' : 'Add Banner'}
                   </button>
                   {user.cover_url && !coverBusy && (
-                    <button type="button" onClick={removeCover} className="text-muted-foreground hover:text-foreground hover:underline">Remove</button>
+                    <button type="button" onClick={removeCover} className="text-red-600 font-medium hover:underline">Remove</button>
                   )}
                 </p>
                 {coverError && <p className="text-xs text-red-600">{coverError}</p>}
@@ -506,7 +506,7 @@ export default function Profile() {
                 </div>
                 {user.seller_type === 'dealer' && (
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="block text-sm font-medium text-foreground">About Your Dealership</label>
+                  <label className="block text-sm font-medium text-foreground">Business description</label>
                   <textarea
                     value={form.about}
                     onChange={set('about')}
