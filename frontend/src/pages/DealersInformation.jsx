@@ -63,6 +63,7 @@ export default function DealersInformation() {
             <li>Choose the <strong>category</strong> that fits the vehicle: cars, vans, motorbikes, campers and so on. Your page groups your stock by these categories, so buyers can filter by section.</li>
             <li>Add your photos (up to 12), then fill in the title, description, price and the vehicle details.</li>
             <li>Check your contact details and business details. They are filled in from your Profile.</li>
+            <li>Under <strong>Dealer Extras</strong>, tick <strong>Warranty</strong>, <strong>History</strong> and <strong>Delivery</strong> for what you offer with the vehicle, and add a short detail if you like (for example <em>12 months parts and labour</em>). They are shown on your ad. You can change them later with <strong>Edit</strong>.</li>
             <li>Choose an ad package (Basic, Standard or Premium). They differ in how long the ad runs and in extras such as bumps to the top. The price is shown before you pay.</li>
             <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
           </ol>
