@@ -170,6 +170,7 @@ export default function PlaceAd() {
   });
   const profilePrefilled = useRef(false);
   const isDealer = user?.seller_type === 'dealer'; // a Dealer has no personal name on their ads: the business name is used
+  const isTraderAd = isDealer || form.isTrader; // a Dealer is always a trader, so they are not asked
 
   // Reflect the saved My Profile details in the contact section.
   useEffect(() => {
@@ -270,7 +271,7 @@ export default function PlaceAd() {
     if (!form.email.trim()) errors.email = 'Please enter your email address';
     if (!form.phone.trim()) errors.phone = 'Please enter your phone number';
     if (!form.area || form.area === '__other__') errors.area = 'Please select an area';
-    if (form.isTrader && !form.businessName.trim()) errors.businessName = 'Please enter your business name';
+    if (isTraderAd && !form.businessName.trim()) errors.businessName = 'Please enter your business name';
     setFormErrors(errors);
     if (Object.keys(errors).length > 0) {
       // Scroll to first error
@@ -341,7 +342,13 @@ export default function PlaceAd() {
   const areas = areasByCounty[form.county] || areasByCounty.default;
 
   const handleReset = () => {
-    setForm({ ...emptyForm, fullName: user?.full_name || '', email: user?.email || '' });
+    setForm({
+      ...emptyForm,
+      fullName: user?.full_name || '',
+      email: user?.email || '',
+      // a Dealer keeps their business name and VAT number (the "I'm a trader" box is not shown to them)
+      ...(isDealer ? { businessName: user?.business_name || '', vatNumber: user?.vat_number || '' } : {}),
+    });
     setPhotos([]);
     setCategoryStarted(false);
     setFormErrors({});
@@ -1064,7 +1071,8 @@ export default function PlaceAd() {
 
               </div>
 
-              {/* Trader */}
+              {/* Trader (a Dealer is always a trader, so they are not asked) */}
+              {!isDealer && (
               <div className="border border-border rounded-xl p-4 flex items-start gap-3">
                 <input type="checkbox" id="trader" checked={form.isTrader} onChange={toggle('isTrader')}
                 className="w-4 h-4 mt-0.5 accent-primary cursor-pointer" />
@@ -1073,9 +1081,10 @@ export default function PlaceAd() {
                   <p className="text-xs text-muted-foreground mt-0.5">Your ad is labelled Trader. Your business details are printed on your receipts.</p>
                 </div>
               </div>
+              )}
 
               {/* Trader details */}
-              {form.isTrader &&
+              {isTraderAd &&
               <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-secondary/30">
                   <p className="text-xs text-muted-foreground">This information will be used on your invoice.</p>
                   <div id="field-businessName">
@@ -1200,11 +1209,11 @@ export default function PlaceAd() {
                     email: form.email,
                     phone: form.phone,
                     adType: form.adType,
-                    isTrader: form.isTrader,
-                    sellerKind: form.isTrader ? (['dealer', 'dealership'].includes(user.seller_type) ? user.seller_type : 'trader') : '',
-                    businessName: form.isTrader ? form.businessName.trim() : '',
-                    businessAddress: form.isTrader ? form.businessAddress.trim() : '',
-                    vatNumber: form.isTrader ? form.vatNumber.trim() : '',
+                    isTrader: isTraderAd,
+                    sellerKind: isTraderAd ? (['dealer', 'dealership'].includes(user.seller_type) ? user.seller_type : 'trader') : '',
+                    businessName: isTraderAd ? form.businessName.trim() : '',
+                    businessAddress: isTraderAd ? form.businessAddress.trim() : '',
+                    vatNumber: isTraderAd ? form.vatNumber.trim() : '',
                     photos: uploadedPhotoUrls,
                     status: 'pending'
                   };
