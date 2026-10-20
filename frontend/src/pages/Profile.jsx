@@ -567,7 +567,7 @@ export default function Profile() {
                     <div className="sm:col-span-2">{areaField(true)}</div>
                     <div className="sm:col-span-2 sm:w-[calc(50%-0.5rem)]">{phoneField(true)}</div>
                     <div className="space-y-1.5 sm:col-span-2">
-                      <label className="block text-sm font-medium text-foreground">Website (optional)</label>
+                      <label className="block text-sm font-medium text-foreground">Link my Website (optional)</label>
                       <input
                         type="text"
                         inputMode="url"
