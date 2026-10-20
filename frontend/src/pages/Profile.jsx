@@ -324,7 +324,7 @@ export default function Profile() {
                 type="button"
                 onClick={() => setEditingPhone((v) => !v)}
                 className={`border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0 ${half ? 'sm:absolute sm:left-full sm:ml-3 sm:top-0' : ''}`}>
-                {editingPhone ? 'Done' : 'Edit'}
+                {editingPhone ? 'Save' : 'Edit'}
               </button>
             </div>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Info className="w-3.5 h-3.5 text-primary" /> {form.phone ? 'Buyers see this number when you allow contact by phone' : 'Add a phone number so buyers can contact you'}</p>
