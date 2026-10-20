@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
+import { DealerExtrasList } from '../components/automarket/DealerExtras';
 import SellerCard from '../components/automarket/SellerCard';
 import { formatLocation } from '@/lib/formatLocation';
 import MessageModal from '../components/automarket/MessageModal';
@@ -64,6 +65,7 @@ export default function VehicleDetail() {
     fullServiceHistory: ad.fullServiceHistory,
     noAccidents: ad.noAccidents,
     roadTax: ad.roadTax,
+    dealerExtras: ad.dealerExtras,
     nctExpiry: ad.nctExpiry,
     taxExpiry: ad.taxExpiry,
     _raw: ad,
@@ -323,6 +325,7 @@ export default function VehicleDetail() {
                   ))}
                 </dl>
               )}
+              <DealerExtrasList extras={car.dealerExtras || car._raw?.dealerExtras} />
               <div className="flex items-center justify-end gap-4 mt-3">
                 <div className="relative">
                   <button

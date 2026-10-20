@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link, useNavigationType } from 'react-router-dom';
-import { Camera, Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Camera, Upload, X, Plus, Trash2, Save, Car, FileText, User, Phone, Mail, ChevronLeft, ChevronRight, ShieldCheck } from 'lucide-react';
+import { DealerExtrasFields, extrasFromAd, extrasForSave } from '../components/automarket/DealerExtras';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import { uploadPhotos } from '@/lib/photoUpload';
@@ -109,6 +110,7 @@ export default function EditAd() {
           fullServiceHistory: ad.fullServiceHistory || false,
           noAccidents: ad.noAccidents || false,
           roadTax: ad.roadTax || '',
+          extras: extrasFromAd(ad.dealerExtras),
           nctMonth: nctParts[0] || '',
           nctYear: nctParts[1] || '',
           taxMonth: taxParts[0] || '',
@@ -257,6 +259,7 @@ export default function EditAd() {
         fullServiceHistory: form.fullServiceHistory,
         noAccidents: form.noAccidents,
         roadTax: form.roadTax,
+        ...(user?.seller_type === 'dealer' ? { dealerExtras: extrasForSave(form.extras) } : {}),
         nctExpiry: form.nctMonth && form.nctYear ? `${form.nctMonth}/${form.nctYear}` : '',
         taxExpiry: form.taxMonth && form.taxYear ? `${form.taxMonth}/${form.taxYear}` : '',
         fullName: user?.seller_type === 'dealer' ? (user.business_name || form.fullName) : form.fullName,
@@ -631,6 +634,13 @@ export default function EditAd() {
               </div>
             </div>
           </Section>
+
+          {/* Dealer Extras: Warranty, History and Delivery (Dealer accounts only) */}
+          {user?.seller_type === 'dealer' && form.extras && (
+            <Section title="Dealer Extras" icon={<ShieldCheck className="w-5 h-5" />}>
+              <DealerExtrasFields value={form.extras} onChange={(extras) => setForm((f) => ({ ...f, extras }))} />
+            </Section>
+          )}
 
           {/* Contact Details Section */}
           <Section title="Contact Details" icon={<User className="w-5 h-5" />}>

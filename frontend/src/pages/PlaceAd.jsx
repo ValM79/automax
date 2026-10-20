@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { isBusinessType } from '@/lib/accountType';
 import { Link, useNavigate, useSearchParams, useNavigationType } from 'react-router-dom';
-import { Camera, ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2 } from 'lucide-react';
+import { Camera, ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2, ShieldCheck } from 'lucide-react';
+import { DealerExtrasFields, emptyExtras, extrasForSave } from '../components/automarket/DealerExtras';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
@@ -127,6 +128,7 @@ const emptyForm = {
   previousOwners: '',
   fullServiceHistory: false,
   noAccidents: false,
+  extras: emptyExtras(), // a Dealer's Warranty / History / Delivery
   roadTax: '',
   currentCountryOfReg: '',
   nctExpiry: '',
@@ -994,6 +996,13 @@ export default function PlaceAd() {
             </div>
           </Section>
 
+          {/* Dealer Extras: Warranty, History and Delivery (Dealer accounts only) */}
+          {isDealer && (
+            <Section title="Dealer Extras" icon={<ShieldCheck className="w-5 h-5" />}>
+              <DealerExtrasFields value={form.extras} onChange={(extras) => setForm((f) => ({ ...f, extras }))} />
+            </Section>
+          )}
+
           {/* Section 5: Contact Details */}
           <Section title="Contact Details" icon={<User className="w-5 h-5" />}>
             <div className="flex flex-col gap-4">
@@ -1205,6 +1214,7 @@ export default function PlaceAd() {
                     fullServiceHistory: form.fullServiceHistory,
                     noAccidents: form.noAccidents,
                     roadTax: form.roadTax,
+                    ...(isDealer ? { dealerExtras: extrasForSave(form.extras) } : {}),
                     fullName: isDealer ? (form.businessName.trim() || form.fullName) : form.fullName,
                     email: form.email,
                     phone: form.phone,
