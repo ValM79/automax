@@ -424,7 +424,7 @@ export default function Profile() {
                     {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                   </button>
                   {user.avatar_url && !photoBusy && (
-                    <button type="button" onClick={removePhoto} className="text-red-600 font-medium hover:underline">Remove</button>
+                    <button type="button" onClick={removePhoto} className="text-foreground font-medium hover:underline">Remove</button>
                   )}
                 </p>
                 {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
@@ -455,7 +455,7 @@ export default function Profile() {
                         {photoBusy ? 'Uploading…' : user.avatar_url ? 'Change Logo' : 'Add Logo'}
                       </button>
                       {user.avatar_url && !photoBusy && (
-                        <button type="button" onClick={removePhoto} className="text-red-600 font-medium hover:underline">Remove</button>
+                        <button type="button" onClick={removePhoto} className="text-foreground font-medium hover:underline">Remove</button>
                       )}
                     </p>
                     {photoError && <p className="text-xs text-red-600 mt-1">{photoError}</p>}
@@ -477,7 +477,7 @@ export default function Profile() {
                     {coverBusy ? 'Uploading…' : user.cover_url ? 'Change Banner' : 'Add Banner'}
                   </button>
                   {user.cover_url && !coverBusy && (
-                    <button type="button" onClick={removeCover} className="text-red-600 font-medium hover:underline">Remove</button>
+                    <button type="button" onClick={removeCover} className="text-foreground font-medium hover:underline">Remove</button>
                   )}
                 </p>
                 {coverError && <p className="text-xs text-red-600">{coverError}</p>}
