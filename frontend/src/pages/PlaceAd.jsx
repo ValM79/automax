@@ -1074,6 +1074,7 @@ export default function PlaceAd() {
               {/* Trader details */}
               {form.isTrader &&
               <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-secondary/30">
+                  <p className="text-xs text-muted-foreground">This information will be used on your invoice.</p>
                   <div id="field-businessName">
                     <label className="block text-sm font-medium text-foreground mb-1.5">Business Name <span className="text-destructive">*</span></label>
                     <input
