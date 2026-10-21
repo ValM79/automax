@@ -252,6 +252,22 @@ export default function Profile() {
         setSaving(false);
         return;
       }
+    } else if (isBusinessType(user.seller_type)) {
+      if (normalizeEircode(form.eircode) === null) {
+        setSaveError('Eircode: please write it like A65 F4E2.');
+        setSaving(false);
+        return;
+      }
+      if (form.ways.whatsapp && form.whatsappNumber.trim() && !whatsappDigits(form.whatsappNumber)) {
+        setSaveError('WhatsApp number: please enter a phone number, for example 087 123 4567.');
+        setSaving(false);
+        return;
+      }
+      if (form.ways.email && !isEmail(form.contactEmail)) {
+        setSaveError('Contact email: please enter the email address buyers can write to.');
+        setSaving(false);
+        return;
+      }
     }
     try {
       await api.auth.updateMe({
@@ -277,6 +293,15 @@ export default function Profile() {
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
             ...(hasTimes(openingTimes) ? { opening_hours: '' } : {}),
+          }
+          : {}),
+        ...(isBusinessType(user.seller_type) && user.seller_type !== 'dealer'
+          ? {
+            business_address_2: form.businessAddress2.trim(),
+            eircode: normalizeEircode(form.eircode) || '',
+            contact_ways: form.ways,
+            whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
+            contact_email: form.ways.email ? form.contactEmail.trim() : '',
           }
           : {}),
       });
@@ -414,7 +439,7 @@ export default function Profile() {
                 {isTrader ? (form.businessName || 'Your Business') : (form.name || 'Your Name')}
               </h2>
               <p className="text-xs text-muted-foreground truncate">
-                {isTrader ? `${accountKind} account${form.name && user.seller_type !== 'dealer' ? ' · ' + form.name : ''}` : 'Private account'}
+                {isTrader ? `${accountKind} account` : 'Private account'}
               </p>
               {user.seller_type !== 'dealer' && (
                 <>
@@ -520,12 +545,12 @@ export default function Profile() {
                 )}
                 {user.seller_type !== 'dealer' && (
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                    <label className="block text-sm font-medium text-foreground">Contact Name</label>
                     <input
                       type="text"
-                      value={form.vatNumber}
-                      onChange={set('vatNumber')}
-                      placeholder="e.g. IE6439073E"
+                      value={form.name}
+                      onChange={set('name')}
+                      placeholder="Your name"
                       className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                     />
                   </div>
@@ -540,6 +565,58 @@ export default function Profile() {
                     className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                   />
                 </div>
+                {user.seller_type !== 'dealer' && (
+                  <>
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <input
+                        type="text"
+                        aria-label="Business address line 2 (optional)"
+                        value={form.businessAddress2}
+                        onChange={set('businessAddress2')}
+                        placeholder="Address line 2"
+                        className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                      />
+                    </div>
+                    {countyField}
+                    {areaField(false)}
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                      <input
+                        type="text"
+                        value={form.vatNumber}
+                        onChange={set('vatNumber')}
+                        placeholder="e.g. IE6439073E"
+                        className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-foreground">Eircode</label>
+                      <input
+                        type="text"
+                        value={form.eircode}
+                        onChange={set('eircode')}
+                        onBlur={() => { const n = normalizeEircode(form.eircode); if (n !== null) setForm((f) => ({ ...f, eircode: n })); }}
+                        maxLength={8}
+                        placeholder="e.g. A65 F4E2"
+                        className={`w-full h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
+                      />
+                    </div>
+                    {phoneField(false)}
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-foreground">Email</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="email"
+                          value={form.email}
+                          disabled
+                          className="w-full h-10 pl-10 pr-3 text-sm border border-border rounded-md bg-secondary text-muted-foreground cursor-not-allowed"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                    </div>
+                  </>
+                )}
                 {user.seller_type === 'dealer' && (
                   <>
                     <div className="space-y-1.5 sm:col-span-2">
@@ -624,7 +701,8 @@ export default function Profile() {
             </section>
           )}
 
-          {/* Account Details */}
+          {/* Account Details (a Trader / Dealership has these fields inside Business Details) */}
+          {(!isTrader || user.seller_type === 'dealer') && (
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
               <User className="w-5 h-5 text-primary" />
@@ -669,9 +747,10 @@ export default function Profile() {
               </div>
             </div>
           </section>
+          )}
 
-          {/* Contact Information (a Dealer has these fields inside its own Contact Information section, further up) */}
-          {user.seller_type !== 'dealer' && (
+          {/* Contact Information (private accounts only: the other accounts have these fields inside their business section, further up) */}
+          {!isTrader && (
           <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-5">
               <Phone className="w-5 h-5 text-primary" />
@@ -683,8 +762,8 @@ export default function Profile() {
           </section>
           )}
 
-          {/* A Dealer sets how buyers contact them here, in the place of the email alerts (which a Dealer does not need) */}
-          {user.seller_type === 'dealer' ? (
+          {/* A business account (Dealer, Trader, Dealership) sets how buyers contact them here, in the place of the email alerts */}
+          {isTrader ? (
             <>
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
@@ -692,10 +771,10 @@ export default function Profile() {
                 <h2 className="text-lg font-bold text-foreground">How buyers can contact you</h2>
               </div>
               <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page. </p>
+                <p className="text-xs text-muted-foreground">{user.seller_type === 'dealer' ? 'Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page.' : 'Tick the ways you want buyers to reach you about your ads.'}</p>
                 {[
-                  ['phone', 'Phone', 'Buyers can show your phone number. It is the number in your Contact Information.'],
-                  ['message', 'Message', 'Buyers write to you inside AutoMax, from your dealer page. You answer in Messages.'],
+                  ['phone', 'Phone', (user.seller_type === 'dealer' ? 'Buyers can show your phone number. It is the number in your Contact Information.' : 'Buyers can see your phone number. It is the number in your Business Details.')],
+                  ['message', 'Message', (user.seller_type === 'dealer' ? 'Buyers write to you inside AutoMax, from your dealer page. You answer in Messages.' : 'Buyers write to you inside AutoMax. You answer in Messages.')],
                   ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
                   ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
                 ].map(([key, label, hint]) => (
@@ -746,6 +825,7 @@ export default function Profile() {
             </section>
 
             {/* Reviews: a Dealer chooses whether buyers may review them (on by default) */}
+            {user.seller_type === 'dealer' && (
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
                 <Star className="w-5 h-5 text-primary" />
@@ -764,6 +844,7 @@ export default function Profile() {
                 </span>
               </label>
             </section>
+            )}
             </>
           ) : (
             <>
