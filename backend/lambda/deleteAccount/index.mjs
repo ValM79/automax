@@ -58,6 +58,30 @@ async function deleteReviews(userId) {
   return count;
 }
 
+/** Deletes the person's "Notify me" email alerts, via the byUser index. */
+async function deleteAlerts(userId) {
+  let count = 0;
+  let lastKey;
+  do {
+    const res = await ddb.send(
+      new QueryCommand({
+        TableName: TABLES.SearchAlert,
+        IndexName: 'byUser',
+        KeyConditionExpression: 'user_id = :uid',
+        ExpressionAttributeValues: { ':uid': userId },
+        ProjectionExpression: 'id',
+        ExclusiveStartKey: lastKey,
+      })
+    );
+    for (const item of res.Items || []) {
+      await ddb.send(new DeleteCommand({ TableName: TABLES.SearchAlert, Key: { id: item.id } }));
+      count++;
+    }
+    lastKey = res.LastEvaluatedKey;
+  } while (lastKey);
+  return count;
+}
+
 export const handler = async (event) => {
   try {
     const user = await getUserFromEvent(event);
@@ -70,6 +94,7 @@ export const handler = async (event) => {
     const adsDeleted = await deleteAllByOwner(TABLES.UserAd, user.id);
     const reportsDeleted = await deleteAllByOwner(TABLES.ReportAd, user.id);
     const reviewsDeleted = await deleteReviews(user.id);
+    const alertsDeleted = await deleteAlerts(user.id);
 
     await ddb.send(new DeleteCommand({ TableName: TABLES.User, Key: { id: user.id } }));
 
@@ -81,7 +106,7 @@ export const handler = async (event) => {
       console.warn('Cognito user deletion failed (profile row was still removed):', e.message);
     }
 
-    console.log(`Deleted account ${user.id}: ${adsDeleted} ad(s), ${reportsDeleted} report(s), ${reviewsDeleted} review(s) removed`);
+    console.log(`Deleted account ${user.id}: ${adsDeleted} ad(s), ${reportsDeleted} report(s), ${reviewsDeleted} review(s), ${alertsDeleted} alert(s) removed`);
     return json(200, { success: true });
   } catch (error) {
     console.error('Delete account error:', error.message || error);

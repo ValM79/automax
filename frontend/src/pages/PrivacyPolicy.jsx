@@ -43,6 +43,9 @@ Dealer Pages & Reviews
 • A review you write about a dealer is public. It shows your first name and the first letter of your last name, your star rating, your comment, the date, and any reply from the dealer. We keep the link between a review and your account so you can edit or remove it, but we never publish your email address or account ID with it.
 • For each dealer page we keep simple daily totals (how many times it was opened and how many times its Phone, WhatsApp, Email and Website buttons were pressed). These totals contain no IP address, device identifier or account details, and the dealer cannot see who visited.
 
+Email Alerts
+• If you press Notify me on an ad, we keep the make, model or category you chose together with your account, and email you when new ads that match are placed. You can turn an alert off at any time under Saved Searches > Email Alerts. Alerts are deleted when you turn them off or delete your account.
+
 Cookie & Tracking Data
 • We currently use only essential cookies required for the site to function (e.g. keeping you signed in, remembering your cookie preferences). We do not currently run analytics or advertising trackers. If this changes, we will update this policy and our Cookie Policy first, and request consent before any such cookie is set.`
   },

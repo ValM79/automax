@@ -11,6 +11,7 @@ import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
 import SaveHeart from '../components/automarket/SaveHeart';
+import NotifyMeBar from '../components/automarket/NotifyMeBar';
 import { DealerExtrasList } from '../components/automarket/DealerExtras';
 import SellerCard from '../components/automarket/SellerCard';
 import { formatLocation } from '@/lib/formatLocation';
@@ -347,7 +348,12 @@ export default function VehicleDetail() {
             </div>
 
             {/* Description */}
+            {/* Notify me: an email alert for new ads like this one */}
             <div className="lg:order-4 lg:w-full">
+              <NotifyMeBar ad={car} />
+            </div>
+
+            <div className="lg:order-5 lg:w-full">
               <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
             </div>
 
