@@ -262,6 +262,8 @@ export default function VehicleDetail() {
   const priceNum = parseInt(cleanPrice.replace(/,/g, ''), 10);
   const currencySymbol = car.currency || '€';
   const displayPrice = isNaN(priceNum) ? car.price : `${currencySymbol}${priceNum.toLocaleString()}`;
+  // shown under the title; nothing is shown for an ad with no price
+  const hasPrice = isNaN(priceNum) ? !!car.price : priceNum > 0;
 
   const locationShort = car.location ? car.location.split(',').pop().trim() : null;
   const metaParts = [car.year, car.fuel || car.engine, car.mileage, timeAgo, viewCount != null ? `${viewCount} view${viewCount !== 1 ? 's' : ''}` : null, formatLocation(car.location)].filter(Boolean);
@@ -316,6 +318,7 @@ export default function VehicleDetail() {
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-medium text-foreground capitalize text-lg">{car.title}</h1>
               </div>
+              {hasPrice && <p className="mt-1 text-2xl font-bold text-foreground" aria-label="Price">{displayPrice}</p>}
               <p className="text-sm mt-1 text-[hsl(var(--foreground))]">{metaParts.join(' · ')}</p>
               {specItems.length > 0 && (
                 <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 mt-3 text-sm w-fit">
