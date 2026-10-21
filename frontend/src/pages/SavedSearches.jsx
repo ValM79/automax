@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
 import { Link, useNavigate } from 'react-router-dom';
-import { Camera, ArrowLeft, Clock, Trash2, Search, Heart } from 'lucide-react';
-import SaveHeart from '../components/automarket/SaveHeart';
+import { Clock, Trash2, Search, Heart } from 'lucide-react';
+import ListingCard from '../components/automarket/ListingCard';
+import { useFavorites } from '../hooks/useFavorites';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { getSavedSearches, removeSavedSearch } from '@/lib/savedSearches';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
-const STORAGE_KEY = 'automax_favorites';
-
 export default function SavedSearches() {
-  const [savedItems, setSavedItems] = useState([]);
+  const { favorites: savedItems, removeFavorite } = useFavorites();
   const [savedSearches, setSavedSearches] = useState([]);
   const [activeTab, setActiveTab] = useState('searches');
   const navigate = useNavigate();
@@ -25,26 +24,17 @@ export default function SavedSearches() {
     } else {
       setActiveTab('searches');
     }
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      setSavedItems(saved);
-    } catch { setSavedItems([]); }
     setSavedSearches(getSavedSearches());
   }, []);
 
-  const removeSaved = (id) => {
-    const updated = savedItems.filter(item => item.id !== id);
-    setSavedItems(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  const handleDeleteAll = () => {
+    if (!window.confirm('Are you sure you want to delete all saved ads?')) return;
+    savedItems.forEach((item) => removeFavorite(item.id));
   };
 
   const handleRemoveSearch = (id) => {
     removeSavedSearch(id);
     setSavedSearches(getSavedSearches());
-  };
-
-  const handleCardClick = (item) => {
-    navigate(`/vehicle/${item.id}`, { state: { car: item } });
   };
 
   const handleSearchClick = (search) => {
@@ -67,7 +57,7 @@ export default function SavedSearches() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">Saved Searches</span>
+          <span className="text-foreground font-medium">{activeTab === 'liked' ? 'Saved Ads' : 'Saved Searches'}</span>
         </div>
 
         {/* Tabs */}
@@ -134,13 +124,6 @@ export default function SavedSearches() {
         {/* Saved Ads Tab */}
         {activeTab === 'liked' && (
           <>
-            {savedItems.length > 0 && (
-              <div className="flex justify-end mb-4">
-                <button onClick={() => { setSavedItems([]); localStorage.removeItem(STORAGE_KEY); }} className="text-sm text-foreground underline font-medium hover:text-primary transition-colors">
-                  Clear saved ads
-                </button>
-              </div>
-            )}
             {savedItems.length === 0 ? (
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <Heart className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
@@ -151,48 +134,32 @@ export default function SavedSearches() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {savedItems.map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => handleCardClick(item)}
-                    className="bg-card rounded-xl border border-border shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow">
-                    <div className="relative h-44">
-                      {item.image ? (
-                        <>
-                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                          <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
-                            <Camera className="w-3 h-3" /> {item.photos || 1}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full h-full bg-secondary flex items-center justify-center">
-                          <span className="text-muted-foreground text-sm">No photo</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-semibold text-foreground text-sm leading-snug mb-1 line-clamp-2">{item.title}</h3>
-                      <p className="text-xs text-muted-foreground mb-2">{item.location}</p>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Price</p>
-                          <p className="text-base font-bold text-foreground">
-                            {typeof item.price === 'number' ? `€${item.price.toLocaleString()}` : item.price}
-                          </p>
-                        </div>
+              <>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-sm text-foreground font-medium">{savedItems.length} saved ad{savedItems.length === 1 ? '' : 's'}</p>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAll}
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-secondary transition-colors">
+                    <Trash2 className="w-4 h-4" /> Delete all saved ads
+                  </button>
+                </div>
+                <div className="flex flex-col gap-4">
+                  {savedItems.map((item) => (
+                    <div key={item.id}>
+                      <ListingCard item={item} saved onToggleSave={removeFavorite} />
+                      <div className="flex justify-end mt-1.5">
                         <button
-                          onClick={(e) => { e.stopPropagation(); removeSaved(item.id); }}
-                          title="Remove from saved"
-                          aria-label="Remove from saved"
-                          className="group p-1 transition-transform hover:scale-110 min-w-[44px] min-h-[44px] flex items-center justify-center">
-                          <SaveHeart saved />
+                          type="button"
+                          onClick={() => removeFavorite(item.id)}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
+                          <Trash2 className="w-4 h-4" /> Remove from saved
                         </button>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
           </>
         )}
