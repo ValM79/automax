@@ -292,6 +292,7 @@ export default function Profile() {
           : {}),
         ...(isBusinessType(user.seller_type) && user.seller_type !== 'dealer'
           ? {
+            business_address_2: form.businessAddress2.trim(),
             contact_ways: form.ways,
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
@@ -538,12 +539,12 @@ export default function Profile() {
                 )}
                 {user.seller_type !== 'dealer' && (
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                    <label className="block text-sm font-medium text-foreground">Contact Name</label>
                     <input
                       type="text"
-                      value={form.vatNumber}
-                      onChange={set('vatNumber')}
-                      placeholder="e.g. IE6439073E"
+                      value={form.name}
+                      onChange={set('name')}
+                      placeholder="Your name"
                       className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                     />
                   </div>
@@ -560,16 +561,29 @@ export default function Profile() {
                 </div>
                 {user.seller_type !== 'dealer' && (
                   <>
-                    <div className="space-y-1.5">
-                      <label className="block text-sm font-medium text-foreground">Contact Name</label>
+                    <div className="space-y-1.5 sm:col-span-2">
                       <input
                         type="text"
-                        value={form.name}
-                        onChange={set('name')}
-                        placeholder="Your name"
+                        aria-label="Business address line 2 (optional)"
+                        value={form.businessAddress2}
+                        onChange={set('businessAddress2')}
+                        placeholder="Address line 2"
                         className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
                       />
                     </div>
+                    {countyField}
+                    {areaField(false)}
+                    <div className="space-y-1.5 sm:col-span-2 sm:max-w-[calc(50%-0.5rem)]">
+                      <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
+                      <input
+                        type="text"
+                        value={form.vatNumber}
+                        onChange={set('vatNumber')}
+                        placeholder="e.g. IE6439073E"
+                        className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                      />
+                    </div>
+                    {phoneField(false)}
                     <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-foreground">Email</label>
                       <div className="relative">
@@ -583,7 +597,6 @@ export default function Profile() {
                       </div>
                       <p className="text-xs text-muted-foreground">Email cannot be changed</p>
                     </div>
-                    {contactFields}
                   </>
                 )}
                 {user.seller_type === 'dealer' && (
