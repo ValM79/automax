@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
 import { Link, useNavigate } from 'react-router-dom';
-import { Camera, ArrowLeft, Clock, Trash2, Search } from 'lucide-react';
+import { Camera, ArrowLeft, Clock, Trash2, Search, Heart } from 'lucide-react';
+import SaveHeart from '../components/automarket/SaveHeart';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { getSavedSearches, removeSavedSearch } from '@/lib/savedSearches';
@@ -79,7 +80,7 @@ export default function SavedSearches() {
           <button
             onClick={() => setActiveTab('liked')}
             className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'liked' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-            Liked Ads ({savedItems.length})
+            Saved Ads ({savedItems.length})
           </button>
         </div>
 
@@ -130,21 +131,21 @@ export default function SavedSearches() {
           </>
         )}
 
-        {/* Liked Ads Tab */}
+        {/* Saved Ads Tab */}
         {activeTab === 'liked' && (
           <>
             {savedItems.length > 0 && (
               <div className="flex justify-end mb-4">
                 <button onClick={() => { setSavedItems([]); localStorage.removeItem(STORAGE_KEY); }} className="text-sm text-foreground underline font-medium hover:text-primary transition-colors">
-                  Clear liked ads
+                  Clear saved ads
                 </button>
               </div>
             )}
             {savedItems.length === 0 ? (
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
-                <span className="text-5xl opacity-20 block mb-4">👍</span>
-                <p className="text-lg font-medium text-foreground mb-2">No liked ads yet</p>
-                <p className="text-sm text-muted-foreground mb-6">Tap the 👍 icon on any listing to save it here</p>
+                <Heart className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
+                <p className="text-lg font-medium text-foreground mb-2">No saved ads yet</p>
+                <p className="text-sm text-muted-foreground mb-6">Tap the heart on any listing to save it here</p>
                 <Link to="/" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
                   Browse Listings
                 </Link>
@@ -182,8 +183,10 @@ export default function SavedSearches() {
                         </div>
                         <button
                           onClick={(e) => { e.stopPropagation(); removeSaved(item.id); }}
-                          className="p-1 transition-transform hover:scale-110 min-w-[44px] min-h-[44px] flex items-center justify-center">
-                          <span className="text-xl inline-block" style={{ transform: 'scaleX(-1)' }}>👍</span>
+                          title="Remove from saved"
+                          aria-label="Remove from saved"
+                          className="group p-1 transition-transform hover:scale-110 min-w-[44px] min-h-[44px] flex items-center justify-center">
+                          <SaveHeart saved />
                         </button>
                       </div>
                     </div>

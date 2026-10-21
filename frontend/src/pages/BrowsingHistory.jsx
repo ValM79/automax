@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { formatLocation } from '@/lib/formatLocation';
 import BackButton from '../components/automarket/BackButton';
-import { ArrowLeft, Camera, History, Trash2 } from 'lucide-react';
+import { ArrowLeft, Camera, History, Trash2, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -98,7 +98,7 @@ export default function BrowsingHistory() {
                         {typeof item.price === 'number' ? `€${item.price.toLocaleString()}` : item.price}
                       </p>
                     </div>
-                    <span className="text-xl" style={{ transform: 'scaleX(-1)', display: 'inline-block', opacity: 0.3 }}>👍</span>
+                    <Heart className="w-5 h-5 text-muted-foreground opacity-40" strokeWidth={1.75} aria-hidden="true" />
                   </div>
                 </div>
               </div>

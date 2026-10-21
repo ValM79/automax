@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, X, User, Megaphone, MessageSquare, BarChart3, ThumbsUp, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { ChevronDown, X, User, Megaphone, MessageSquare, BarChart3, Heart, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/apiClient';
@@ -23,7 +23,7 @@ const userMenuItems = [
   { label: 'Profile', icon: User, route: '/profile' },
   { label: 'My Ads', icon: Megaphone, route: '/my-ads' },
   { label: 'Messages', icon: MessageSquare, route: '/messages' },
-  { label: 'Liked Ads', icon: ThumbsUp, route: '/saved-searches?tab=liked' },
+  { label: 'Saved Ads', icon: Heart, route: '/saved-searches?tab=liked' },
   { label: 'Browsing History', icon: History, route: '/browsing-history' },
   { divider: true },
   { label: 'Payment Records', icon: CreditCard, route: '/payment-history' },

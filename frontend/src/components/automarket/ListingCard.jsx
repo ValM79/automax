@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { formatLocation } from '@/lib/formatLocation';
 import { Camera, ShieldCheck } from 'lucide-react';
+import SaveHeart from './SaveHeart';
 import { useNavigate } from 'react-router-dom';
 
 const STATUS_BADGE_STYLES = {
@@ -18,7 +19,7 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
   const isGrid = viewMode === 'grid';
   const navigate = useNavigate();
 
-  // Optimistic local state so the thumb icon responds instantly on tap,
+  // Optimistic local state so the heart icon responds instantly on tap,
   // before the parent re-render propagates the new `saved` prop.
   const [optimisticSaved, setOptimisticSaved] = useState(saved);
 
@@ -162,12 +163,10 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
             <div className="flex items-center gap-2">
               <button
                  onClick={handleToggleSave}
-                 className="transition-transform hover:scale-110 flex-shrink-0 p-1 min-w-[44px] min-h-[44px] flex items-center justify-center leading-none">
-                 <span
-                   className={`text-xl inline-block ${optimisticSaved ? '' : 'grayscale opacity-60'}`}
-                   style={{ transform: 'scaleX(-1)' }}>
-                   👍
-                 </span>
+                 title={optimisticSaved ? 'Remove from saved' : 'Save'}
+                 aria-label={optimisticSaved ? 'Remove from saved' : 'Save'}
+                 className="group transition-transform hover:scale-110 flex-shrink-0 p-1 min-w-[44px] min-h-[44px] flex items-center justify-center leading-none">
+                 <SaveHeart saved={optimisticSaved} />
                </button>
             </div>
           </div>
