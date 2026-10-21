@@ -12,8 +12,12 @@
 
 import { QueryCommand, ScanCommand, GetCommand, PutCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, newId, nowIso, json, getUserFromEvent } from '../_lib/common.mjs';
+import { sanitizeUserAdCreate, sanitizeUserAdUpdate } from './userAdRules.mjs';
 
 // Mirrors base44/entities/*.jsonc "rls" blocks.
+// Optional per-entity hooks narrow what a non-admin may write on top of canWrite:
+//   sanitizeCreate(body, user) -> body
+//   sanitizeUpdate(existing, body, user) -> { body } | { error: { statusCode, message } }
 const ENTITY_CONFIG = {
   UserAd: {
     table: TABLES.UserAd,
@@ -22,6 +26,8 @@ const ENTITY_CONFIG = {
     canRead: (item, user) =>
       item.status === 'active' || (!!user && item.created_by_id === user.id) || user?.role === 'admin',
     canWrite: (item, user) => !!user && (item.created_by_id === user.id || user.role === 'admin'),
+    sanitizeCreate: sanitizeUserAdCreate,
+    sanitizeUpdate: sanitizeUserAdUpdate,
     gsis: {
       byOwner: { name: 'byOwner', pk: 'created_by_id', sk: 'created_date' },
       byStatusSubsection: { name: 'byStatusSubsection', pk: 'status', sk: 'subsection' },
@@ -95,7 +101,8 @@ export const handler = async (event) => {
 
 async function createItem(config, event, user) {
   if (config.requireAuthCreate && !user) return json(401, { error: 'Unauthorized' });
-  const body = JSON.parse(event.body || '{}');
+  let body = JSON.parse(event.body || '{}');
+  if (config.sanitizeCreate) body = config.sanitizeCreate(body, user);
   const item = {
     ...config.defaults(),
     ...body,
@@ -120,11 +127,17 @@ async function updateItem(config, entityName, event, user, id) {
   if (!res.Item) return json(404, { error: `${entityName} not found` });
   if (!config.canWrite(res.Item, user)) return json(403, { error: 'Forbidden' });
 
-  const body = JSON.parse(event.body || '{}');
+  let body = JSON.parse(event.body || '{}');
   // Never allow the client to overwrite ownership/system fields
   delete body.id;
   delete body.created_by_id;
   delete body.created_date;
+
+  if (config.sanitizeUpdate) {
+    const result = config.sanitizeUpdate(res.Item, body, user);
+    if (result.error) return json(result.error.statusCode, { error: result.error.message });
+    body = result.body;
+  }
 
   const updated = { ...res.Item, ...body, updated_date: nowIso() };
   await ddb.send(new PutCommand({ TableName: config.table, Item: updated }));
