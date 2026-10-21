@@ -253,6 +253,11 @@ export default function Profile() {
         return;
       }
     } else if (isBusinessType(user.seller_type)) {
+      if (normalizeEircode(form.eircode) === null) {
+        setSaveError('Eircode: please write it like A65 F4E2.');
+        setSaving(false);
+        return;
+      }
       if (form.ways.whatsapp && form.whatsappNumber.trim() && !whatsappDigits(form.whatsappNumber)) {
         setSaveError('WhatsApp number: please enter a phone number, for example 087 123 4567.');
         setSaving(false);
@@ -293,6 +298,7 @@ export default function Profile() {
         ...(isBusinessType(user.seller_type) && user.seller_type !== 'dealer'
           ? {
             business_address_2: form.businessAddress2.trim(),
+            eircode: normalizeEircode(form.eircode) || '',
             contact_ways: form.ways,
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
@@ -573,7 +579,7 @@ export default function Profile() {
                     </div>
                     {countyField}
                     {areaField(false)}
-                    <div className="space-y-1.5 sm:col-span-2 sm:max-w-[calc(50%-0.5rem)]">
+                    <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-foreground">VAT Number (if applicable)</label>
                       <input
                         type="text"
@@ -581,6 +587,18 @@ export default function Profile() {
                         onChange={set('vatNumber')}
                         placeholder="e.g. IE6439073E"
                         className="w-full h-10 px-3 text-sm border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-medium text-foreground">Eircode</label>
+                      <input
+                        type="text"
+                        value={form.eircode}
+                        onChange={set('eircode')}
+                        onBlur={() => { const n = normalizeEircode(form.eircode); if (n !== null) setForm((f) => ({ ...f, eircode: n })); }}
+                        maxLength={8}
+                        placeholder="e.g. A65 F4E2"
+                        className={`w-full h-10 px-3 text-sm border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground ${normalizeEircode(form.eircode) === null && form.eircode.length >= 7 ? 'border-red-500' : 'border-border'}`}
                       />
                     </div>
                     {phoneField(false)}
