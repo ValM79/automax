@@ -103,6 +103,12 @@ export default function MyAds() {
     navigate(`/renew-ad/${ad.id}`);
   };
 
+  // Live ads with 5 days or less left: warned about here (and by email, see lambda/adExpiryNotice)
+  const expiringAds = ads
+    .filter((a) => a.status === 'active' && adDaysLeft(a) != null && adDaysLeft(a) > 0 && adDaysLeft(a) <= 5)
+    .sort((a, b) => adDaysLeft(a) - adDaysLeft(b));
+  const daysText = (n) => `${n} day${n === 1 ? '' : 's'}`;
+
   const getStatusColor = (status) => {
     if (status === 'active') return 'bg-primary/10 text-primary';
     if (status === 'expired') return 'bg-red-50 text-red-600';
@@ -135,6 +141,21 @@ export default function MyAds() {
         {justRenewed &&
           <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
             Payment received. Your ad is being uploaded again with a fresh countdown. If it still shows the old time, give it a few seconds.
+          </div>
+        }
+
+        {expiringAds.length > 0 &&
+          <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+            <p className="font-semibold">{expiringAds.length === 1 ? 'One of your ads expires within 5 days.' : expiringAds.length + ' of your ads expire within 5 days.'}</p>
+            <p className="mt-0.5">Renew to keep {expiringAds.length === 1 ? 'it' : 'them'} listed. We have also emailed you a reminder.</p>
+            <ul className="mt-2 flex flex-col gap-1.5">
+              {expiringAds.map((ad) => (
+                <li key={ad.id} className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate"><span className="font-medium">{ad.title}</span> · {daysText(adDaysLeft(ad))} left</span>
+                  <button type="button" onClick={() => handleRenew(ad)} className="shrink-0 inline-flex items-center gap-1.5 rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"><RotateCcw className="w-3.5 h-3.5" /> Renew my Ad</button>
+                </li>
+              ))}
+            </ul>
           </div>
         }
 
@@ -221,7 +242,7 @@ export default function MyAds() {
                         <span className="inline-flex items-center gap-1.5"><Eye className="w-4 h-4" /> Views: {Number(ad.view_count) || 0}</span>
                         <span className="inline-flex items-center gap-1.5"><Lock className="w-4 h-4" /> Saved: {Number(ad.save_count) || 0}</span>
                         {ad.status === 'active' && adDaysLeft(ad) != null && adDaysLeft(ad) > 0 &&
-                          <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4" /> Days left: {adDaysLeft(ad)}</span>
+                          <span className={`inline-flex items-center gap-1.5 ${adDaysLeft(ad) <= 5 ? 'font-semibold text-amber-700' : ''}`}><Clock className="w-4 h-4" /> Days left: {adDaysLeft(ad)}{adDaysLeft(ad) <= 5 ? ' · expires soon' : ''}</span>
                         }
                       </div>
                     </div>

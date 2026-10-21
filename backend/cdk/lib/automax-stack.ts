@@ -673,6 +673,22 @@ export class AutomaxStack extends cdk.Stack {
       targets: [new eventsTargets.LambdaFunction(adLifecycleFn)],
     });
 
+    // Daily 5-day warning email for every ad about to reach the end of its paid listing period, whatever the account type
+    // (see lambda/adExpiryNotice). Runs at 08:00 UTC, which is 08:00 or 09:00 in Ireland. Reads/marks ads, reads the owner's
+    // profile for the email address, sends through Resend (app secrets).
+    const adExpiryNoticeFn = new lambdaNode.NodejsFunction(this, 'AdExpiryNoticeFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'adExpiryNotice', 'index.mjs'),
+      timeout: cdk.Duration.seconds(60),
+    } as lambdaNode.NodejsFunctionProps);
+    userAdTable.grantReadWriteData(adExpiryNoticeFn);
+    userProfileTable.grantReadData(adExpiryNoticeFn);
+    appSecrets.grantRead(adExpiryNoticeFn);
+    new events.Rule(this, 'AdExpiryNoticeSchedule', {
+      schedule: events.Schedule.cron({ minute: '0', hour: '8' }),
+      targets: [new eventsTargets.LambdaFunction(adExpiryNoticeFn)],
+    });
+
     // Grant table access
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
