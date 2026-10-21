@@ -252,8 +252,8 @@ export default function Profile() {
         setSaving(false);
         return;
       }
-    } else if (isBusinessType(user.seller_type)) {
-      if (normalizeEircode(form.eircode) === null) {
+    } else {
+      if (isBusinessType(user.seller_type) && normalizeEircode(form.eircode) === null) {
         setSaveError('Eircode: please write it like A65 F4E2.');
         setSaving(false);
         return;
@@ -299,6 +299,10 @@ export default function Profile() {
           ? {
             business_address_2: form.businessAddress2.trim(),
             eircode: normalizeEircode(form.eircode) || '',
+          }
+          : {}),
+        ...(user.seller_type !== 'dealer'
+          ? {
             contact_ways: form.ways,
             whatsapp_number: form.ways.whatsapp ? form.whatsappNumber.trim() : '',
             contact_email: form.ways.email ? form.contactEmail.trim() : '',
@@ -348,7 +352,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={() => setEditingPhone((v) => !v)}
-                className={`border border-foreground text-foreground font-semibold px-4 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0 ${half ? 'sm:absolute sm:left-full sm:ml-3 sm:top-0' : ''}`}>
+                className={`border border-foreground text-foreground font-semibold w-20 h-10 rounded-md hover:bg-secondary transition-colors text-sm flex-shrink-0 ${half ? 'sm:absolute sm:left-full sm:ml-3 sm:top-0' : ''}`}>
                 {editingPhone ? 'Save' : 'Edit'}
               </button>
             </div>
@@ -763,7 +767,7 @@ export default function Profile() {
           )}
 
           {/* A business account (Dealer, Trader, Dealership) sets how buyers contact them here, in the place of the email alerts */}
-          {isTrader ? (
+          {(
             <>
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-5">
@@ -773,10 +777,10 @@ export default function Profile() {
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">{user.seller_type === 'dealer' ? 'Tick the ways you want buyers to reach you. They appear as buttons in the Contact Us tab of your dealer page.' : 'Tick the ways you want buyers to reach you about your ads.'}</p>
                 {[
-                  ['phone', 'Phone', (user.seller_type === 'dealer' ? 'Buyers can show your phone number. It is the number in your Contact Information.' : 'Buyers can see your phone number. It is the number in your Business Details.')],
+                  ['phone', 'Phone', (user.seller_type === 'dealer' ? 'Buyers can show your phone number. It is the number in your Contact Information.' : (isTrader ? 'Buyers can see your phone number. It is the number in your Business Details.' : 'Buyers can see your phone number. It is the number in your Contact Information.'))],
                   ['message', 'Message', (user.seller_type === 'dealer' ? 'Buyers write to you inside AutoMax, from your dealer page. You answer in Messages.' : 'Buyers write to you inside AutoMax. You answer in Messages.')],
                   ['whatsapp', 'WhatsApp', 'Buyers open a WhatsApp chat with you.'],
-                  ['email', 'Email', 'Buyers write to the contact email you choose below. It is shown publicly on your page.'],
+                  ['email', 'Email', (user.seller_type === 'dealer' ? 'Buyers write to the contact email you choose below. It is shown publicly on your page.' : 'Buyers write to the contact email you choose below. It is shown to buyers.')],
                 ].map(([key, label, hint]) => (
                   <div key={key} className="space-y-3">
                     <label className="flex items-start gap-3 cursor-pointer">
@@ -846,7 +850,10 @@ export default function Profile() {
             </section>
             )}
             </>
-          ) : (
+          )}
+
+          {/* Notification Preferences (a business account has the contact options above instead) */}
+          {!isTrader && (
             <>
             {/* Notification Preferences */}
             <section className="bg-card rounded-xl border border-border p-5 sm:p-6">
