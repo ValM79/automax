@@ -86,9 +86,8 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
 
       <div className={isGrid ? 'flex flex-col' : 'flex flex-col sm:flex-row'}>
 
-        {/* Image section -- sized/shaped to match DoneDeal's reference card
-            (measured live: 360x270, a 4:3 ratio) instead of the old 192x192
-            square, which made photos look cramped next to the info panel. */}
+        {/* Image section -- a 4:3 photo (instead of the old 192x192 square,
+            which made photos look cramped next to the info panel). */}
         <div className={`flex-shrink-0 w-full ${isGrid ? '' : 'sm:w-80'}`}>
           <div className="relative aspect-[4/3]">
             {/* Spotlight badge on image */}
@@ -100,12 +99,10 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
 
             {item.image ?
             <>
-              {/* Plain crop, matching DoneDeal's own card exactly -- the blurred-
-                  backdrop/contain treatment used on the big hero gallery (see
-                  ImageGallery.jsx) looked wrong at this size with visible blur bars,
-                  not the clean edge-to-edge crop every reference card uses. Small
-                  cards cropping is the accepted convention here; only the full-size
-                  detail view needs to show photos completely uncropped. */}
+              {/* Plain edge-to-edge crop -- the blurred-backdrop/contain treatment
+                  used on the big hero gallery (see ImageGallery.jsx) looked wrong
+                  at this size with visible blur bars. Small cards crop; only the
+                  full-size detail view needs to show photos completely uncropped. */}
               <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
             </> :
             <div className="w-full h-full bg-secondary flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo</span></div>

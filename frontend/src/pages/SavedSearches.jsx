@@ -14,10 +14,10 @@ import { queryClientInstance } from '@/lib/query-client';
 
 // what the strip under a saved ad says about the ad
 const AD_STATE = {
-  live: { label: 'Live', live: true },
-  sold: { label: 'Already sold', live: false },
-  expired: { label: 'Expired', live: false },
-  removed: { label: 'No longer available', live: false },
+  live: { label: 'Still for sale', live: true },
+  sold: { label: 'Sold', live: false },
+  expired: { label: 'Ended', live: false },
+  removed: { label: 'Taken down by the seller', live: false },
 };
 
 export default function SavedSearches() {
@@ -40,7 +40,7 @@ export default function SavedSearches() {
     try {
       await api.functions.invoke('searchAlerts', { action: 'delete', id });
       setAlerts((prev) => (prev || []).filter((a) => a.id !== id));
-    } catch { window.alert('Could not turn the alert off. Please try again.'); }
+    } catch { window.alert('Could not switch the alert off. Please try again.'); }
   };
   // live / sold / expired / removed for each saved ad (asked from the server, as the saved copy is only a snapshot)
   const [adStatuses, setAdStatuses] = useState({});
@@ -97,7 +97,7 @@ export default function SavedSearches() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">{activeTab === 'liked' ? 'Saved Ads' : activeTab === 'alerts' ? 'Email Alerts' : 'Saved Searches'}</span>
+          <span className="text-foreground font-medium">{activeTab === 'liked' ? 'Saved Ads' : activeTab === 'alerts' ? 'My Alerts' : 'Saved Searches'}</span>
         </div>
 
         {/* Tabs */}
@@ -115,7 +115,7 @@ export default function SavedSearches() {
           <button
             onClick={() => setActiveTab('alerts')}
             className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'alerts' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-            Email Alerts{alerts ? ` (${alerts.length})` : ''}
+            My Alerts{alerts ? ` (${alerts.length})` : ''}
           </button>
         </div>
 
@@ -172,14 +172,14 @@ export default function SavedSearches() {
             {!user ? (
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
-                <p className="text-lg font-medium text-foreground mb-2">Sign in to see your email alerts</p>
+                <p className="text-lg font-medium text-foreground mb-2">Sign in to see your alerts</p>
                 <Link to="/login?next=%2Fsaved-searches%3Ftab%3Dalerts" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">Sign in</Link>
               </div>
             ) : alerts && alerts.length === 0 ? (
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
-                <p className="text-lg font-medium text-foreground mb-2">No email alerts yet</p>
-                <p className="text-sm text-muted-foreground">Open an ad and press <span className="font-semibold">Notify me</span> to get an email when similar ads are placed.</p>
+                <p className="text-lg font-medium text-foreground mb-2">No alerts yet</p>
+                <p className="text-sm text-muted-foreground">Open an ad and press <span className="font-semibold">Email me new listings</span> to hear about the next one.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -191,7 +191,7 @@ export default function SavedSearches() {
                       <p className="text-xs text-muted-foreground">{a.make ? 'New ads of this make' + (a.model ? ' and model' : '') : 'New ads in this category'}{a.created_date ? ` · set up ${formatDate(a.created_date)}` : ''}</p>
                     </div>
                     <button type="button" onClick={() => turnOffAlert(a.id)} className="shrink-0 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline">
-                      <Trash2 className="w-4 h-4" /> Turn off
+                      <Trash2 className="w-4 h-4" /> Switch off
                     </button>
                   </div>
                 ))}
@@ -235,7 +235,7 @@ export default function SavedSearches() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-sm">
-                          <span className="text-foreground"><span className="font-semibold">Saved</span>{state ? <span className={state.live ? 'text-green-700' : 'text-muted-foreground'}> ({state.label})</span> : null}</span>
+                          <span className="inline-flex items-center gap-2 text-foreground"><span className="font-semibold">Saved</span>{state ? <span className={`inline-flex items-center gap-1.5 ${state.live ? 'text-green-700' : 'text-muted-foreground'}`}><span className={`w-2 h-2 rounded-full ${state.live ? 'bg-green-500' : 'bg-neutral-400'}`} />{state.label}</span> : null}</span>
                           <button
                             type="button"
                             onClick={() => removeFavorite(item.id)}
