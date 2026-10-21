@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, BarChart3, Bookmark, ThumbsUp, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, BarChart3, Bookmark, Heart, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -14,7 +14,7 @@ const userMenuItems = [
 { label: 'My Ads', icon: Megaphone },
 { label: 'Messages', icon: MessageSquare },
 
-{ label: 'Liked Ads', icon: ThumbsUp },
+{ label: 'Saved Ads', icon: Heart },
 { label: 'Browsing History', icon: History },
 { divider: true },
 { label: 'Payment Records', icon: CreditCard },
@@ -189,7 +189,7 @@ export default function Navbar() {
                           <item.icon className="w-4 h-4 text-muted-foreground" />
                           {item.label}
                         </Link> :
-                item.label === 'Liked Ads' ?
+                item.label === 'Saved Ads' ?
                 <Link
                   key={item.label}
                   to="/saved-searches?tab=liked"

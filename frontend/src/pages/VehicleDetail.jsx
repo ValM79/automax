@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 import ImageGallery from '../components/automarket/ImageGallery';
 import Description from '../components/automarket/Description';
+import SaveHeart from '../components/automarket/SaveHeart';
 import { DealerExtrasList } from '../components/automarket/DealerExtras';
 import SellerCard from '../components/automarket/SellerCard';
 import { formatLocation } from '@/lib/formatLocation';
@@ -337,15 +338,10 @@ export default function VehicleDetail() {
                 </div>
                 <button
                 onClick={() => toggleFavorite(car)}
-                className="flex items-center text-muted-foreground"
-                title={saved ? 'Unlike' : 'Like'}>
-                
-                  <span
-                  className={`text-xl inline-block ${saved ? '' : 'grayscale opacity-60'}`}
-                  style={{ transform: 'scaleX(-1)' }}>
-                  
-                    👍
-                  </span>
+                className="group flex items-center text-muted-foreground"
+                title={saved ? 'Remove from saved' : 'Save'}
+                aria-label={saved ? 'Remove from saved' : 'Save'}>
+                  <SaveHeart saved={saved} className="w-6 h-6" />
                 </button>
               </div>
             </div>
