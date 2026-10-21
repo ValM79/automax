@@ -20,7 +20,7 @@ const MAX_DEALERS = 300;
 // used to be kept for a minute in each warm copy of this function, so a removed photo kept showing for a while.)
 let adsCache = null;
 
-// every kind of car section is shown as one "Cars" tag, like DoneDeal's dealer cards
+// every kind of car section is shown as one "Cars" tag on a dealer's card
 const CAR_SUBSECTIONS = new Set([
   'Cars', 'New Cars', 'Dealers Garage', 'Dealership Cars', 'Cars from Dealerships', 'Electric & Hybrid Cars',
   'Vintage Cars', 'Modified Cars', 'Rally Cars', 'Breaking & Repairables',

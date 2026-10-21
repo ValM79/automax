@@ -174,7 +174,7 @@ export default function ImageGallery({ images = [], title = '' }) {
     );
   }
 
-  // Desktop (lg+) swaps the below-strip layout for a DoneDeal-style side column:
+  // Desktop (lg+) swaps the below-strip layout for a side column:
   // up to 3 slots next to the main photo, the last becoming a "+N" tile once
   // there are more photos than fit. Below lg there's no room for a side column
   // next to a full-width hero, so that breakpoint keeps the horizontal strip.
@@ -188,10 +188,9 @@ export default function ImageGallery({ images = [], title = '' }) {
       <div className="block">
       <div className="lg:flex lg:gap-2">
       {/* Desktop thumbnail column -- placed before the main photo in both DOM
-          and visual order (lg:flex default), so it renders on the left. This
-          is deliberately mirrored from the common main-left/thumbs-right
-          pattern (e.g. DoneDeal) to keep our layout visually distinct rather
-          than a lookalike, while keeping the same functional benefit. */}
+          and visual order (lg:flex default), so it renders on the left, the
+          mirror of the usual main-left / thumbs-right arrangement, so our
+          layout has a look of its own. */}
       {photos.length > 1 && (
         <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-2 flex-shrink-0">
           {Array.from({ length: thumbSlots }).map((_, i) => {

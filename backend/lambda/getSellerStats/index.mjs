@@ -1,4 +1,4 @@
-// Public seller facts for the ad page, like DoneDeal's "time on DoneDeal / active ads / total ads":
+// Public seller facts for the ad page ("member since / active ads / total ads"):
 // when the seller joined (month and year only), how many ads they have live now, and how many
 // they have placed in total (live + expired; unpaid drafts are not counted).
 //
