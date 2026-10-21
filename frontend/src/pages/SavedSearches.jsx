@@ -4,17 +4,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Clock, Trash2, Search, Heart } from 'lucide-react';
 import ListingCard from '../components/automarket/ListingCard';
 import { useFavorites } from '../hooks/useFavorites';
+import { api } from '@/api/apiClient';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { getSavedSearches, removeSavedSearch } from '@/lib/savedSearches';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
 
+// what the strip under a saved ad says about the ad
+const AD_STATE = {
+  live: { label: 'Live', live: true },
+  sold: { label: 'Already sold', live: false },
+  expired: { label: 'Expired', live: false },
+  removed: { label: 'No longer available', live: false },
+};
+
 export default function SavedSearches() {
   const { favorites: savedItems, removeFavorite } = useFavorites();
   const [savedSearches, setSavedSearches] = useState([]);
   const [activeTab, setActiveTab] = useState('searches');
   const navigate = useNavigate();
+  // live / sold / expired / removed for each saved ad (asked from the server, as the saved copy is only a snapshot)
+  const [adStatuses, setAdStatuses] = useState({});
+  const savedIds = savedItems.map((i) => i.id).join(',');
+  useEffect(() => {
+    if (!savedIds) { setAdStatuses({}); return undefined; }
+    let alive = true;
+    api.functions.invoke('getAdStatuses', { ids: savedIds.split(',') })
+      .then((res) => { if (alive && res?.data?.statuses) setAdStatuses(res.data.statuses); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [savedIds]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -145,19 +165,28 @@ export default function SavedSearches() {
                   </button>
                 </div>
                 <div className="flex flex-col gap-4">
-                  {savedItems.map((item) => (
-                    <div key={item.id}>
-                      <ListingCard item={item} saved onToggleSave={removeFavorite} />
-                      <div className="flex justify-end mt-1.5">
-                        <button
-                          type="button"
-                          onClick={() => removeFavorite(item.id)}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
-                          <Trash2 className="w-4 h-4" /> Remove from saved
-                        </button>
+                  {savedItems.map((item) => {
+                    const state = AD_STATE[adStatuses[item.id]];
+                    const gone = adStatuses[item.id] === 'removed';
+                    return (
+                      <div key={item.id} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                        <div className={state && !state.live ? 'opacity-60' : ''}>
+                          <div className={gone ? 'pointer-events-none' : ''}>
+                            <ListingCard item={item} saved onToggleSave={removeFavorite} />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-sm">
+                          <span className="text-foreground"><span className="font-semibold">Saved</span>{state ? <span className={state.live ? 'text-green-700' : 'text-muted-foreground'}> ({state.label})</span> : null}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFavorite(item.id)}
+                            className="inline-flex items-center gap-1.5 font-medium text-foreground hover:underline">
+                            <Trash2 className="w-4 h-4" /> Remove from saved
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}

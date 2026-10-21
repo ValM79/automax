@@ -618,6 +618,11 @@ export class AutomaxStack extends cdk.Stack {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'recordAdView', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
+    // Live / sold / expired / removed for the ads in a visitor's Saved Ads (a one-word status only). Read-only.
+    const getAdStatusesFn = new lambdaNode.NodejsFunction(this, 'GetAdStatusesFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'getAdStatuses', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
     const toggleAdSaveFn = new lambdaNode.NodejsFunction(this, 'ToggleAdSaveFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'toggleAdSave', 'index.mjs'),
@@ -727,6 +732,7 @@ export class AutomaxStack extends cdk.Stack {
     userAdTable.grantReadData(listDealersFn);
     userProfileTable.grantReadData(listDealersFn);
     // Counters: each only touches the ad table (counts) and, to know who is calling / what they saved, the profile table.
+    userAdTable.grantReadData(getAdStatusesFn);
     userAdTable.grantReadWriteData(recordAdViewFn);
     userProfileTable.grantReadData(recordAdViewFn);
     userAdTable.grantReadWriteData(toggleAdSaveFn);
@@ -803,6 +809,7 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
     route('/functions/dealerReviews', apigw.HttpMethod.POST, dealerReviewsFn, false);
     route('/functions/dealerStats', apigw.HttpMethod.POST, dealerStatsFn, false);
+    route('/functions/getAdStatuses', apigw.HttpMethod.POST, getAdStatusesFn, false);
     route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);
     route('/functions/toggleAdSave', apigw.HttpMethod.POST, toggleAdSaveFn, false);
     route('/functions/sendVerificationCode', apigw.HttpMethod.POST, sendVerificationCodeFn, false);

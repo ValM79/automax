@@ -381,6 +381,7 @@ const functions = {
   listDealers: makeFunctionClient('listDealers'),
   dealerReviews: makeFunctionClient('dealerReviews'),
   dealerStats: makeFunctionClient('dealerStats'),
+  getAdStatuses: makeFunctionClient('getAdStatuses'),
   recordAdView: makeFunctionClient('recordAdView'),
   toggleAdSave: makeFunctionClient('toggleAdSave'),
   verifyCode: makeFunctionClient('verifyCode'),
