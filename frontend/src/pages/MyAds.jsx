@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
-import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Trash2, Lock, Clock } from 'lucide-react';
+import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Undo2, Trash2, Lock, Clock } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { adDaysLeft } from '@/lib/adTimeLeft';
 import Navbar from '../components/automarket/Navbar';
@@ -71,6 +71,26 @@ export default function MyAds() {
       setAds((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'sold' } : a)));
     } catch (e) {
       window.alert('Could not mark the ad as sold. Please try again.');
+    }
+    setDeletingId(null);
+  };
+
+  // Put a sold ad back on the listings (it was marked sold by mistake, or the sale fell through). If its paid listing period
+  // has run out meanwhile it goes back as Expired instead, and Renew my Ad lists it again.
+  const handleMarkActive = async (ad) => {
+    const daysLeft = adDaysLeft(ad);
+    const lapsed = daysLeft != null && daysLeft <= 0;
+    const question = lapsed
+      ? 'The listing period of this ad has ended, so it will go back as Expired. You can then use Renew my Ad to list it again. Continue?'
+      : 'Make this ad active again? It will be shown in the listings.';
+    if (!window.confirm(question)) return;
+    const status = lapsed ? 'expired' : 'active';
+    setDeletingId(ad.id);
+    try {
+      await api.entities.UserAd.update(ad.id, { status });
+      setAds((prev) => prev.map((a) => (a.id === ad.id ? { ...a, status } : a)));
+    } catch (e) {
+      window.alert('Could not make the ad active again. Please try again.');
     }
     setDeletingId(null);
   };
@@ -172,9 +192,16 @@ export default function MyAds() {
                             <RotateCcw /> Renew my Ad
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleEdit(ad)}>
-                          <SquarePen /> Edit
-                        </DropdownMenuItem>
+                        {/* a sold ad is not edited: it can be put back on the listings instead */}
+                        {ad.status === 'sold' ? (
+                          <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleMarkActive(ad)}>
+                            <Undo2 /> Mark as Active
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleEdit(ad)}>
+                            <SquarePen /> Edit
+                          </DropdownMenuItem>
+                        )}
                         {ad.status === 'active' && (
                           <DropdownMenuItem className={MENU_ITEM} onSelect={() => handleMarkSold(ad.id)}>
                             <CircleCheck /> Mark as Sold
