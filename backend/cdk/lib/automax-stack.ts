@@ -152,6 +152,20 @@ export class AutomaxStack extends cdk.Stack {
       timeToLiveAttribute: 'ttl',
     });
 
+    // "Notify me" email alerts for new ads (lambda/searchAlerts, lambda/adSearchAlerts): one item per person per make / model / category.
+    const searchAlertTable = new dynamodb.Table(this, 'SearchAlertTable', {
+      tableName: 'Automax-SearchAlert',
+      partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
+    });
+    searchAlertTable.addGlobalSecondaryIndex({
+      indexName: 'byUser',
+      partitionKey: { name: 'user_id', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'created_date', type: dynamodb.AttributeType.STRING },
+    });
+
     const reportAdTable = new dynamodb.Table(this, 'ReportAdTable', {
       tableName: 'Automax-ReportAd',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -539,6 +553,7 @@ export class AutomaxStack extends cdk.Stack {
         MESSAGE_TABLE: messageTable.tableName,
         REVIEW_TABLE: reviewTable.tableName,
         DEALERSTAT_TABLE: dealerStatTable.tableName,
+        SEARCHALERT_TABLE: searchAlertTable.tableName,
         REPORTAD_TABLE: reportAdTable.tableName,
         VERIFICATIONCODE_TABLE: verificationCodeTable.tableName,
         USERPROFILE_TABLE: userProfileTable.tableName,
@@ -694,6 +709,28 @@ export class AutomaxStack extends cdk.Stack {
       targets: [new eventsTargets.LambdaFunction(adExpiryNoticeFn)],
     });
 
+    // "Notify me": the signed-in user's alerts (list / create / turn off), and the daily email of new matching ads (09:00 UTC).
+    const searchAlertsFn = new lambdaNode.NodejsFunction(this, 'SearchAlertsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'searchAlerts', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+    searchAlertTable.grantReadWriteData(searchAlertsFn);
+    searchAlertTable.grantReadWriteData(deleteAccountFn); // removed with the account
+    userProfileTable.grantReadData(searchAlertsFn); // who is calling (getUserFromEvent)
+    const adSearchAlertsFn = new lambdaNode.NodejsFunction(this, 'AdSearchAlertsFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'adSearchAlerts', 'index.mjs'),
+      timeout: cdk.Duration.seconds(120),
+    } as lambdaNode.NodejsFunctionProps);
+    searchAlertTable.grantReadWriteData(adSearchAlertsFn);
+    userAdTable.grantReadData(adSearchAlertsFn);
+    userProfileTable.grantReadData(adSearchAlertsFn); // the person's email address
+    appSecrets.grantRead(adSearchAlertsFn);
+    new events.Rule(this, 'AdSearchAlertsSchedule', {
+      schedule: events.Schedule.cron({ minute: '0', hour: '9' }),
+      targets: [new eventsTargets.LambdaFunction(adSearchAlertsFn)],
+    });
+
     // Grant table access
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
@@ -808,6 +845,8 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
     route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
     route('/functions/dealerReviews', apigw.HttpMethod.POST, dealerReviewsFn, false);
+    // Auth enforced inside the Lambda (getUserFromEvent): alerts belong to the signed-in user
+    route('/functions/searchAlerts', apigw.HttpMethod.POST, searchAlertsFn, false);
     route('/functions/dealerStats', apigw.HttpMethod.POST, dealerStatsFn, false);
     route('/functions/getAdStatuses', apigw.HttpMethod.POST, getAdStatusesFn, false);
     route('/functions/recordAdView', apigw.HttpMethod.POST, recordAdViewFn, false);

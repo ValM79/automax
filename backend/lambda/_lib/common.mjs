@@ -17,6 +17,7 @@ export const TABLES = {
   Message: process.env.MESSAGE_TABLE,
   Review: process.env.REVIEW_TABLE,
   DealerStat: process.env.DEALERSTAT_TABLE,
+  SearchAlert: process.env.SEARCHALERT_TABLE,
   ReportAd: process.env.REPORTAD_TABLE,
   VerificationCode: process.env.VERIFICATIONCODE_TABLE,
   User: process.env.USERPROFILE_TABLE,
