@@ -11,7 +11,7 @@ import { priceOptions } from '@/lib/priceOptions';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus, Star, ExternalLink } from 'lucide-react';
+import { MapPin, ShieldCheck, Phone, Clock, Building2, MessageSquare, MessageCircle, Mail, Plus, Star, ExternalLink, X } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
@@ -22,6 +22,10 @@ import { openingStatus } from '@/lib/openingStatus';
 import DealerReviews from '../components/automarket/DealerReviews';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
+
+// every make / model / body type row has its own id, so removing a row keeps the other rows as they are
+let vehicleSeq = 0;
+const newVehicle = () => ({ uid: ++vehicleSeq, make: '', model: '', bodyType: '' });
 
 const BANNER = '/img/b29eb1163_generated_image.jpg'; // used behind the dealer's name when they have not added a photo
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -125,8 +129,7 @@ export default function SellerAds() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('stock');
-  const EMPTY_VEHICLE = { make: '', model: '', bodyType: '' };
-  const [vehicles, setVehicles] = useState([EMPTY_VEHICLE]); // up to 3 make / model / body type choices, like the Cars For Sale filters
+  const [vehicles, setVehicles] = useState(() => [newVehicle()]); // up to 3 make / model / body type choices, like the Cars For Sale filters
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
@@ -144,7 +147,7 @@ export default function SellerAds() {
     if (!sellerId) return;
     let alive = true;
     setLoading(true);
-    setTab('stock'); setVehicles([EMPTY_VEHICLE]); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
+    setTab('stock'); setVehicles([newVehicle()]); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
     if (sellerId === 'example') {
       setAds(EXAMPLE_ADS);
       setStats(EXAMPLE_STATS);
@@ -264,7 +267,7 @@ export default function SellerAds() {
   }, [ads, vehicles, minPrice, maxPrice, sort]);
 
   const filtersOn = !!(vehicles.some((v) => v.make || v.model || v.bodyType) || minPrice || maxPrice || sort !== 'newest');
-  const resetFilters = () => { setVehicles([EMPTY_VEHICLE]); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
+  const resetFilters = () => { setVehicles([newVehicle()]); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
   const setVehicle = (i, patch) => setVehicles((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
 
   // The ways a buyer can contact this dealer (the dealer picks them on their Profile).
@@ -431,15 +434,21 @@ export default function SellerAds() {
               <p className="text-sm text-muted-foreground mt-5 mb-2">Make, Model, Body type</p>
               <div className="flex flex-col gap-3">
                 {vehicles.map((v, i) => (
-                  <div key={i} className="flex flex-col gap-2">
-                    {i > 0 && <div className="border-t border-border pt-2" />}
+                  <div key={v.uid ?? i} className="flex flex-col gap-2">
+                    {i > 0 && (
+                      <div className="border-t border-border pt-2 flex justify-end">
+                        <button type="button" onClick={() => setVehicles((prev) => prev.filter((_, idx) => idx !== i))} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
+                          <X className="w-4 h-4" /> Remove vehicle
+                        </button>
+                      </div>
+                    )}
                     <MakeSelector value={v.make} onChange={(val) => setVehicle(i, { make: val, model: '' })} />
                     <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicle(i, { model: val })} />
                     <BodyTypeSelector value={v.bodyType} onChange={(val) => setVehicle(i, { bodyType: val })} />
                   </div>
                 ))}
                 {vehicles.length < 3 && (
-                  <button type="button" onClick={() => setVehicles((prev) => [...prev, EMPTY_VEHICLE])} className="flex items-center gap-2 text-primary text-sm font-medium hover:underline">
+                  <button type="button" onClick={() => setVehicles((prev) => [...prev, newVehicle()])} className="flex items-center gap-2 text-primary text-sm font-medium hover:underline">
                     <Plus className="w-4 h-4" /> Add another vehicle
                   </button>
                 )}

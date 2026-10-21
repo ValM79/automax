@@ -66,11 +66,15 @@ function Sel({ value, onChange, options, placeholder, sizeClass }) {
 const batteryKwhOptions = ['24 kWh', '30 kWh', '40 kWh', '50 kWh', '60 kWh', '64 kWh', '77 kWh', '82 kWh', '100 kWh', '100+ kWh'];
 const batteryRangeOptions = ['100 km', '150 km', '200 km', '250 km', '300 km', '350 km', '400 km', '450 km', '500 km', '500+ km'];
 
+// every make / model / body type row has its own id, so removing a row keeps the other rows as they are
+let vehicleSeq = 0;
+const newVehicle = (make = '') => ({ uid: ++vehicleSeq, make, model: '', bodyType: '' });
+
 export default function FiltersSidebar({ onFilterChange, hideFuelType = false, hideTransmission = false, fixedMake = '' }) {
   const [resetKey, setResetKey] = useState(0);
   const [sellerType, setSellerType] = useState('Both');
   const [ratings, setRatings] = useState([]);
-  const [vehicles, setVehicles] = useState([{ make: fixedMake, model: '', bodyType: '' }]);
+  const [vehicles, setVehicles] = useState(() => [newVehicle(fixedMake)]);
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [warranty, setWarranty] = useState('');
@@ -108,7 +112,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
   const handleReset = () => {
     setSellerType('Both');
     setRatings([]);
-    setVehicles([{ make: fixedMake, model: '', bodyType: '' }]);
+    setVehicles([newVehicle(fixedMake)]);
     setYearFrom('');setYearTo('');
     setWarranty('');setVerifications([]);
     setPriceFrom('');setPriceTo('');
@@ -190,8 +194,15 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
         <div className="text-base font-semibold text-foreground mb-4">Make, Model, Body type</div>
         <div className="flex flex-col gap-3">
           {vehicles.map((v, i) =>
-            <div key={i} className="flex flex-col gap-2">
-              {i > 0 && <div className="border-t border-border pt-2" />}
+            <div key={v.uid ?? i} className="flex flex-col gap-2">
+              {i > 0 && (
+                <div className="border-t border-border pt-2 flex justify-end">
+                  <button type="button" onClick={() => setVehicles((prev) => prev.filter((_, idx) => idx !== i))}
+                    className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
+                    <X className="w-4 h-4" /> Remove vehicle
+                  </button>
+                </div>
+              )}
               {fixedMake ? (
                 <div className="w-full flex items-center border border-border rounded-lg px-4 py-3 text-base bg-secondary text-foreground font-medium">
                   {fixedMake}
@@ -204,7 +215,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
             </div>
             )}
           {!fixedMake && vehicles.length < 3 && (
-          <button onClick={() => setVehicles((prev) => [...prev, { make: '', model: '', bodyType: '' }])}
+          <button onClick={() => setVehicles((prev) => [...prev, newVehicle()])}
             className="flex items-center gap-2 text-primary text-sm font-medium hover:underline mt-1">
             <Plus className="w-4 h-4" /> Add another vehicle
           </button>
