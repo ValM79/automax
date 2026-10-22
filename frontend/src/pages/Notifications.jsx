@@ -78,8 +78,7 @@ export default function Notifications() {
           <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
             <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
             <p className="text-lg font-medium text-foreground mb-2">No notifications yet</p>
-            <p className="text-sm text-muted-foreground mb-6">Open an ad and press <span className="font-semibold">Notify me</span> at the bottom to hear about similar ads.</p>
-            <Link to="/" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">Browse Listings</Link>
+            <p className="text-sm text-muted-foreground">Open an ad and press <span className="font-semibold">Notify me</span> at the bottom to hear about similar ads.</p>
           </div>
         ) : (
           <>
