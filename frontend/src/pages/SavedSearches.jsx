@@ -112,10 +112,7 @@ export default function SavedSearches() {
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <Clock className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
                 <p className="text-lg font-medium text-foreground mb-2">No saved searches yet</p>
-                <p className="text-sm text-muted-foreground mb-6">Use the "Save this search" button in the filters to save your search criteria</p>
-                <Link to="/cars-for-sale" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
-                  Browse Listings
-                </Link>
+                <p className="text-sm text-muted-foreground">Use the "Save this search" button in the filters to save your search criteria</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -150,10 +147,7 @@ export default function SavedSearches() {
               <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
                 <Heart className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
                 <p className="text-lg font-medium text-foreground mb-2">No saved ads yet</p>
-                <p className="text-sm text-muted-foreground mb-6">Tap the heart on any listing to save it here</p>
-                <Link to="/" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
-                  Browse Listings
-                </Link>
+                <p className="text-sm text-muted-foreground">Tap the heart on any listing to save it here</p>
               </div>
             ) : (
               <>
