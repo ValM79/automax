@@ -318,7 +318,7 @@ export default function VehicleDetail() {
               <div className="flex items-start justify-between gap-4">
                 <h1 className="font-medium text-foreground capitalize text-lg">{car.title}</h1>
               </div>
-              {hasPrice && <p className="mt-1 text-2xl font-bold text-foreground" aria-label="Price">{displayPrice}</p>}
+              {hasPrice && <p className="mt-1 text-xl font-normal text-foreground" aria-label="Price">{displayPrice}</p>}
               <p className="text-sm mt-1 text-[hsl(var(--foreground))]">{metaParts.join(' · ')}</p>
               {specItems.length > 0 && (
                 <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 mt-3 text-sm w-fit">
@@ -351,13 +351,13 @@ export default function VehicleDetail() {
             </div>
 
             {/* Description */}
-            {/* Notify me: an email alert for new ads like this one */}
             <div className="lg:order-4 lg:w-full">
-              <NotifyMeBar ad={car} />
+              <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
             </div>
 
+            {/* Notify me: an email alert for new ads like this one, at the bottom of the ad */}
             <div className="lg:order-5 lg:w-full">
-              <Description description={car.description || car.title} sellerName={car.fullName || car.sellerType || 'the seller'} />
+              <NotifyMeBar ad={car} />
             </div>
 
             {/* Seller info -- lg:order-2 puts it after the gallery visually,
