@@ -15,7 +15,7 @@ const STATUS_BADGE_STYLES = {
 /**
  * Shared listing card matching the Cars Ireland reference layout.
  */
-export default function ListingCard({ item, saved, onToggleSave, viewMode = 'list' }) {
+export default function ListingCard({ item, saved, onToggleSave, viewMode = 'list', hideSave = false }) {
   const isGrid = viewMode === 'grid';
   const navigate = useNavigate();
 
@@ -158,13 +158,13 @@ export default function ListingCard({ item, saved, onToggleSave, viewMode = 'lis
               {item.monthly && <p className="text-xs text-muted-foreground">From €{item.monthly}/mo</p>}
             </div>
             <div className="flex items-center gap-2">
-              <button
+              {!hideSave && <button
                  onClick={handleToggleSave}
                  title={optimisticSaved ? 'Remove from saved' : 'Save'}
                  aria-label={optimisticSaved ? 'Remove from saved' : 'Save'}
                  className="group transition-transform hover:scale-110 flex-shrink-0 p-1 min-w-[44px] min-h-[44px] flex items-center justify-center leading-none">
                  <SaveHeart saved={optimisticSaved} />
-               </button>
+               </button>}
             </div>
           </div>
         </div>

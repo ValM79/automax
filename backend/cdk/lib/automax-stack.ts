@@ -717,6 +717,7 @@ export class AutomaxStack extends cdk.Stack {
     searchAlertTable.grantReadWriteData(searchAlertsFn);
     searchAlertTable.grantReadWriteData(deleteAccountFn); // removed with the account
     userProfileTable.grantReadData(searchAlertsFn); // who is calling (getUserFromEvent)
+    userAdTable.grantReadData(searchAlertsFn); // the card of the ad an alert was set up from
     const adSearchAlertsFn = new lambdaNode.NodejsFunction(this, 'AdSearchAlertsFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'adSearchAlerts', 'index.mjs'),

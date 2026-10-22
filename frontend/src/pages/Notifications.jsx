@@ -4,19 +4,32 @@ import { Bell, BellOff } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import ListingCard from '../components/automarket/ListingCard';
+import { userAdToListingItem } from '../hooks/useUserAds';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
+import { AD_STATE } from '@/lib/adStates';
 
 // My Account > Notifications: every "Notify me" alert in one place, each with a Switch off button (which removes it from the list).
 const formatDate = (iso) => {
   try { return new Date(iso).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; }
 };
 
+// the card of the ad an alert was set up from (a copy kept with the alert, so it is still here once the ad is sold or gone)
+const cardItem = (snap) => ({
+  ...userAdToListingItem({
+    id: snap.id, title: snap.title, price: snap.price, currency: snap.currency, photos: snap.image ? [snap.image] : [],
+    vehicleYear: snap.vehicleYear, vehicleFuel: snap.vehicleFuel, mileage: snap.mileage, location: snap.location, created_date: snap.created_date,
+  }),
+  photos: snap.photo_count || 1,
+});
+
 export default function Notifications() {
   const { user, isLoadingAuth } = useAuth();
   const [alerts, setAlerts] = useState(null); // null while loading
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState('');
+  const [adStatuses, setAdStatuses] = useState({}); // live / sold / expired / removed for the ads on the cards
 
   useEffect(() => {
     if (isLoadingAuth || !user) { setAlerts(null); return undefined; }
@@ -26,6 +39,16 @@ export default function Notifications() {
       .catch((e) => { if (alive) { setAlerts([]); setError(e?.message || 'Could not load your notifications.'); } });
     return () => { alive = false; };
   }, [isLoadingAuth, user?.id]);
+
+  const adIds = (alerts || []).map((a) => a.ad?.id).filter(Boolean).join(',');
+  useEffect(() => {
+    if (!adIds) { setAdStatuses({}); return undefined; }
+    let alive = true;
+    api.functions.invoke('getAdStatuses', { ids: adIds.split(',') })
+      .then((res) => { if (alive && res?.data?.statuses) setAdStatuses(res.data.statuses); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [adIds]);
 
   const switchOff = async (id) => {
     setBusyId(id); setError('');
@@ -54,7 +77,7 @@ export default function Notifications() {
   return (
     <div className="min-h-screen flex flex-col bg-muted">
       <Navbar />
-      <div className="max-w-3xl w-full mx-auto px-4 py-4 flex-1">
+      <div className="max-w-4xl w-full mx-auto px-4 py-4 flex-1">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <BackButton />
           <span>›</span>
@@ -92,25 +115,37 @@ export default function Notifications() {
                 <BellOff className="w-4 h-4" /> Switch off all
               </button>
             </div>
-            <div className="flex flex-col gap-3">
-              {alerts.map((a) => (
-                <div key={a.id} className="bg-card rounded-xl border border-border shadow-sm px-4 py-3 flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-full bg-secondary text-foreground flex items-center justify-center shrink-0"><Bell className="w-5 h-5" /></span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground truncate">{a.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {a.make ? `New ads of this make${a.model ? ' and model' : ''}` : 'New ads in this category'}{a.created_date ? ` · since ${formatDate(a.created_date)}` : ''}
-                    </p>
+            <div className="flex flex-col gap-4">
+              {alerts.map((a) => {
+                const state = a.ad ? AD_STATE[adStatuses[a.ad.id]] : null;
+                const what = a.make ? `new ads of this make${a.model ? ' and model' : ''}` : 'new ads in this category';
+                return (
+                  <div key={a.id} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                    {a.ad && (
+                      <div className={state && !state.live ? 'opacity-60' : ''}>
+                        <ListingCard item={cardItem(a.ad)} saved={false} onToggleSave={() => {}} hideSave />
+                      </div>
+                    )}
+                    <div className={`flex items-center gap-3 px-4 py-3 ${a.ad ? 'border-t border-border' : ''}`}>
+                      <span className="w-9 h-9 rounded-full bg-secondary text-foreground flex items-center justify-center shrink-0"><Bell className="w-4 h-4" /></span>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-foreground truncate">{a.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          We email you about {what}{a.created_date ? ` · since ${formatDate(a.created_date)}` : ''}
+                          {state ? <span className={state.live ? 'text-green-700' : ''}> · The ad above: {state.label.toLowerCase()}</span> : null}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => switchOff(a.id)}
+                        disabled={busyId === a.id || busyId === 'all'}
+                        className="shrink-0 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline disabled:opacity-60">
+                        <BellOff className="w-4 h-4" /> Switch off
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => switchOff(a.id)}
-                    disabled={busyId === a.id || busyId === 'all'}
-                    className="shrink-0 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline disabled:opacity-60">
-                    <BellOff className="w-4 h-4" /> Switch off
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
