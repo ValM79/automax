@@ -70,7 +70,7 @@ export function buildEmail({ name, groups, origin }) {
     total === 1 ? 'A new ad was placed that matches an alert you set up:' : 'New ads were placed that match your alerts:',
     '',
     ...lines,
-    `See your alerts, or switch one off: ${origin}/saved-searches?tab=alerts`,
+    `See your notifications, or switch one off: ${origin}/notifications`,
     '',
     'You get this email because you asked for an alert on an ad. Thank you for using AutoMax.',
   ].join('\n');

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import BackButton from '../components/automarket/BackButton';
 import { Link, useNavigate } from 'react-router-dom';
-import { Clock, Trash2, Search, Heart, Bell } from 'lucide-react';
+import { Clock, Trash2, Search, Heart } from 'lucide-react';
 import ListingCard from '../components/automarket/ListingCard';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
-import { useAuth } from '@/lib/AuthContext';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { getSavedSearches, removeSavedSearch } from '@/lib/savedSearches';
@@ -25,23 +24,6 @@ export default function SavedSearches() {
   const [savedSearches, setSavedSearches] = useState([]);
   const [activeTab, setActiveTab] = useState('searches');
   const navigate = useNavigate();
-  const { user } = useAuth();
-  // email alerts ("Notify me" on an ad page)
-  const [alerts, setAlerts] = useState(null);
-  useEffect(() => {
-    if (!user) { setAlerts(null); return undefined; }
-    let alive = true;
-    api.functions.invoke('searchAlerts', { action: 'list' })
-      .then((res) => { if (alive) setAlerts(res?.data?.alerts || []); })
-      .catch(() => { if (alive) setAlerts([]); });
-    return () => { alive = false; };
-  }, [user?.id]);
-  const turnOffAlert = async (id) => {
-    try {
-      await api.functions.invoke('searchAlerts', { action: 'delete', id });
-      setAlerts((prev) => (prev || []).filter((a) => a.id !== id));
-    } catch { window.alert('Could not switch the alert off. Please try again.'); }
-  };
   // live / sold / expired / removed for each saved ad (asked from the server, as the saved copy is only a snapshot)
   const [adStatuses, setAdStatuses] = useState({});
   const savedIds = savedItems.map((i) => i.id).join(',');
@@ -60,7 +42,7 @@ export default function SavedSearches() {
     if (tab === 'liked') {
       setActiveTab('liked');
     } else if (tab === 'alerts') {
-      setActiveTab('alerts');
+      navigate('/notifications', { replace: true }); // alerts have a page of their own now
     } else {
       setActiveTab('searches');
     }
@@ -97,7 +79,7 @@ export default function SavedSearches() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">{activeTab === 'liked' ? 'Saved Ads' : activeTab === 'alerts' ? 'My Alerts' : 'Saved Searches'}</span>
+          <span className="text-foreground font-medium">{activeTab === 'liked' ? 'Saved Ads' : 'Saved Searches'}</span>
         </div>
 
         {/* Tabs */}
@@ -111,11 +93,6 @@ export default function SavedSearches() {
             onClick={() => setActiveTab('liked')}
             className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'liked' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
             Saved Ads ({savedItems.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('alerts')}
-            className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'alerts' ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-            My Alerts{alerts ? ` (${alerts.length})` : ''}
           </button>
         </div>
 
@@ -159,40 +136,6 @@ export default function SavedSearches() {
                       </button>
                     </div>
                     <h3 className="font-semibold text-foreground text-sm leading-snug">{search.name}</h3>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Email Alerts Tab: the "Notify me" alerts */}
-        {activeTab === 'alerts' && (
-          <>
-            {!user ? (
-              <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
-                <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
-                <p className="text-lg font-medium text-foreground mb-2">Sign in to see your alerts</p>
-                <Link to="/login?next=%2Fsaved-searches%3Ftab%3Dalerts" className="inline-block bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">Sign in</Link>
-              </div>
-            ) : alerts && alerts.length === 0 ? (
-              <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
-                <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
-                <p className="text-lg font-medium text-foreground mb-2">No alerts yet</p>
-                <p className="text-sm text-muted-foreground">Open an ad and press <span className="font-semibold">Notify me</span> to hear about the next one.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <p className="text-sm text-muted-foreground">We email you once a day when new ads match one of these.</p>
-                {(alerts || []).map((a) => (
-                  <div key={a.id} className="bg-card rounded-xl border border-border shadow-sm px-4 py-3 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-foreground truncate">{a.name}</p>
-                      <p className="text-xs text-muted-foreground">{a.make ? 'New ads of this make' + (a.model ? ' and model' : '') : 'New ads in this category'}{a.created_date ? ` · set up ${formatDate(a.created_date)}` : ''}</p>
-                    </div>
-                    <button type="button" onClick={() => turnOffAlert(a.id)} className="shrink-0 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:underline">
-                      <Trash2 className="w-4 h-4" /> Switch off
-                    </button>
                   </div>
                 ))}
               </div>
