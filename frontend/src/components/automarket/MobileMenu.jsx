@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, X, User, Megaphone, MessageSquare, BarChart3, Heart, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
+import { ChevronDown, X, User, Megaphone, MessageSquare, BarChart3, Heart, Bell, History, CreditCard, HelpCircle, LogOut } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/apiClient';
@@ -24,6 +24,7 @@ const userMenuItems = [
   { label: 'My Ads', icon: Megaphone, route: '/my-ads' },
   { label: 'Messages', icon: MessageSquare, route: '/messages' },
   { label: 'Saved Ads', icon: Heart, route: '/saved-searches?tab=liked' },
+  { label: 'Notifications', icon: Bell, route: '/notifications' },
   { label: 'Browsing History', icon: History, route: '/browsing-history' },
   { divider: true },
   { label: 'Payment Records', icon: CreditCard, route: '/payment-history' },

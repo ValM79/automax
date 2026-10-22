@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, BarChart3, Bookmark, Heart, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
+import { ChevronDown, Menu, X, User, Megaphone, MessageSquare, BarChart3, Bookmark, Heart, Bell, History, CreditCard, HelpCircle, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
@@ -15,6 +15,7 @@ const userMenuItems = [
 { label: 'Messages', icon: MessageSquare },
 
 { label: 'Saved Ads', icon: Heart },
+{ label: 'Notifications', icon: Bell },
 { label: 'Browsing History', icon: History },
 { divider: true },
 { label: 'Payment Records', icon: CreditCard },
@@ -184,6 +185,15 @@ export default function Navbar() {
                 <Link
                   key={item.label}
                   to="/dealer-stats"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
+                          <item.icon className="w-4 h-4 text-muted-foreground" />
+                          {item.label}
+                        </Link> :
+                item.label === 'Notifications' ?
+                <Link
+                  key={item.label}
+                  to="/notifications"
                   onClick={() => setShowUserMenu(false)}
                   className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <item.icon className="w-4 h-4 text-muted-foreground" />
