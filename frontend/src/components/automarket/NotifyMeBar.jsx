@@ -46,6 +46,14 @@ export default function NotifyMeBar({ ad }) {
   }, [user?.id]);
 
   const ownerId = ad?.created_by_id || ad?._raw?.created_by_id;
+  const watchingId = alerts.find((a) => lower(a.make) === lower(criteria.make) && lower(a.model) === lower(criteria.make ? criteria.model : '') && lower(a.subsection) === lower(criteria.subsection));
+  // an alert set up before cards existed gets its card from the ad page it is seen on
+  useEffect(() => {
+    if (!user || !ad?.id || !watchingId || watchingId.ad) return;
+    api.functions.invoke('searchAlerts', { action: 'create', ad_id: ad.id, ...criteria })
+      .then((res) => { const a = res?.data?.alert; if (a) setAlerts((prev) => prev.map((x) => (x.id === a.id ? a : x))); })
+      .catch(() => {});
+  }, [watchingId?.id, !!watchingId?.ad, ad?.id, user?.id]);
   if (user && ownerId && ownerId === user.id) return null; // your own ad
   if (!criteria.make && !criteria.subsection) return null;
 
@@ -56,7 +64,7 @@ export default function NotifyMeBar({ ad }) {
     if (!user) { navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`); return; }
     setBusy(true); setError('');
     try {
-      const res = await api.functions.invoke('searchAlerts', { action: 'create', ...criteria });
+      const res = await api.functions.invoke('searchAlerts', { action: 'create', ad_id: ad?.id, ...criteria });
       const created = res?.data?.alert;
       if (created) setAlerts((prev) => [created, ...prev.filter((a) => a.id !== created.id)]);
     } catch (e) {

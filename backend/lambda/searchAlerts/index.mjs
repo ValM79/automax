@@ -5,7 +5,7 @@
 //   delete  { id }                       turn one of the caller's alerts off
 // The emails themselves are sent by the daily adSearchAlerts function.
 import { createHash } from 'node:crypto';
-import { PutCommand, QueryCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, QueryCommand, GetCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, nowIso, json, getUserFromEvent } from '../_lib/common.mjs';
 
 const MAX_ALERTS = 25;
@@ -18,7 +18,29 @@ export const alertId = (userId, make, model, subsection) =>
 
 export const alertName = (a) => [a.make, a.model].filter(Boolean).join(' ') || a.subsection || 'New ads';
 
-const shape = (a) => ({ id: a.id, name: a.name, make: a.make, model: a.model, subsection: a.subsection, created_date: a.created_date });
+const shape = (a) => ({ id: a.id, name: a.name, make: a.make, model: a.model, subsection: a.subsection, created_date: a.created_date, ...(a.ad ? { ad: a.ad } : {}) });
+
+// What the Notifications page shows as the card of the ad the alert was set up from. Taken from the ad itself (never from what the
+// browser sends), and kept with the alert so the card is still there when the ad is later sold or taken down.
+export async function adSnapshot(adId) {
+  if (!/^[A-Za-z0-9_-]{8,64}$/.test(String(adId || ''))) return null;
+  const ad = (await ddb.send(new GetCommand({ TableName: TABLES.UserAd, Key: { id: adId } }))).Item;
+  if (!ad || !['active', 'sold', 'expired'].includes(ad.status)) return null;
+  const photos = Array.isArray(ad.photos) ? ad.photos.filter((p) => typeof p === 'string') : [];
+  return {
+    id: ad.id,
+    title: clean(ad.title, 120),
+    price: clean(ad.price, 20),
+    currency: clean(ad.currency, 3) || '€',
+    image: photos[0] || null,
+    photo_count: photos.length || 1,
+    vehicleYear: clean(ad.vehicleYear, 8),
+    vehicleFuel: clean(ad.vehicleFuel, 30),
+    mileage: clean(ad.mileage, 20),
+    location: clean(ad.location, 80),
+    created_date: ad.created_date || null,
+  };
+}
 
 async function alertsOf(userId) {
   const items = [];
@@ -49,10 +71,21 @@ async function create(user, body) {
   if (!make && !subsection) return json(400, { error: 'Nothing to watch for' });
   const id = alertId(user.id, make, model, subsection);
   const existing = (await ddb.send(new GetCommand({ TableName: TABLES.SearchAlert, Key: { id } }))).Item;
-  if (existing) return json(200, { alert: shape(existing), already: true });
+  if (existing) {
+    // an alert made before cards existed gets its card the next time it is asked for from an ad page
+    if (!existing.ad && body.ad_id) {
+      const ad = await adSnapshot(body.ad_id);
+      if (ad) {
+        await ddb.send(new UpdateCommand({ TableName: TABLES.SearchAlert, Key: { id }, UpdateExpression: 'SET ad = :ad', ExpressionAttributeValues: { ':ad': ad } }));
+        existing.ad = ad;
+      }
+    }
+    return json(200, { alert: shape(existing), already: true });
+  }
   if ((await alertsOf(user.id)).length >= MAX_ALERTS) return json(400, { error: `You can have up to ${MAX_ALERTS} alerts. Turn one off first.` });
   const now = nowIso();
-  const item = { id, user_id: user.id, make, model, subsection, name: '', created_date: now, last_checked: now };
+  const ad = await adSnapshot(body.ad_id);
+  const item = { id, user_id: user.id, make, model, subsection, name: '', created_date: now, last_checked: now, ...(ad ? { ad } : {}) };
   item.name = alertName(item);
   await ddb.send(new PutCommand({ TableName: TABLES.SearchAlert, Item: item }));
   return json(200, { alert: shape(item) });

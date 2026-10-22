@@ -5,19 +5,12 @@ import { Clock, Trash2, Search, Heart } from 'lucide-react';
 import ListingCard from '../components/automarket/ListingCard';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
+import { AD_STATE } from '@/lib/adStates';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { getSavedSearches, removeSavedSearch } from '@/lib/savedSearches';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
-
-// what the strip under a saved ad says about the ad
-const AD_STATE = {
-  live: { label: 'Still for sale', live: true },
-  sold: { label: 'Sold', live: false },
-  expired: { label: 'Ended', live: false },
-  removed: { label: 'Taken down by the seller', live: false },
-};
 
 export default function SavedSearches() {
   const { favorites: savedItems, removeFavorite } = useFavorites();
