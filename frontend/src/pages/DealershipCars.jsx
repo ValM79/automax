@@ -9,6 +9,7 @@ import FiltersSidebar from '../components/automarket/FiltersSidebar';
 import Pagination from '../components/automarket/Pagination';
 import MobileCategoryFilters from '../components/automarket/MobileCategoryFilters';
 import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
+import { useFavorites } from '../hooks/useFavorites';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -21,14 +22,20 @@ const dealerListings = [];
 
 export default function DealershipCars() {
   const [search, setSearch] = useState('');
-  const [savedIds, setSavedIds] = useState([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState({});
   const userAds = useUserAds(['Dealership Cars', 'Cars from Dealerships']);
 
-  const toggleSave = (id) => setSavedIds((prev) =>
-  prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-  );
+  // the item shown on the card (the same one is what gets saved)
+  const cardItem = (car) => (car.isUserAd ? car : {
+    ...car,
+    dealer: car.dealerName,
+    sellerType: car.dealerType,
+    sellerRating: car.dealerRating,
+    trusted: (car.dealerType || '').includes('Trusted'),
+    price: typeof car.price === 'number' ? `€${car.price.toLocaleString()}` : car.price,
+  });
 
   const normalizedUserAds = userAds.map((ad) => ({ ...userAdToListingItem(ad), isUserAd: true, _raw: ad }));
   const allListings = [...normalizedUserAds, ...dealerListings];
@@ -118,8 +125,8 @@ export default function DealershipCars() {
                   trusted: (car.dealerType || '').includes('Trusted'),
                   price: typeof car.price === 'number' ? `€${car.price.toLocaleString()}` : car.price
                 }}
-                saved={savedIds.includes(car.id)}
-                onToggleSave={toggleSave}
+                saved={isFavorite(car.id)}
+                onToggleSave={() => toggleFavorite(cardItem(car))}
                 viewMode="list" />
 
               )}
