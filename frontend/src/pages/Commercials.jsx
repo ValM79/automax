@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BackButton from '../components/automarket/BackButton';
 import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
+import { useFavorites } from '../hooks/useFavorites';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import Pagination from '../components/automarket/Pagination';
@@ -19,11 +20,17 @@ const listings = [];
 export default function Commercials() {
   const [search, setSearch] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
-  const [savedIds, setSavedIds] = useState([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [currentPage, setCurrentPage] = useState(1);
   const userAds = useUserAds(['Commercials']);
 
-  const toggleSaved = (id) => setSavedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  // the item shown on the card (the same one is what gets saved)
+  const cardItem = (listing) => (listing.isUserAd ? listing : {
+    ...listing,
+    sellerType: listing.dealerType || listing.sellerType,
+    sellerRating: listing.dealerRating || listing.sellerRating,
+    timeAgo: listing.daysAgo,
+  });
 
   const normalizedUserAds = userAds.map(ad => ({ ...userAdToListingItem(ad), isUserAd: true }));
   const allListings = [...normalizedUserAds, ...listings];
@@ -118,8 +125,8 @@ export default function Commercials() {
                   sellerRating: listing.dealerRating || listing.sellerRating,
                   timeAgo: listing.daysAgo
                 }}
-                saved={savedIds.includes(listing.id)}
-                onToggleSave={toggleSaved}
+                saved={isFavorite(listing.id)}
+                onToggleSave={() => toggleFavorite(cardItem(listing))}
                 viewMode="list" />
 
               )}

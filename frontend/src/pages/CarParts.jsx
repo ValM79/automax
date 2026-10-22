@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BackButton from '../components/automarket/BackButton';
 import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
+import { useFavorites } from '../hooks/useFavorites';
 import { Link } from 'react-router-dom';
 import { Search, ChevronDown, ArrowLeft } from 'lucide-react';
 import ListingCard from '../components/automarket/ListingCard';
@@ -21,14 +22,13 @@ const listings = [];
 
 export default function CarParts() {
   const [search, setSearch] = useState('');
-  const [savedIds, setSavedIds] = useState([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [currentPage, setCurrentPage] = useState(1);
   const [activeFilters, setActiveFilters] = useState({});
   const userAds = useUserAds(['Car Parts']);
 
-  const toggleSave = (id) => setSavedIds((prev) =>
-  prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-  );
+  // the item shown on the card (the same one is what gets saved)
+  const cardItem = (item) => (item.isUserAd ? item : { ...item, timeAgo: item.hoursAgo });
 
   const normalizedUserAds = userAds.map(ad => ({ ...userAdToListingItem(ad), isUserAd: true }));
   const allListings = [...normalizedUserAds, ...listings];
@@ -115,8 +115,8 @@ export default function CarParts() {
               <ListingCard
                 key={item.id}
                 item={item.isUserAd ? item : { ...item, timeAgo: item.hoursAgo }}
-                saved={savedIds.includes(item.id)}
-                onToggleSave={toggleSave}
+                saved={isFavorite(item.id)}
+                onToggleSave={() => toggleFavorite(cardItem(item))}
                 viewMode="list" />
 
               )}
