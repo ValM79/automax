@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BellRing } from 'lucide-react';
+import { Bell, BellOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 
-// "Don't miss the next one": an email alert for new listings of the same make and model as the ad you are looking at (or, when
+// "Notify me with similar ads !": an email alert for new listings of the same make and model as the ad you are looking at (or, when
 // the ad has no make, of the same category). The emails are sent once a day by the server.
 const lower = (v) => String(v ?? '').trim().toLowerCase();
 
@@ -79,31 +79,23 @@ export default function NotifyMeBar({ ad }) {
   };
 
   return (
-    <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 sm:px-5 py-4">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-        <div className="flex items-start gap-3 min-w-0 flex-1">
-          <span className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <BellRing className="w-5 h-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="font-semibold text-foreground">{mine ? 'Your alert is on' : "Don't miss the next one"}</p>
-            <p className="text-sm text-muted-foreground">
-              {mine ? <>We will email you when a new <span className="font-medium text-foreground">{watch}</span> is listed.</> : <>Get an email when a new <span className="font-medium text-foreground">{watch}</span> is listed on AutoMax.</>}
-            </p>
-          </div>
-        </div>
+    <div className="rounded-xl bg-secondary/60 px-4 sm:px-5 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-foreground">
+          {mine ? <>We will email you about new <span className="font-semibold">{watch}</span> ads.</> : 'Notify me with similar ads !'}
+        </p>
         {mine ? (
-          <button type="button" onClick={turnOff} disabled={busy} className="shrink-0 h-10 px-4 rounded-lg border border-border bg-card text-sm font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-60">
-            Switch off
+          <button type="button" onClick={turnOff} disabled={busy} className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline disabled:opacity-60">
+            Switch off <BellOff className="w-5 h-5" />
           </button>
         ) : (
-          <button type="button" onClick={turnOn} disabled={busy} className="shrink-0 h-10 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60">
-            Email me new listings
+          <button type="button" onClick={turnOn} disabled={busy} className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline disabled:opacity-60">
+            Notify me <Bell className="w-5 h-5" />
           </button>
         )}
       </div>
-      {!mine && !user && <p className="text-xs text-muted-foreground mt-2 sm:pl-[3.25rem]">You will be asked to sign in so we know where to send the emails.</p>}
-      {error && <p className="text-xs text-red-600 mt-2 sm:pl-[3.25rem]">{error}</p>}
+      {!mine && !user && <p className="text-xs text-muted-foreground mt-1">You will be asked to sign in so we know where to send the emails.</p>}
+      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>
   );
 }
