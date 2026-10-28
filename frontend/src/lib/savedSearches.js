@@ -30,7 +30,7 @@ export function generateSearchName(filters) {
     activeVehicles.forEach((v) => {
       let label = v.make;
       if (v.model) label += ` ${v.model}`;
-      if (v.bodyType) label += ` ${v.bodyType}`;
+      if (v.trims && v.trims.length) label += ` ${v.trims.join("/")}`;
       parts.push(label);
     });
   }

@@ -4,6 +4,7 @@ import MobileSelect from './MobileSelect';
 import MakeSelector from './MakeSelector';
 import ModelSelector from './ModelSelector';
 import BodyTypeSelector from './BodyTypeSelector';
+import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { priceOptions } from '@/lib/priceOptions';
 
 const makes = ['All makes', 'Audi', 'BMW', 'Ford', 'Hyundai', 'Nissan', 'Renault', 'Toyota', 'Volkswagen'];
@@ -66,11 +67,11 @@ function Sel({ value, onChange, options, placeholder, sizeClass }) {
 const batteryKwhOptions = ['24 kWh', '30 kWh', '40 kWh', '50 kWh', '60 kWh', '64 kWh', '77 kWh', '82 kWh', '100 kWh', '100+ kWh'];
 const batteryRangeOptions = ['100 km', '150 km', '200 km', '250 km', '300 km', '350 km', '400 km', '450 km', '500 km', '500+ km'];
 
-// every make / model / body type row has its own id, so removing a row keeps the other rows as they are
+// every make / model / model types row has its own id, so removing a row keeps the other rows as they are
 let vehicleSeq = 0;
-const newVehicle = (make = '') => ({ uid: ++vehicleSeq, make, model: '', bodyType: '' });
+const newVehicle = (make = '') => ({ uid: ++vehicleSeq, make, model: '', trims: [] });
 
-export default function FiltersSidebar({ onFilterChange, hideFuelType = false, hideTransmission = false, fixedMake = '' }) {
+export default function FiltersSidebar({ onFilterChange, hideFuelType = false, hideTransmission = false, fixedMake = '', ads = [] }) {
   const [resetKey, setResetKey] = useState(0);
   const [sellerType, setSellerType] = useState('Both');
   const [ratings, setRatings] = useState([]);
@@ -90,6 +91,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
   const [fuelSelected, setFuelSelected] = useState([]);
   const [transSelected, setTransSelected] = useState([]);
   const [bodySelected, setBodySelected] = useState([]);
+  const [bodyType, setBodyType] = useState('');
   const [engineSize, setEngineSize] = useState('');
   const [enginePowerFrom, setEnginePowerFrom] = useState('');
   const [enginePowerTo, setEnginePowerTo] = useState('');
@@ -119,7 +121,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
     setMileageFrom('');setMileageTo('');
     setCounty('All Ireland');setCustomLocation('');setRadius('+5km');
     setShowAllFuel(true);setFuelSelected([]);
-    setTransSelected([]);setBodySelected([]);
+    setTransSelected([]);setBodySelected([]);setBodyType('');
     setEngineSize('');
     setEnginePowerFrom('');setEnginePowerTo('');
     setBatteryFrom('');setBatteryTo('');
@@ -136,9 +138,9 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
   useEffect(() => {
     if (onFilterChange) {
       const sellerTypes = sellerType === 'Both' ? [] : [sellerType];
-      onFilterChange({ vehicles, yearFrom, yearTo, priceFrom, priceTo, mileageFrom, mileageTo, fuelSelected, transSelected, bodySelected, sellerTypes, engineSize, enginePowerFrom, enginePowerTo, batteryFrom, batteryTo, batteryRangeFrom, batteryRangeTo, seatsSelected, doorsSelected, coloursSelected, ownership, roadTaxFrom, roadTaxTo, nctFrom, nctTo, adType, county: county === 'Other' ? customLocation : county });
+      onFilterChange({ vehicles, yearFrom, yearTo, priceFrom, priceTo, mileageFrom, mileageTo, fuelSelected, transSelected, bodySelected, bodyType, sellerTypes, engineSize, enginePowerFrom, enginePowerTo, batteryFrom, batteryTo, batteryRangeFrom, batteryRangeTo, seatsSelected, doorsSelected, coloursSelected, ownership, roadTaxFrom, roadTaxTo, nctFrom, nctTo, adType, county: county === 'Other' ? customLocation : county });
     }
-  }, [vehicles, yearFrom, yearTo, priceFrom, priceTo, mileageFrom, mileageTo, fuelSelected, transSelected, bodySelected, sellerType, engineSize, enginePowerFrom, enginePowerTo, batteryFrom, batteryTo, batteryRangeFrom, batteryRangeTo, seatsSelected, doorsSelected, coloursSelected, ownership, roadTaxFrom, roadTaxTo, nctFrom, nctTo, adType, county, customLocation]);
+  }, [vehicles, yearFrom, yearTo, priceFrom, priceTo, mileageFrom, mileageTo, fuelSelected, transSelected, bodySelected, bodyType, sellerType, engineSize, enginePowerFrom, enginePowerTo, batteryFrom, batteryTo, batteryRangeFrom, batteryRangeTo, seatsSelected, doorsSelected, coloursSelected, ownership, roadTaxFrom, roadTaxTo, nctFrom, nctTo, adType, county, customLocation]);
 
   return (
     <div className="text-base ml-1">
@@ -191,7 +193,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
 
       {/* Make, Model, Body type */}
       <div className="border-b border-border py-4">
-        <div className="text-base font-semibold text-foreground mb-4">Make, Model, Body type</div>
+        <div className="text-base font-semibold text-foreground mb-4">Make, Model, Model types</div>
         <div className="flex flex-col gap-3">
           {vehicles.map((v, i) =>
             <div key={v.uid ?? i} className="flex flex-col gap-2">
@@ -208,10 +210,10 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
                   {fixedMake}
                 </div>
               ) : (
-                <MakeSelector value={v.make} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, make: val, model: '' } : x))} />
+                <MakeSelector value={v.make} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, make: val, model: '', trims: [] } : x))} />
               )}
-              <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, model: val } : x))} />
-              <BodyTypeSelector value={v.bodyType} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, bodyType: val } : x))} />
+              <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, model: val, trims: [] } : x))} />
+              <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model)} value={v.trims || []} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, trims: val } : x))} />
             </div>
             )}
           {!fixedMake && vehicles.length < 3 && (
@@ -280,10 +282,12 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
             <Sel value={batteryFrom} onChange={setBatteryFrom} options={batteryKwhOptions} placeholder="From" />
             <Sel value={batteryTo} onChange={setBatteryTo} options={batteryKwhOptions} placeholder="To" />
           </div>
+          <div className="mt-2"><BodyTypeSelector value={bodyType} onChange={setBodyType} /></div>
         </Section>
       ) : (
         <Section title="Engine size" alwaysOpen>
           <Sel value={engineSize} onChange={setEngineSize} options={engineSizes} placeholder="Any" />
+          <div className="mt-2"><BodyTypeSelector value={bodyType} onChange={setBodyType} /></div>
         </Section>
       )}
 

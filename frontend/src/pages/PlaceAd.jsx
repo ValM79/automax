@@ -114,6 +114,7 @@ const emptyForm = {
   mileageUnit: 'km',
   vehicleMake: '',
   vehicleModel: '',
+  vehicleTrim: '',
   vehicleYear: '',
   vehicleFuel: '',
   vehicleTransmission: '',
@@ -688,6 +689,15 @@ export default function PlaceAd() {
                 })()}
               </div>
 
+              {/* Model type (trim / version): lets buyers narrow a model down in the Model types filter */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1.5">Model type <span className="text-muted-foreground font-normal">(optional)</span></label>
+                <input type="text" value={form.vehicleTrim} maxLength={40}
+                  onChange={(e) => setForm((f) => ({ ...f, vehicleTrim: e.target.value }))}
+                  placeholder="e.g. Pro Plus, Style, SE"
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+              </div>
+
               {/* Year */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">Year</label>
@@ -1197,6 +1207,7 @@ export default function PlaceAd() {
                     mileage: form.mileage ? `${form.mileage} ${form.mileageUnit}` : '',
                     vehicleMake: form.vehicleMake === '__other__' ? '' : form.vehicleMake,
                     vehicleModel: form.vehicleModel === '__other__' ? '' : form.vehicleModel,
+                    vehicleTrim: form.vehicleTrim.trim(),
                     vehicleYear: form.vehicleYear,
                     vehicleFuel: form.vehicleFuel === '__other__' ? '' : form.vehicleFuel,
                     vehicleTransmission: form.vehicleTransmission === '__other__' ? '' : form.vehicleTransmission,

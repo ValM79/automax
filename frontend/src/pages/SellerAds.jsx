@@ -22,10 +22,11 @@ import { openingStatus } from '@/lib/openingStatus';
 import DealerReviews from '../components/automarket/DealerReviews';
 import { useFavorites } from '../hooks/useFavorites';
 import { api } from '@/api/apiClient';
+import ModelTypeSelector, { trimsFor } from '../components/automarket/ModelTypeSelector';
 
-// every make / model / body type row has its own id, so removing a row keeps the other rows as they are
+// every make / model / model types row has its own id, so removing a row keeps the other rows as they are
 let vehicleSeq = 0;
-const newVehicle = () => ({ uid: ++vehicleSeq, make: '', model: '', bodyType: '' });
+const newVehicle = () => ({ uid: ++vehicleSeq, make: '', model: '', trims: [] });
 
 const BANNER = '/img/b29eb1163_generated_image.jpg'; // used behind the dealer's name when they have not added a photo
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -129,7 +130,8 @@ export default function SellerAds() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('stock');
-  const [vehicles, setVehicles] = useState(() => [newVehicle()]); // up to 3 make / model / body type choices, like the Cars For Sale filters
+  const [bodyType, setBodyType] = useState('');
+  const [vehicles, setVehicles] = useState(() => [newVehicle()]); // up to 3 make / model / model types choices, like the Cars For Sale filters
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sort, setSort] = useState('newest');
@@ -147,7 +149,7 @@ export default function SellerAds() {
     if (!sellerId) return;
     let alive = true;
     setLoading(true);
-    setTab('stock'); setVehicles([newVehicle()]); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
+    setTab('stock'); setVehicles([newVehicle()]); setBodyType(''); setMinPrice(''); setMaxPrice(''); setSort('newest'); setPhoneShown(false);
     if (sellerId === 'example') {
       setAds(EXAMPLE_ADS);
       setStats(EXAMPLE_STATS);
@@ -185,6 +187,7 @@ export default function SellerAds() {
             vehicleMake: ad.vehicleMake,
             vehicleModel: ad.vehicleModel,
             bodyType: ad.bodyType,
+            vehicleTrim: ad.vehicleTrim,
           }));
       })
       .catch(() => []);
@@ -245,16 +248,17 @@ export default function SellerAds() {
     const toNumber = (v) => (v ? Number(String(v).replace(/[€,]/g, '')) : null); // the price boxes hold text like '€5,000'
     const min = toNumber(minPrice);
     const max = toNumber(maxPrice);
-    const picked = vehicles.filter((v) => v.make || v.model || v.bodyType);
+    const picked = vehicles.filter((v) => v.make || v.model || (v.trims || []).length);
     const lower = (x) => String(x || '').toLowerCase();
     // same idea as Cars For Sale: the make / model is looked for in the ad title (and in the make / model the dealer entered)
     const matchesVehicle = (a, v) => (
       (!v.make || lower(a.title).includes(lower(v.make)) || lower(a.vehicleMake).includes(lower(v.make))) &&
       (!v.model || lower(a.title).includes(lower(v.model)) || lower(a.vehicleModel).includes(lower(v.model))) &&
-      (!v.bodyType || lower(a.bodyType).includes(lower(v.bodyType)))
+      (!(v.trims || []).length || v.trims.some((t) => lower(a.vehicleTrim) === lower(t)))
     );
     const list = ads.filter((a) => (
       (picked.length === 0 || picked.some((v) => matchesVehicle(a, v))) &&
+      (!bodyType || lower(a.bodyType).includes(lower(bodyType))) &&
       (min === null || a.priceNum >= min) &&
       (max === null || a.priceNum <= max)
     ));
@@ -264,9 +268,9 @@ export default function SellerAds() {
     else if (sort === 'oldest') list.sort((a, b) => when(a) - when(b));
     else list.sort((a, b) => when(b) - when(a)); // newest first
     return list;
-  }, [ads, vehicles, minPrice, maxPrice, sort]);
+  }, [ads, vehicles, bodyType, minPrice, maxPrice, sort]);
 
-  const filtersOn = !!(vehicles.some((v) => v.make || v.model || v.bodyType) || minPrice || maxPrice || sort !== 'newest');
+  const filtersOn = !!(vehicles.some((v) => v.make || v.model || (v.trims || []).length) || bodyType || minPrice || maxPrice || sort !== 'newest');
   const resetFilters = () => { setVehicles([newVehicle()]); setMinPrice(''); setMaxPrice(''); setSort('newest'); };
   const setVehicle = (i, patch) => setVehicles((prev) => prev.map((v, idx) => (idx === i ? { ...v, ...patch } : v)));
 
@@ -431,7 +435,7 @@ export default function SellerAds() {
               </div>
 
               <div className={`${filtersOpen ? '' : 'hidden'} lg:block`}>
-              <p className="text-sm text-muted-foreground mt-5 mb-2">Make, Model, Body type</p>
+              <p className="text-sm text-muted-foreground mt-5 mb-2">Make, Model, Model types</p>
               <div className="flex flex-col gap-3">
                 {vehicles.map((v, i) => (
                   <div key={v.uid ?? i} className="flex flex-col gap-2">
@@ -442,9 +446,9 @@ export default function SellerAds() {
                         </button>
                       </div>
                     )}
-                    <MakeSelector value={v.make} onChange={(val) => setVehicle(i, { make: val, model: '' })} />
-                    <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicle(i, { model: val })} />
-                    <BodyTypeSelector value={v.bodyType} onChange={(val) => setVehicle(i, { bodyType: val })} />
+                    <MakeSelector value={v.make} onChange={(val) => setVehicle(i, { make: val, model: '', trims: [] })} />
+                    <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicle(i, { model: val, trims: [] })} />
+                    <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model)} value={v.trims || []} onChange={(val) => setVehicle(i, { trims: val })} />
                   </div>
                 ))}
                 {vehicles.length < 3 && (
@@ -453,6 +457,9 @@ export default function SellerAds() {
                   </button>
                 )}
               </div>
+
+              <p className="text-sm text-muted-foreground mt-6 mb-2">Body type</p>
+              <BodyTypeSelector value={bodyType} onChange={setBodyType} />
 
               <p className="text-sm text-muted-foreground mt-6 mb-1">Price</p>
               <p className="text-xs text-muted-foreground mb-2">€ EUR</p>
