@@ -216,7 +216,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
                 <MakeSelector makes={cv ? cv.makes : undefined} value={v.make} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, make: val, model: '', trims: [] } : x))} />
               )}
               <ModelSelector modelsMap={cv ? cv.models : undefined} make={v.make} value={v.model} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, model: val, trims: [] } : x))} />
-              <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model, cv ? (cv.types[`${v.make}|${v.model}`.toLowerCase()] || []) : undefined)} value={v.trims || []} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, trims: val } : x))} />
+              <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model, cv ? cv.typesFor(v.make, v.model) : undefined)} value={v.trims || []} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, trims: val } : x))} />
             </div>
             )}
           {!fixedMake && vehicles.length < 3 && (

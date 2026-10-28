@@ -33,6 +33,7 @@ const CATEGORIES = {
       'CFMoto|CForce 450': 'S|L|EPS|Touring', 'CFMoto|CForce 520': 'S|L|EPS|Touring', 'CFMoto|CForce 550': 'S|L|EPS|Touring', 'CFMoto|CForce 625': 'S|L|EPS|Touring', 'CFMoto|CForce 800': 'S|L|EPS|Touring|XC', 'CFMoto|CForce 1000': 'L|EPS|Touring|Overland',
     },
     bodyTypes: 'Sport|Utility|Farm|Youth|Kids|Racing|Trail|Side-by-Side (UTV)|Three-wheeler|Electric|Off-road',
+    defaultTypes: 'Standard|EPS (power steering)|Camo|Special Edition|Road Legal|2WD|4WD|Automatic|Manual',
   },
 
   Motorbikes: {
@@ -73,6 +74,7 @@ const CATEGORIES = {
       'KTM|390 Duke': 'Standard|ABS|SW|Orange|Black', 'KTM|890 Duke': 'Standard|R|GP|Standard ABS', 'KTM|1290 Super Adventure': 'S|R|T|Standard|Standard ABS',
     },
     bodyTypes: MOTO_BODY,
+    defaultTypes: 'Standard|ABS|Sport|Touring|Adventure|Special Edition|Limited Edition|A2 Restricted|Learner Legal',
   },
 
   Scooters: {
@@ -102,6 +104,7 @@ const CATEGORIES = {
       'Vespa|GTS 300': 'Standard|ABS|Super|Super Sport|Super Tech|Touring|Sport|Racing Sixties|GTS Super 300', 'Piaggio|Beverly 300': 'Standard|ABS|S|Sport|Tourer|GT',
     },
     bodyTypes: 'Twist & Go|Maxi Scooter|Moped|Electric Scooter|Step-through|Three-wheeler|Retro / Classic|Sports Scooter|Mobility Scooter',
+    defaultTypes: 'Standard|ABS|Sport|Special Edition|Limited Edition|Learner Legal|Electric',
   },
 
   'Vintage Bikes': {
@@ -131,6 +134,7 @@ const CATEGORIES = {
       'Triumph|Bonneville T120': 'T120R|T120C|T120TT|Bonneville|Standard', 'Triumph|Bonneville T140': 'T140V|T140D|T140E|T140ES|Silver Jubilee|Royal Wedding|TSX|Executive|Standard', 'BSA|A65 Lightning': 'Standard|Rocket|Lightning Clubman|Lightning Rocket', 'Norton|Commando 750': 'Roadster|Fastback|Interstate|S Type|Standard|MK2|MK3', 'Honda|CB750 Four': 'K0|K1|K2|K3|K4|K5|K6|K7|F1|F2|Standard|Sandcast', 'Kawasaki|Z1': 'Z1A|Z1B|Z1-R|Standard|900',
     },
     bodyTypes: MOTO_BODY + '|Classic|Vintage|Veteran|Pre-war|Moped|Sidecar Outfit|Racer',
+    defaultTypes: 'Original|Restored|Project|Barn Find|Custom|Race Prepared',
   },
 
   Commercials: {
@@ -158,6 +162,28 @@ const CATEGORIES = {
       'Other': '',
     },
     types: {
+      'Nissan|Primastar': 'Visia|Acenta|N-Connecta|Tekna',
+      'Nissan|NV200': 'Visia|Acenta|Tekna|SE',
+      'Nissan|NV250': 'Visia|Acenta|Tekna',
+      'Nissan|NV300': 'Visia|Acenta|N-Connecta|Tekna',
+      'Nissan|NV400': 'Visia|SE|Acenta|Tekna',
+      'Nissan|Townstar': 'Visia|Acenta|N-Connecta|Tekna',
+      'Nissan|e-NV200': 'Visia|Acenta|Tekna',
+      'Ford|Transit Connect': 'Base|Trend|Limited|Sport|Leader',
+      'Ford|Transit Courier': 'Base|Trend|Limited|Sport|Leader',
+      'Ford|E-Transit': 'Trend|Limited|Leader',
+      'Ford|Tourneo Custom': 'Zetec|Titanium|Titanium X|Sport',
+      'Mercedes-Benz|V-Class': 'Sport|Exclusive|AMG Line|Avantgarde',
+      'Mercedes-Benz|X-Class': 'Pure|Progressive|Power',
+      'Peugeot|Expert': 'Professional|Asphalt|Premium|Standard|Long',
+      'Peugeot|Rifter': 'Active|Allure|GT Line',
+      'Renault|Kangoo': 'Business|Business+|Extra|Advance|Sport',
+      'Toyota|Proace City': 'Active|Icon|Design',
+      'Volkswagen|Amarok': 'Life|Style|PanAmericana|Aventura|Highline|Trendline',
+      'Volkswagen|Caravelle': 'Executive|Trendline|Comfortline|Highline',
+      'Volkswagen|Multivan': 'Trendline|Comfortline|Highline|Life|Style',
+      'Volkswagen|California': 'Beach|Ocean|Coast',
+      'Hyundai|Staria': 'Premium|Prime|Ultimate',
       'Ford|Transit': 'Base|Leader|Trend|Limited|Sport|Trail|Kombi|Double Cab-in-Van|Tipper|Dropside|Luton|Chassis Cab|Minibus|Panel Van|L2H2|L3H3|350|350 L2|350 L3|350 L4|470|Jumbo|Heavy Duty', 'Ford|Transit Custom': 'Base|Leader|Trend|Limited|Sport|Trail|Active|MS-RT|Kombi|Double Cab-in-Van|Plug-in Hybrid|280|300|320|340|L1H1|L2H1|L2H2',
       'Ford|Ranger': 'XL|XLT|Limited|Wildtrak|Raptor|Tremor|Stormtrak|Platinum|Double Cab|Super Cab|Single Cab|PHEV', 'Volkswagen|Transporter': 'Startline|Trendline|Highline|Kombi|Shuttle|Sportline|Caravelle|Panel Van|Limited|Black Edition|Business|T28|T30|T32|SWB|LWB',
       'Volkswagen|Caddy': 'Startline|Trendline|Comfortline|Highline|Life|Style|Maxi|Maxi Life|Maxi Style|Cargo|Commerce|Commerce Pro|California|Kombi|Panel Van|C20|C20 Plus|Business|Sportline|Black Edition|Beach|Alltrack|Cross|e-Caddy|Electric', 'Volkswagen|Crafter': 'Startline|Trendline|Highline|Business|SWB|LWB|MWB|Panel Van|Van|Kombi|Crew Cab|Dropside|Tipper|Luton|Chassis Cab|CR28|CR30|CR32|CR35|CR50|e-Crafter|Electric',
@@ -171,6 +197,7 @@ const CATEGORIES = {
       'Isuzu|D-Max': 'Utility|Eiger|DL20|DL40|V-Cross|Arctic Trucks|Blade|Double Cab|Extended Cab|Single Cab|Rodeo', 'Mitsubishi|L200': 'Barbarian|Barbarian X|Warrior|Trojan|Titan|Series 5|Series 6|4Life|4Work|Double Cab|Club Cab|Single Cab|Challenger|Animal', 'Iveco|Daily': '35S|35C|40C|45C|50C|65C|70C|72C|Panel Van|Tipper|Dropside|Luton|Chassis Cab|Crew Cab|Minibus|L1H1|L2H2|L3H2|L4H2|Hi-Matic|Euro 6|Euro 5',
     },
     bodyTypes: 'Panel Van|Crew Van|Combi Van|Minibus|Pick Up|Double Cab Pick Up|Tipper|Dropside|Luton|Box Van|Chassis Cab|Refrigerated Van|Curtainsider|Flatbed|Recovery|Car Transporter|Welfare Van|Electric Van',
+    defaultTypes: 'Panel Van|Crew Van|Combi|Double Cab|Single Cab|Chassis Cab|Tipper|Dropside|Luton|Minibus|Refrigerated|L1H1|L2H1|L2H2|L3H2|L3H3|Electric',
   },
 
   Trucks: {
@@ -203,6 +230,7 @@ const CATEGORIES = {
       'Iveco|Stralis': 'AS|AT|AD|Active Day|Active Space|Active Time|Hi-Way|Hi-Road|Hi-Street|Euro 6|Euro 5',
     },
     bodyTypes: 'Tractor Unit|Rigid|Tipper|Flatbed|Curtainsider|Box|Skip Loader|Hook Loader|Tanker|Crane|Car Transporter|Refrigerated|Dropside|Livestock|Low Loader|Concrete Mixer|Recovery|Skip|Tag Axle',
+    defaultTypes: 'Day Cab|Sleeper Cab|4x2|6x2|6x4|8x4|Euro 6|Euro 5',
   },
 
   'Coaches & Buses': {
@@ -228,6 +256,7 @@ const CATEGORIES = {
     },
     types: {},
     bodyTypes: 'Coach|Midi Coach|Mini Coach|Minibus|Single Decker|Double Decker|School Bus|City Bus|Low Floor|Low Entry|Open Top|Electric Bus|Hybrid Bus|Executive Coach|Touring Coach|Airport Bus|Shuttle Bus|Mobility Bus|Wheelchair Accessible',
+    defaultTypes: 'Euro 6|Euro 5|Euro 4|Automatic|Manual|With Toilet|Air Conditioned|Wheelchair Lift',
   },
 
   Campers: {
@@ -258,6 +287,7 @@ const CATEGORIES = {
       'Volkswagen|Grand California': '600|680',
     },
     bodyTypes: 'Motorhome (Coachbuilt)|Campervan|A-Class|Low Profile|Over-cab|Panel Van Conversion|Pop-top|Rear Lounge|Fixed Bed|Island Bed|Twin Single Beds|Pickup Camper|4x4 Camper|Self-converted',
+    defaultTypes: 'Low Profile|A-Class|Over-cab|2 Berth|3 Berth|4 Berth|5 Berth|6 Berth|Automatic|Manual',
   },
 
   Caravans: {
@@ -281,6 +311,7 @@ const CATEGORIES = {
     },
     types: {},
     bodyTypes: 'Touring Caravan|Static Caravan|Twin Axle|Single Axle|Folding Caravan|Pop-top|Fixed Bed|Island Bed|End Bathroom|Twin Single Beds|Fixed Bunk Beds|Front Lounge|Rear Lounge|Mid Bathroom|Transverse Bed|Lightweight|Compact|Holiday Home|Mobile Home',
+    defaultTypes: '2 Berth|3 Berth|4 Berth|5 Berth|6 Berth|Single Axle|Twin Axle|Fixed Bed|Island Bed|End Bathroom|Fixed Bunks',
   },
 
   Trailers: {
@@ -296,6 +327,7 @@ const CATEGORIES = {
     },
     types: {},
     bodyTypes: 'Box Trailer|Car Transporter|Plant Trailer|Horse Box|Livestock|Flatbed|Tipper|Tilt Bed|Dropside|Low Loader|Beavertail|Bike Trailer|Boat Trailer|Camping Trailer|Bin Trailer|Tandem Axle|Single Axle|Twin Axle|Braked|Unbraked|Gooseneck|Fifth Wheel|Trailer Tent|Utility Trailer',
+    defaultTypes: 'Single Axle|Twin Axle|Braked|Unbraked|Tilt Bed|Beavertail|Ramps|Hydraulic Tipper',
   },
 
   'Plant Machinery': {
@@ -319,6 +351,7 @@ const CATEGORIES = {
     },
     types: {},
     bodyTypes: 'Excavator|Mini Digger|Midi Digger|Backhoe Loader|Telehandler|Skid Steer|Compact Track Loader|Dumper|Articulated Dumper|Loading Shovel|Wheel Loader|Roller|Forklift|Crane|Compressor|Generator|Tractor|Bulldozer|Grader|Scraper|Concrete Mixer|Screener|Crusher|Mower|Sweeper|Trencher|Compactor',
+    defaultTypes: 'Tracked|Wheeled|Zero Tail Swing|Quick Hitch|Enclosed Cab|Open ROPS|2WD|4WD|Long Reach',
   },
 
   'Boats & Jet Skis': {
@@ -341,6 +374,7 @@ const CATEGORIES = {
     },
     types: {},
     bodyTypes: 'Motor Boat|Sailing Yacht|RIB|Jet Ski|Dinghy|Fishing Boat|Cabin Cruiser|Speedboat|Day Boat|Canal Boat|Narrowboat|Catamaran|Kayak|Canoe|Inflatable|Houseboat|Sports Cruiser|Flybridge',
+    defaultTypes: 'Outboard|Inboard|Sterndrive|Twin Engine|Single Engine|Trailer Included|Open|Cabin|Hardtop|2-seater|3-seater',
   },
 };
 
@@ -355,5 +389,8 @@ export function categoryVehicles(category) {
   makes.forEach((m) => { models[m] = split(c.makes[m]).map((name) => ({ name })); });
   const types = {};
   Object.entries(c.types || {}).forEach(([k, v]) => { types[k.toLowerCase()] = split(v); });
-  return { makes, models, types, bodyTypes: split(c.bodyTypes) };
+  const fallback = split(c.defaultTypes);
+  // the types of one model: its own list, else the ones every model of the section can have
+  const typesFor = (make, model) => types[`${make}|${model}`.toLowerCase()] || fallback;
+  return { makes, models, types, typesFor, bodyTypes: split(c.bodyTypes) };
 }

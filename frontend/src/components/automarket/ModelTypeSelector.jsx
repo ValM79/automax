@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { knownTrims } from './trimsData';
+import { knownTrims, defaultCarTypes } from './trimsData';
 
 // "Model types": the trims / versions (Life, Pro Plus, Style ...) of the make and model picked above it, as a search box with a
 // tick list. `options` is [{ name, count }] taken from the ads that are for sale now; `value` is the list of ticked names.
@@ -71,7 +71,9 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
 export function trimsFor(ads, make, model, known) {
   const low = (x) => String(x || '').trim().toLowerCase();
   const found = new Map();
-  (known || knownTrims(make, model)).forEach((t) => found.set(low(t), { name: t, count: 0 }));
+  // a model with no list of its own gets the versions every car can come in (not for an unknown make or model)
+  const list = known || (knownTrims(make, model).length || !make || !model ? knownTrims(make, model) : defaultCarTypes);
+  list.forEach((t) => found.set(low(t), { name: t, count: 0 }));
   (ads || []).forEach((a) => {
     const t = String(a.vehicleTrim || '').trim();
     if (!t || low(a.vehicleMake) !== low(make) || low(a.vehicleModel) !== low(model)) return;

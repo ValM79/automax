@@ -251,6 +251,20 @@ const trimsByMake = {
   Lotus: { Emira: 'V6 First Edition|I4 First Edition|V6|I4|Emira V6|Emira I4', Elise: 'Elise|S|R|SC|Sport|Sport 220|Cup 250|Cup 260|Club Racer', Exige: 'Sport|S|Cup|Cup 380|Sport 350|Sport 410|Sport 380|V6 Cup|Roadster', Evora: '400|410|GT410|Sport 410|S|Sport|GT430|Sport 410 Final Edition', Eletre: 'Eletre|S|R' },
 };
 
+// performance and sporting versions that had no list yet
+const extra = {
+  BMW: { M2: 'Competition|CS', M3: 'Competition|CS|Touring|xDrive', M4: 'Competition|CS|CSL|Convertible|xDrive', M5: 'Competition|CS|Touring', M8: 'Competition|Gran Coupe|Convertible' },
+  Audi: {
+    S3: 'Sportback|Saloon|Cabriolet', S4: 'Avant|Saloon', S5: 'Sportback|Coupe|Cabriolet', SQ5: 'Sportback|TDI|TFSI',
+    RS3: 'Sportback|Saloon|Performance', RS4: 'Avant|Competition', RS5: 'Sportback|Coupe|Cabriolet|Competition', RS6: 'Avant|Performance|GT',
+    'RS Q3': 'Sportback', 'RS Q8': 'Performance', R8: 'V10|V10 Plus|Performance|Spyder', 'e-tron GT': 'quattro|RS|Performance',
+  },
+};
+Object.entries(extra).forEach(([make, models]) => { trimsByMake[make] = { ...models, ...(trimsByMake[make] || {}) }; });
+
+// versions every car can come in, for the models we have no list of their own for
+export const defaultCarTypes = ['Petrol', 'Diesel', 'Hybrid', 'Plug-in Hybrid', 'Electric', 'Automatic', 'Manual'];
+
 // the same make written in different ways
 const alias = { opel: 'Vauxhall', vauxhall: 'Opel', mini: 'Mini' };
 
