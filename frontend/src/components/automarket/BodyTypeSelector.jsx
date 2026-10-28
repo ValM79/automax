@@ -8,7 +8,7 @@ const bodyTypes = [
 
 const OTHER_OPTION = 'Other (type your own)';
 
-export default function BodyTypeSelector({ value, onChange }) {
+export default function BodyTypeSelector({ value, onChange, options = bodyTypes }) {
   const [isCustom, setIsCustom] = useState(false);
   const inputRef = useRef(null);
 
@@ -46,7 +46,7 @@ export default function BodyTypeSelector({ value, onChange }) {
         if (v === OTHER_OPTION) { setIsCustom(true); onChange(''); }
         else { onChange(v); }
       }}
-      options={[...bodyTypes, OTHER_OPTION]}
+      options={[...options, OTHER_OPTION]}
       placeholder="All body types"
       sizeClass="text-base"
     />

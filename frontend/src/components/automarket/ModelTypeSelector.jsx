@@ -68,10 +68,10 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
 
 // the trims of one make and model: the ones we know of (count 0 when no live ad has it) followed by any other trim a seller
 // typed on an ad, as [{ name, count }]
-export function trimsFor(ads, make, model) {
+export function trimsFor(ads, make, model, known) {
   const low = (x) => String(x || '').trim().toLowerCase();
   const found = new Map();
-  knownTrims(make, model).forEach((t) => found.set(low(t), { name: t, count: 0 }));
+  (known || knownTrims(make, model)).forEach((t) => found.set(low(t), { name: t, count: 0 }));
   (ads || []).forEach((a) => {
     const t = String(a.vehicleTrim || '').trim();
     if (!t || low(a.vehicleMake) !== low(make) || low(a.vehicleModel) !== low(model)) return;

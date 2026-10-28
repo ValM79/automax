@@ -20,6 +20,8 @@ import { canTakePhoto } from '@/lib/camera';
 import { PHOTO_ACTION_TILE, PHOTO_ACTION_LABEL } from '@/lib/photoTile';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 import { knownTrims } from '../components/automarket/trimsData';
+import { categoryVehicles } from '../components/automarket/categoryVehicles';
+import CategoryVehicleFields from '../components/automarket/CategoryVehicleFields';
 
 const counties = ['Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare'];
 
@@ -264,6 +266,9 @@ export default function PlaceAd() {
 
   const vehicleDetailsCategories = ['Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);
+  // Quads, Boats & Jet Skis and the other sections with their own make / model lists
+  const cv = categoryVehicles(form.subsection);
+  const showCategoryFields = !showVehicleDetails && !!cv;
 
   const validateForm = () => {
     const errors = {};
@@ -614,6 +619,10 @@ export default function PlaceAd() {
             }
           </Section>
 
+          {showCategoryFields && <Section title="Make & Model" icon={<Car className="w-5 h-5" />} subtitle="Optional, but it helps buyers find your ad with the filters">
+            <CategoryVehicleFields form={form} setForm={setForm} category={form.subsection} />
+          </Section>}
+
           {/* Section 3: Vehicle Details — only for specific categories */}
           {showVehicleDetails && <Section title="Vehicle Details" icon={<Car className="w-5 h-5" />} subtitle="Enter your vehicle details manually only related">
             <div className="grid grid-cols-2 gap-4">
@@ -622,7 +631,7 @@ export default function PlaceAd() {
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">Make</label>
                 {(() => {
-                  const knownMakes = ['Alfa Romeo', 'Audi', 'BMW', 'Citroën', 'Fiat', 'Ford', 'Honda', 'Hyundai', 'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Mazda', 'Mercedes-Benz', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Porsche', 'Renault', 'Seat', 'Skoda', 'Subaru', 'Suzuki', 'Tesla', 'Toyota', 'Vauxhall', 'Volkswagen', 'Volvo'];
+                  const knownMakes = cv ? cv.makes : ['Alfa Romeo', 'Audi', 'BMW', 'Citroën', 'Fiat', 'Ford', 'Honda', 'Hyundai', 'Jaguar', 'Jeep', 'Kia', 'Land Rover', 'Lexus', 'Mazda', 'Mercedes-Benz', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Porsche', 'Renault', 'Seat', 'Skoda', 'Subaru', 'Suzuki', 'Tesla', 'Toyota', 'Vauxhall', 'Volkswagen', 'Volvo'];
                   // Show text input when "Other" was chosen (vehicleMake not in known list and not empty sentinel)
                   const isCustom = form.vehicleMake === '__other__' || form.vehicleMake !== '' && !knownMakes.includes(form.vehicleMake);
                   if (isCustom) {
@@ -658,8 +667,8 @@ export default function PlaceAd() {
                 <label className="block text-sm font-medium text-foreground mb-1.5">Model</label>
                 {(() => {
                   const makeForLookup = form.vehicleMake === '__other__' || !form.vehicleMake ? null : form.vehicleMake;
-                  const makeKey = makeForLookup ? Object.keys(modelsByMake).find((k) => k.toLowerCase() === makeForLookup.toLowerCase()) : null;
-                  const availableModels = makeKey ? modelsByMake[makeKey].map((m) => m.name).filter((m) => m !== 'Other') : null;
+                  const makeKey = makeForLookup ? Object.keys(cv ? cv.models : modelsByMake).find((k) => k.toLowerCase() === makeForLookup.toLowerCase()) : null;
+                  const availableModels = makeKey ? (cv ? cv.models : modelsByMake)[makeKey].map((m) => m.name).filter((m) => m !== 'Other') : null;
                   const isCustom = form.vehicleModel === '__other__' || form.vehicleModel !== '' && availableModels && !availableModels.includes(form.vehicleModel);
 
                   if (!availableModels || isCustom) {
@@ -698,7 +707,7 @@ export default function PlaceAd() {
                   placeholder="e.g. Pro Plus, Style, SE" list="trim-suggestions"
                   className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                 <datalist id="trim-suggestions">
-                  {knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel).map((t) => <option key={t} value={t} />)}
+                  {(cv ? (cv.types[`${form.vehicleMake}|${form.vehicleModel}`.toLowerCase()] || []) : knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel)).map((t) => <option key={t} value={t} />)}
                 </datalist>
               </div>
 
@@ -767,7 +776,7 @@ export default function PlaceAd() {
                 <OtherSelect
                   value={form.bodyType}
                   onChange={(val) => setForm((f) => ({ ...f, bodyType: val }))}
-                  options={['Hatchback', 'Saloon', 'Estate', 'Coupe', 'Convertible', 'SUV', 'MPV', 'Van', 'Pick Up']}
+                  options={cv ? cv.bodyTypes : ['Hatchback', 'Saloon', 'Estate', 'Coupe', 'Convertible', 'SUV', 'MPV', 'Van', 'Pick Up']}
                   placeholder="Select..."
                   enterLabel="Enter body type..." />
               </div>

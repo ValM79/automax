@@ -6,6 +6,7 @@ import ListingCard from '../components/automarket/ListingCard';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import FiltersSidebar from '../components/automarket/FiltersSidebar';
+import { matchesVehicleFilters } from '../components/automarket/categoryFilter';
 import Pagination from '../components/automarket/Pagination';
 import MobileCategoryFilters from '../components/automarket/MobileCategoryFilters';
 import { useUserAds, userAdToListingItem } from '../hooks/useUserAds';
@@ -38,6 +39,7 @@ export default function VintageBikes() {
     if (yearTo && item.year && parseInt(item.year) > parseInt(yearTo)) return false;
     if (sellerTypes && sellerTypes.length > 0 && !sellerTypes.some(s => (item.sellerType || '').toLowerCase().includes(s.toLowerCase()))) return false;
     if (activeFilters.adType && activeFilters.adType !== 'All') { const _n = (v) => String(v || '').toLowerCase().replace(/[\s-]+/g, '_'); if (_n(item.adType || (item._raw && item._raw.adType) || 'for_sale') !== _n(activeFilters.adType)) return false; }
+    if (!matchesVehicleFilters(item, activeFilters)) return false;
     return true;
   });
   const totalPages = Math.ceil(allFiltered.length / ITEMS_PER_PAGE);
@@ -65,7 +67,7 @@ export default function VintageBikes() {
         </div>
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={(e) => setSearch(e.target.value)} placeholder="Search Vintage Bikes">
-          <FiltersSidebar alwaysOpen onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+          <FiltersSidebar alwaysOpen category="Vintage Bikes" ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
         </MobileCategoryFilters>
 
         {/* Desktop: search + help text */}
@@ -84,7 +86,7 @@ export default function VintageBikes() {
 
         <div className="flex gap-6">
           <aside className="hidden lg:block w-80 flex-shrink-0 self-start sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <FiltersSidebar alwaysOpen onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+            <FiltersSidebar alwaysOpen category="Vintage Bikes" ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
           </aside>
           <div className="flex-1 min-w-0 min-h-[calc(100vh+4rem)]">
             <div className="flex items-center justify-between mb-4">

@@ -11,6 +11,7 @@ import ListingCard from '../components/automarket/ListingCard';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import FiltersSidebar from '../components/automarket/FiltersSidebar';
+import { matchesVehicleFilters } from '../components/automarket/categoryFilter';
 import MobileCategoryFilters from '../components/automarket/MobileCategoryFilters';
 import PullToRefresh from '../components/automarket/PullToRefresh';
 import { queryClientInstance } from '@/lib/query-client';
@@ -47,6 +48,7 @@ export default function Commercials() {
     if (yearTo && item.year && parseInt(item.year) > parseInt(yearTo)) return false;
     if (sellerTypes && sellerTypes.length > 0 && !sellerTypes.some(s => (item.sellerType || '').toLowerCase().includes(s.toLowerCase()))) return false;
     if (activeFilters.adType && activeFilters.adType !== 'All') { const _n = (v) => String(v || '').toLowerCase().replace(/[\s-]+/g, '_'); if (_n(item.adType || (item._raw && item._raw.adType) || 'for_sale') !== _n(activeFilters.adType)) return false; }
+    if (!matchesVehicleFilters(item, activeFilters)) return false;
     return true;
   });
   const totalPages = Math.ceil(allFiltered.length / ITEMS_PER_PAGE);
@@ -81,7 +83,7 @@ export default function Commercials() {
 
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={(e) => setSearch(e.target.value)} placeholder="Search Commercials">
-          <FiltersSidebar onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+          <FiltersSidebar category="Commercials" ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
         </MobileCategoryFilters>
 
         {/* Desktop: search + help text */}
@@ -101,7 +103,7 @@ export default function Commercials() {
         <div className="flex gap-6">
           {/* Sidebar */}
           <aside className="hidden lg:block w-80 flex-shrink-0 self-start sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <FiltersSidebar onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+            <FiltersSidebar category="Commercials" ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
           </aside>
 
           {/* Listings */}
