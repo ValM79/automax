@@ -707,7 +707,7 @@ export default function PlaceAd() {
                   placeholder="e.g. Pro Plus, Style, SE" list="trim-suggestions"
                   className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                 <datalist id="trim-suggestions">
-                  {(cv ? (cv.types[`${form.vehicleMake}|${form.vehicleModel}`.toLowerCase()] || []) : knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel)).map((t) => <option key={t} value={t} />)}
+                  {(cv ? cv.typesFor(form.vehicleMake, form.vehicleModel) : knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel)).map((t) => <option key={t} value={t} />)}
                 </datalist>
               </div>
 

@@ -18,7 +18,7 @@ export default function CategoryVehicleFields({ form, setForm, category }) {
   const customMake = form.vehicleMake === '__other__' || (form.vehicleMake !== '' && !makeKey);
   const customModel = form.vehicleModel === '__other__' || (form.vehicleModel !== '' && models && !models.includes(form.vehicleModel));
   const model = form.vehicleModel === '__other__' ? '' : form.vehicleModel;
-  const types = cv.types[`${make}|${model}`.toLowerCase()] || [];
+  const types = cv.typesFor(make, model);
 
   return (
     <div className="grid grid-cols-2 gap-4">
