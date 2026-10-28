@@ -48,7 +48,7 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
             <>
               <label className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-secondary">
                 <input type="checkbox" checked={value.length === 0} onChange={() => onChange([])} className="w-5 h-5 accent-primary" />
-                <span className="text-base text-foreground font-medium">All trims</span>
+                <span className="text-base text-foreground font-medium">All types</span>
               </label>
               {shown.map((o) => (
                 <label key={o.name} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-secondary">
