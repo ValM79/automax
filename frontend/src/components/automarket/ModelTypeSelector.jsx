@@ -24,7 +24,7 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
   return (
     <div className="relative" ref={boxRef}>
       <div
-        className={`w-full h-11 flex items-center gap-2 border border-border rounded-md px-3 text-base ${disabled ? 'bg-secondary text-muted-foreground' : 'bg-card hover:bg-secondary focus-within:ring-1 focus-within:ring-primary/40'}`}
+        className={`w-full h-11 flex items-center gap-2 border border-border rounded-md px-3 text-base ${disabled ? 'bg-card text-muted-foreground cursor-not-allowed' : 'bg-card hover:bg-secondary focus-within:ring-1 focus-within:ring-primary/40'}`}
       >
         <input
           type="text"
@@ -32,9 +32,9 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
           value={open ? query : summary}
           onFocus={() => setOpen(true)}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-          placeholder={disabled ? 'Choose a model first' : 'Model types'}
+          placeholder="Model types"
           aria-label="Model types"
-          className="flex-1 min-w-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="flex-1 min-w-0 bg-transparent text-base text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed"
         />
         <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
       </div>
