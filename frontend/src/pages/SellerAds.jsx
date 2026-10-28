@@ -458,7 +458,7 @@ export default function SellerAds() {
                 )}
               </div>
 
-              <p className="text-sm text-muted-foreground mt-6 mb-2">Body type</p>
+              <p className="text-sm text-muted-foreground mt-6 mb-2">Body types</p>
               <BodyTypeSelector value={bodyType} onChange={setBodyType} />
 
               <p className="text-sm text-muted-foreground mt-6 mb-1">Price</p>
