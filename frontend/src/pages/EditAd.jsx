@@ -11,6 +11,7 @@ import MobileSelect from '../components/automarket/MobileSelect';
 import OtherSelect from '../components/automarket/OtherSelect';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
+import { knownTrims } from '../components/automarket/trimsData';
 import { canTakePhoto } from '@/lib/camera';
 import { PHOTO_ACTION_TILE, PHOTO_ACTION_LABEL } from '@/lib/photoTile';
 import ImageViewer from '../components/automarket/ImageViewer';
@@ -466,8 +467,11 @@ export default function EditAd() {
                   <label className="block text-sm font-medium text-foreground mb-1.5">Model type <span className="text-muted-foreground font-normal">(optional)</span></label>
                   <input type="text" value={form.vehicleTrim} maxLength={40}
                     onChange={(e) => setForm((f) => ({ ...f, vehicleTrim: e.target.value }))}
-                    placeholder="e.g. Pro Plus, Style, SE"
+                    placeholder="e.g. Pro Plus, Style, SE" list="trim-suggestions"
                     className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+                  <datalist id="trim-suggestions">
+                    {knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel).map((t) => <option key={t} value={t} />)}
+                  </datalist>
                 </div>
 
                 {/* Year */}

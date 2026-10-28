@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { knownTrims } from './trimsData';
 
 // "Model types": the trims / versions (Life, Pro Plus, Style ...) of the make and model picked above it, as a search box with a
 // tick list. `options` is [{ name, count }] taken from the ads that are for sale now; `value` is the list of ticked names.
@@ -65,10 +66,12 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
   );
 }
 
-// the trims found on a list of ads for one make and model, most common first: [{ name, count }]
+// the trims of one make and model: the ones we know of (count 0 when no live ad has it) followed by any other trim a seller
+// typed on an ad, as [{ name, count }]
 export function trimsFor(ads, make, model) {
   const low = (x) => String(x || '').trim().toLowerCase();
   const found = new Map();
+  knownTrims(make, model).forEach((t) => found.set(low(t), { name: t, count: 0 }));
   (ads || []).forEach((a) => {
     const t = String(a.vehicleTrim || '').trim();
     if (!t || low(a.vehicleMake) !== low(make) || low(a.vehicleModel) !== low(model)) return;
@@ -76,5 +79,5 @@ export function trimsFor(ads, make, model) {
     const cur = found.get(k);
     if (cur) cur.count += 1; else found.set(k, { name: t, count: 1 });
   });
-  return [...found.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  return [...found.values()];
 }
