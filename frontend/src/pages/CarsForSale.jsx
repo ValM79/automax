@@ -132,6 +132,9 @@ export default function CarsForSale() {
     adType: ad.adType,
     description: ad.description,
     bodyType: ad.bodyType,
+    vehicleMake: ad.vehicleMake,
+    vehicleModel: ad.vehicleModel,
+    vehicleTrim: ad.vehicleTrim,
     transmission: ad.vehicleTransmission,
     engineSize: ad.engineSize,
     enginePower: ad.enginePower,
@@ -180,6 +183,11 @@ export default function CarsForSale() {
     if (bodySelected && bodySelected.length > 0) {
       const bt = (c.bodyType || c._raw?.bodyType || '').toLowerCase();
       if (!bt || !bodySelected.some(b => b.toLowerCase() === bt)) return false;
+    }
+    // Body type (the one under Engine size)
+    if (activeFilters.bodyType) {
+      const wanted = activeFilters.bodyType.toLowerCase();
+      if (!(c.bodyType || c._raw?.bodyType || '').toLowerCase().includes(wanted)) return false;
     }
     // Seller type
     if (sellerTypes && sellerTypes.length > 0) {
@@ -293,8 +301,8 @@ export default function CarsForSale() {
   const matchesVehicle = (c, v) => {
     const makeMatch = !v.make || c.title.toLowerCase().includes(v.make.toLowerCase());
     const modelMatch = !v.model || c.title.toLowerCase().includes(v.model.toLowerCase());
-    const bodyMatch = !v.bodyType || (c.bodyType || '').toLowerCase().includes(v.bodyType.toLowerCase());
-    return makeMatch && modelMatch && bodyMatch;
+    const trimMatch = !v.trims || v.trims.length === 0 || v.trims.some((t) => String(c.vehicleTrim || '').trim().toLowerCase() === t.toLowerCase());
+    return makeMatch && modelMatch && trimMatch;
   };
 
   const allFiltered = activeVehicles.length > 0 ?
@@ -391,7 +399,7 @@ export default function CarsForSale() {
               </SheetHeader>
             </div>
             <div className="p-4">
-              <FiltersSidebar onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+              <FiltersSidebar ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
             </div>
           </SheetContent>
         </Sheet>
@@ -399,7 +407,7 @@ export default function CarsForSale() {
         <div className="flex gap-6">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-80 flex-shrink-0 self-start sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <FiltersSidebar onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
+            <FiltersSidebar ads={allListings} onFilterChange={(f) => { setActiveFilters(f); setCurrentPage(1); }} />
           </aside>
 
           {/* Listings */}

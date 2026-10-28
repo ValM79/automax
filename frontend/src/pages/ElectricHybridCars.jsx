@@ -122,6 +122,9 @@ export default function ElectricHybridCars() {
       sellerType: sellerTypeOf(ad),
       description: ad.description,
       bodyType: ad.bodyType,
+      vehicleMake: ad.vehicleMake,
+      vehicleModel: ad.vehicleModel,
+      vehicleTrim: ad.vehicleTrim,
       transmission: ad.vehicleTransmission,
       engineSize: ad.engineSize,
       enginePower: ad.enginePower,
@@ -167,6 +170,10 @@ export default function ElectricHybridCars() {
     if (bodySelected && bodySelected.length > 0) {
       const bt = (c.bodyType || c._raw?.bodyType || '').toLowerCase();
       if (!bt || !bodySelected.some(b => b.toLowerCase() === bt)) return false;
+    }
+    if (activeFilters.bodyType) {
+      const wanted = activeFilters.bodyType.toLowerCase();
+      if (!(c.bodyType || c._raw?.bodyType || '').toLowerCase().includes(wanted)) return false;
     }
     if (sellerTypes && sellerTypes.length > 0) {
       const st = (c.sellerType || '').toLowerCase();
@@ -284,8 +291,8 @@ export default function ElectricHybridCars() {
   const matchesVehicle = (c, v) => {
     const makeMatch = !v.make || c.title.toLowerCase().includes(v.make.toLowerCase());
     const modelMatch = !v.model || c.title.toLowerCase().includes(v.model.toLowerCase());
-    const bodyMatch = !v.bodyType || (c.bodyType || '').toLowerCase().includes(v.bodyType.toLowerCase());
-    return makeMatch && modelMatch && bodyMatch;
+    const trimMatch = !v.trims || v.trims.length === 0 || v.trims.some((t) => String(c.vehicleTrim || '').trim().toLowerCase() === t.toLowerCase());
+    return makeMatch && modelMatch && trimMatch;
   };
 
   const allFiltered = activeVehicles.length > 0 ?
@@ -333,7 +340,7 @@ export default function ElectricHybridCars() {
 
         {/* Mobile: search + help text + filters */}
         <MobileCategoryFilters search={search} onSearchChange={(e) => setSearch(e.target.value)} placeholder="Search Green Cars">
-          <FiltersSidebar onFilterChange={setActiveFilters} hideFuelType hideTransmission />
+          <FiltersSidebar ads={allListings} onFilterChange={setActiveFilters} hideFuelType hideTransmission />
         </MobileCategoryFilters>
 
         {/* Desktop: search + help text */}
@@ -353,7 +360,7 @@ export default function ElectricHybridCars() {
         <div className="flex gap-6">
           {/* Sidebar Filters */}
           <aside className="hidden lg:block w-80 flex-shrink-0 self-start sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-            <FiltersSidebar onFilterChange={setActiveFilters} hideFuelType hideTransmission />
+            <FiltersSidebar ads={allListings} onFilterChange={setActiveFilters} hideFuelType hideTransmission />
           </aside>
 
           {/* Listings */}
