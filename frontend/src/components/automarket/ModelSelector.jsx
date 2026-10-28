@@ -5,12 +5,12 @@ import { modelsByMake } from './modelsData';
 
 const OTHER_OPTION = 'Other (type your own)';
 
-export default function ModelSelector({ make, value, onChange }) {
+export default function ModelSelector({ make, value, onChange, modelsMap = modelsByMake }) {
   const [isCustom, setIsCustom] = useState(false);
   const inputRef = useRef(null);
 
-  const modelsKey = make && Object.keys(modelsByMake).find(k => k.toLowerCase() === make.toLowerCase());
-  const models = modelsKey ? modelsByMake[modelsKey] : [];
+  const modelsKey = make && Object.keys(modelsMap).find(k => k.toLowerCase() === make.toLowerCase());
+  const models = modelsKey ? modelsMap[modelsKey] : [];
   const disabled = !make;
 
   useEffect(() => {

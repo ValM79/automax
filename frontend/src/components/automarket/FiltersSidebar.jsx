@@ -6,6 +6,7 @@ import ModelSelector from './ModelSelector';
 import BodyTypeSelector from './BodyTypeSelector';
 import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { priceOptions } from '@/lib/priceOptions';
+import { categoryVehicles } from './categoryVehicles';
 
 const makes = ['All makes', 'Audi', 'BMW', 'Ford', 'Hyundai', 'Nissan', 'Renault', 'Toyota', 'Volkswagen'];
 const models = ['All models', 'Corolla', 'Golf', 'Focus', 'IX20', 'A4', '3 Series'];
@@ -71,7 +72,9 @@ const batteryRangeOptions = ['100 km', '150 km', '200 km', '250 km', '300 km', '
 let vehicleSeq = 0;
 const newVehicle = (make = '') => ({ uid: ++vehicleSeq, make, model: '', trims: [] });
 
-export default function FiltersSidebar({ onFilterChange, hideFuelType = false, hideTransmission = false, fixedMake = '', ads = [] }) {
+export default function FiltersSidebar({ onFilterChange, hideFuelType = false, hideTransmission = false, fixedMake = '', ads = [], category = '' }) {
+  // the lists of a category such as Quads or Boats replace the car lists; null for cars
+  const cv = categoryVehicles(category);
   const [resetKey, setResetKey] = useState(0);
   const [sellerType, setSellerType] = useState('Both');
   const [ratings, setRatings] = useState([]);
@@ -210,10 +213,10 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
                   {fixedMake}
                 </div>
               ) : (
-                <MakeSelector value={v.make} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, make: val, model: '', trims: [] } : x))} />
+                <MakeSelector makes={cv ? cv.makes : undefined} value={v.make} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, make: val, model: '', trims: [] } : x))} />
               )}
-              <ModelSelector make={v.make} value={v.model} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, model: val, trims: [] } : x))} />
-              <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model)} value={v.trims || []} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, trims: val } : x))} />
+              <ModelSelector modelsMap={cv ? cv.models : undefined} make={v.make} value={v.model} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, model: val, trims: [] } : x))} />
+              <ModelTypeSelector make={v.make} model={v.model} options={trimsFor(ads, v.make, v.model, cv ? (cv.types[`${v.make}|${v.model}`.toLowerCase()] || []) : undefined)} value={v.trims || []} onChange={(val) => setVehicles((prev) => prev.map((x, idx) => idx === i ? { ...x, trims: val } : x))} />
             </div>
             )}
           {!fixedMake && vehicles.length < 3 && (
@@ -298,7 +301,7 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
 
       {/* Body types */}
       <Section title="Body types" alwaysOpen>
-        <BodyTypeSelector value={bodyType} onChange={setBodyType} />
+        <BodyTypeSelector options={cv ? cv.bodyTypes : undefined} value={bodyType} onChange={setBodyType} />
       </Section>
 
       {/* Transmission */}

@@ -18,7 +18,7 @@ const allMakes = [
 
 const OTHER_OPTION = 'Other (type your own)';
 
-export default function MakeSelector({ value, onChange }) {
+export default function MakeSelector({ value, onChange, makes = allMakes }) {
   const [isCustom, setIsCustom] = useState(false);
   const inputRef = useRef(null);
 
@@ -56,7 +56,7 @@ export default function MakeSelector({ value, onChange }) {
         if (v === OTHER_OPTION) { setIsCustom(true); onChange(''); }
         else { onChange(v); }
       }}
-      options={[...allMakes, OTHER_OPTION]}
+      options={[...makes, OTHER_OPTION]}
       placeholder="All makes"
       sizeClass="text-base"
     />

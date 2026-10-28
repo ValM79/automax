@@ -12,6 +12,8 @@ import OtherSelect from '../components/automarket/OtherSelect';
 import { modelsByMake } from '@/components/automarket/modelsData';
 import { ENGINE_SIZE_OPTIONS, canonicalEngineSize } from '@/lib/engineSize';
 import { knownTrims } from '../components/automarket/trimsData';
+import { categoryVehicles } from '../components/automarket/categoryVehicles';
+import CategoryVehicleFields from '../components/automarket/CategoryVehicleFields';
 import { canTakePhoto } from '@/lib/camera';
 import { PHOTO_ACTION_TILE, PHOTO_ACTION_LABEL } from '@/lib/photoTile';
 import ImageViewer from '../components/automarket/ImageViewer';
@@ -141,6 +143,10 @@ export default function EditAd() {
   const toggle = (field) => () => setForm((f) => ({ ...f, [field]: !f[field] }));
   const areas = areasByCounty[form.county] || areasByCounty.default;
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);
+  // Quads, Boats & Jet Skis and the other sections with their own make / model lists
+  const cv = categoryVehicles(form.subsection);
+  const showCategoryFields = !showVehicleDetails && !!cv;
+  const makeList = cv ? cv.makes : knownMakes;
   const totalPhotos = existingPhotos.length + newPhotos.length;
 
   const handleFiles = (files) => {
@@ -410,6 +416,12 @@ export default function EditAd() {
             </div>
           </Section>
 
+          {showCategoryFields && (
+            <Section title="Make & Model" icon={<Car className="w-5 h-5" />} subtitle="Optional, but it helps buyers find your ad with the filters">
+              <CategoryVehicleFields form={form} setForm={setForm} category={form.subsection} />
+            </Section>
+          )}
+
           {/* Vehicle Details Section */}
           {showVehicleDetails && (
             <Section title="Vehicle Details" icon={<Car className="w-5 h-5" />} subtitle="Enter your vehicle details manually only related">
@@ -418,7 +430,7 @@ export default function EditAd() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Make</label>
                   {(() => {
-                    const isCustom = form.vehicleMake === '__other__' || (form.vehicleMake && !knownMakes.includes(form.vehicleMake));
+                    const isCustom = form.vehicleMake === '__other__' || (form.vehicleMake && !makeList.includes(form.vehicleMake));
                     if (isCustom) {
                       return (
                         <div className="relative">
@@ -433,7 +445,7 @@ export default function EditAd() {
                     return (
                       <MobileSelect value={form.vehicleMake}
                         onChange={(val) => setForm((f) => ({ ...f, vehicleMake: val === 'Other' ? '__other__' : val, vehicleModel: '' }))}
-                        options={[...knownMakes, 'Other']} placeholder="Select make..." />
+                        options={[...makeList, 'Other']} placeholder="Select make..." />
                     );
                   })()}
                 </div>
@@ -441,8 +453,8 @@ export default function EditAd() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Model</label>
                   {(() => {
-                    const makeKey = form.vehicleMake && form.vehicleMake !== '__other__' ? Object.keys(modelsByMake).find((k) => k.toLowerCase() === form.vehicleMake.toLowerCase()) : null;
-                    const availableModels = makeKey ? modelsByMake[makeKey].map((m) => m.name).filter((m) => m !== 'Other') : null;
+                    const makeKey = form.vehicleMake && form.vehicleMake !== '__other__' ? Object.keys(cv ? cv.models : modelsByMake).find((k) => k.toLowerCase() === form.vehicleMake.toLowerCase()) : null;
+                    const availableModels = makeKey ? (cv ? cv.models : modelsByMake)[makeKey].map((m) => m.name).filter((m) => m !== 'Other') : null;
                     const isCustom = form.vehicleModel === '__other__' || (form.vehicleModel && availableModels && !availableModels.includes(form.vehicleModel));
                     if (!availableModels || isCustom) {
                       return (
@@ -470,7 +482,7 @@ export default function EditAd() {
                     placeholder="e.g. Pro Plus, Style, SE" list="trim-suggestions"
                     className="w-full border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                   <datalist id="trim-suggestions">
-                    {knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel).map((t) => <option key={t} value={t} />)}
+                    {(cv ? (cv.types[`${form.vehicleMake}|${form.vehicleModel}`.toLowerCase()] || []) : knownTrims(form.vehicleMake === '__other__' ? '' : form.vehicleMake, form.vehicleModel === '__other__' ? '' : form.vehicleModel)).map((t) => <option key={t} value={t} />)}
                   </datalist>
                 </div>
 
@@ -514,7 +526,7 @@ export default function EditAd() {
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Body Type</label>
                   <OtherSelect value={form.bodyType} onChange={(val) => setForm((f) => ({ ...f, bodyType: val }))}
-                    options={['Hatchback', 'Saloon', 'Estate', 'Coupe', 'Convertible', 'SUV', 'MPV', 'Van', 'Pick Up']} placeholder="Select..." enterLabel="Enter body type..." />
+                    options={cv ? cv.bodyTypes : ['Hatchback', 'Saloon', 'Estate', 'Coupe', 'Convertible', 'SUV', 'MPV', 'Van', 'Pick Up']} placeholder="Select..." enterLabel="Enter body type..." />
                 </div>
                 {/* NCT Expiry */}
                 <div>
