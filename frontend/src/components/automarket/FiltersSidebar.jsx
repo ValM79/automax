@@ -282,12 +282,10 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
             <Sel value={batteryFrom} onChange={setBatteryFrom} options={batteryKwhOptions} placeholder="From" />
             <Sel value={batteryTo} onChange={setBatteryTo} options={batteryKwhOptions} placeholder="To" />
           </div>
-          <div className="mt-2"><BodyTypeSelector value={bodyType} onChange={setBodyType} /></div>
         </Section>
       ) : (
         <Section title="Engine size" alwaysOpen>
           <Sel value={engineSize} onChange={setEngineSize} options={engineSizes} placeholder="Any" />
-          <div className="mt-2"><BodyTypeSelector value={bodyType} onChange={setBodyType} /></div>
         </Section>
       )}
 
@@ -297,6 +295,11 @@ export default function FiltersSidebar({ onFilterChange, hideFuelType = false, h
         <Sel value={enginePowerFrom} onChange={setEnginePowerFrom} options={enginePowers} placeholder="Any" />
       </Section>
       )}
+
+      {/* Body types */}
+      <Section title="Body types" alwaysOpen>
+        <BodyTypeSelector value={bodyType} onChange={setBodyType} />
+      </Section>
 
       {/* Transmission */}
       {!hideTransmission && (

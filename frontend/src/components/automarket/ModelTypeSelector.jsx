@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Search } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 // "Model types": the trims / versions (Life, Pro Plus, Style ...) of the make and model picked above it, as a search box with a
 // tick list. `options` is [{ name, count }] taken from the ads that are for sale now; `value` is the list of ticked names.
@@ -24,9 +24,8 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
   return (
     <div className="relative" ref={boxRef}>
       <div
-        className={`w-full flex items-center gap-2 border border-border rounded-lg px-4 py-3 text-base ${disabled ? 'bg-secondary text-muted-foreground' : 'bg-card focus-within:ring-1 focus-within:ring-primary/40'}`}
+        className={`w-full h-11 flex items-center gap-2 border border-border rounded-md px-3 text-base ${disabled ? 'bg-secondary text-muted-foreground' : 'bg-card hover:bg-secondary focus-within:ring-1 focus-within:ring-primary/40'}`}
       >
-        <Search className="w-4 h-4 text-muted-foreground shrink-0" />
         <input
           type="text"
           disabled={disabled}
@@ -41,7 +40,7 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
       </div>
 
       {open && !disabled && (
-        <div className="absolute z-30 left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto py-1">
+        <div className="absolute z-30 left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg max-h-72 overflow-y-auto py-1">
           {options.length === 0 ? (
             <p className="px-4 py-3 text-sm text-muted-foreground">No model types are listed for this model yet.</p>
           ) : (
