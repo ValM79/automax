@@ -9,7 +9,7 @@ import { api } from '@/api/apiClient';
 import { FREQUENCY_LABELS, criteriaLines } from '@/lib/savedSearchTarget';
 import NewSavedSearchForm from '../components/automarket/NewSavedSearchForm';
 
-// My Account > Notifications: the searches you saved, each a target (what to look for), not an ad. Each one has how often we email
+// My Account > Create search: the searches you saved, each a target (what to look for), not an ad. Each one has how often we email
 // you about new matching ads (instant, daily or none) and a Remove button.
 const FREQUENCY_ICONS = { instant: BellRing, daily: Bell, off: BellOff };
 
@@ -107,7 +107,7 @@ export default function Notifications() {
           <span>›</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span>›</span>
-          <span className="text-foreground font-medium">Notifications</span>
+          <span className="text-foreground font-medium">Create search</span>
         </div>
 
         <h1 className="text-xl font-bold text-foreground mb-1">Saved searches</h1>
