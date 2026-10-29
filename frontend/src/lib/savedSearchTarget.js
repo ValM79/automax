@@ -12,7 +12,7 @@ const whole = (v) => {
 };
 
 // What an ad stands for as a search: the same category, make, model and model type, a year either side of the ad's, a price 15% either side
-// (to the nearest 100), and the ad's county.
+// (to the nearest 100), anywhere in Ireland.
 export function criteriaFromAd(ad) {
   const raw = ad?._raw || ad || {};
   const year = whole(raw.vehicleYear ?? ad?.year);
@@ -27,7 +27,7 @@ export function criteriaFromAd(ad) {
     yearTo: year && year >= 1900 ? year + 1 : '',
     priceFrom: price ? Math.round((price * 0.85) / 100) * 100 : '',
     priceTo: price ? Math.round((price * 1.15) / 100) * 100 : '',
-    county: raw.county || ad?.county || '',
+    county: '', // all of Ireland: the person can pick a county in Create search
   };
 }
 
@@ -55,7 +55,8 @@ export function criteriaChips(c) {
 export function criteriaLines(c) {
   const chips = criteriaChips(c);
   const what = chips.filter((x) => ['subsection', 'vehicle', 'trims'].includes(x.key)).map((x) => x.label).join(' • ');
-  const details = ['year', 'price', 'mileage', 'county'].map((k) => chips.find((x) => x.key === k)?.label).filter(Boolean);
+  // no county chosen means all of Ireland
+  const details = ['year', 'price', 'mileage', 'county'].map((k) => chips.find((x) => x.key === k)?.label || (k === 'county' ? 'All Ireland' : '')).filter(Boolean);
   return { what, details };
 }
 
