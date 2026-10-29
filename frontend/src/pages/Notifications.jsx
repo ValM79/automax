@@ -163,7 +163,7 @@ export default function Notifications() {
                         </ul>
                       )}
                     </div>
-                    <div className="shrink-0 flex flex-col items-end gap-3">
+                    <div className="shrink-0 self-stretch flex flex-col items-center justify-between gap-3">
                       <FrequencyMenu value={s.frequency} disabled={busy} onChange={(f) => changeFrequency(s.id, f)} />
                       <button type="button" onClick={() => remove(s.id)} disabled={busy}
                         className="text-sm font-semibold text-primary hover:underline disabled:opacity-60">Remove</button>

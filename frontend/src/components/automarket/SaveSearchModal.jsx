@@ -3,8 +3,8 @@ import { Star, X } from 'lucide-react';
 import { api } from '@/api/apiClient';
 import { FREQUENCY_LABELS, criteriaChips, defaultName } from '@/lib/savedSearchTarget';
 
-// "Save your search": the target taken from the ad (category, make and model, year and price range, county), a name, and how often
-// to email. The model type, year, price and county can be taken off to widen the search.
+// "Save your search": the target taken from the ad (category, make and model, year and price range; anywhere in Ireland), a name, and how often
+// to email. The model type, year and price can be taken off to widen the search.
 const REMOVABLE = { trims: ['trims'], year: ['yearFrom', 'yearTo'], price: ['priceFrom', 'priceTo'], mileage: ['mileageFrom', 'mileageTo'], county: ['county'] };
 
 export default function SaveSearchModal({ criteria, onClose, onSaved }) {
