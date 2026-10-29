@@ -24,7 +24,7 @@ const userMenuItems = [
   { label: 'My Ads', icon: Megaphone, route: '/my-ads' },
   { label: 'Messages', icon: MessageSquare, route: '/messages' },
   { label: 'Saved Ads', icon: Heart, route: '/saved-searches?tab=liked' },
-  { label: 'Notifications', icon: Bell, route: '/notifications' },
+  { label: 'Create search', icon: Bell, route: '/notifications' },
   { label: 'Browsing History', icon: History, route: '/browsing-history' },
   { divider: true },
   { label: 'Payment Records', icon: CreditCard, route: '/payment-history' },
