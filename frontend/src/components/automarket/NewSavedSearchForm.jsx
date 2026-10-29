@@ -7,6 +7,7 @@ import { FREQUENCY_LABELS, defaultName } from '@/lib/savedSearchTarget';
 import MobileSelect from './MobileSelect';
 import MakeSelector from './MakeSelector';
 import ModelSelector from './ModelSelector';
+import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { categoryVehicles } from './categoryVehicles';
 
 // "New saved search" on the Notifications page: the person picks what to look for (section, make, model, year and price range,
@@ -19,6 +20,7 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
   const [subsection, setSubsection] = useState('Cars');
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
+  const [trims, setTrims] = useState([]);
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [priceFrom, setPriceFrom] = useState('');
@@ -30,10 +32,12 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
   const [error, setError] = useState('');
 
   const cv = categoryVehicles(subsection); // Quads, Boats ... have their own makes and models; cars use the car lists
-  const target = { subsection, make, model: make ? model : '' };
+  const target = { subsection, make, model: make ? model : '', trims: make && model ? trims : [] };
   const shownName = name || defaultName(target);
 
-  const changeSection = (v) => { setSubsection(v); setMake(''); setModel(''); };
+  const changeSection = (v) => { setSubsection(v); setMake(''); setModel(''); setTrims([]); };
+  const changeMake = (v) => { setMake(v); setModel(''); setTrims([]); };
+  const changeModel = (v) => { setModel(v); setTrims([]); };
 
   const save = async () => {
     if (!subsection && !make) { setError('Choose a section or a make.'); return; }
@@ -68,11 +72,15 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
         </div>
         <div>
           <label className={label}>Make</label>
-          <MakeSelector key={subsection} makes={cv ? cv.makes : undefined} value={make} onChange={setMake} />
+          <MakeSelector key={subsection} makes={cv ? cv.makes : undefined} value={make} onChange={changeMake} />
         </div>
         <div>
           <label className={label}>Model</label>
-          <ModelSelector key={subsection} modelsMap={cv ? cv.models : undefined} make={make} value={model} onChange={setModel} />
+          <ModelSelector key={subsection} modelsMap={cv ? cv.models : undefined} make={make} value={model} onChange={changeModel} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={label}>Model types</label>
+          <ModelTypeSelector make={make} model={model} options={trimsFor([], make, model, cv ? cv.typesFor(make, model) : undefined)} value={trims} onChange={setTrims} showCounts={false} />
         </div>
         <div>
           <label className={label}>Year</label>

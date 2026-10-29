@@ -72,3 +72,14 @@ test('a search for another section only finds that section', () => {
 test('a search with a make and no section looks in every section', () => {
   assert.equal(matches({ ...search, subsection: '' }, { ...ad, subsection: 'Commercials' }), true);
 });
+
+test('a search with model types only matches ads of one of them, without case', () => {
+  const withTypes = { ...search, trims: ['Pro Plus', 'Style'] };
+  assert.equal(matches(withTypes, { ...ad, vehicleTrim: 'pro plus' }), true);
+  assert.equal(matches(withTypes, { ...ad, vehicleTrim: 'Life' }), false);
+  assert.equal(matches(withTypes, { ...ad, vehicleTrim: '' }), false);
+});
+test('a search without model types (or an older one) ignores the ad model type', () => {
+  assert.equal(matches({ ...search, trims: [] }, { ...ad, vehicleTrim: 'Life' }), true);
+  assert.equal(matches(search, { ...ad, vehicleTrim: 'Life' }), true);
+});
