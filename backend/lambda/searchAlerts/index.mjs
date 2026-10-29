@@ -2,7 +2,7 @@
 // A saved search is a target, not an ad: a category, optionally a make and model, a year and price range and a county, plus how often to email.
 // POST /functions/searchAlerts, body { action, ... }:
 //   list    the caller's saved searches
-//   create  { name, subsection, make, model, trims, yearFrom, yearTo, priceFrom, priceTo, county, frequency }
+//   create  { name, subsection, make, model, trims, yearFrom, yearTo, priceFrom, priceTo, mileageFrom, mileageTo (km), county, frequency }
 //           frequency is 'instant', 'daily' or 'off' (saved, but no emails); asking for the same search again updates its name and frequency
 //   update  { id, frequency?, name? }   change how often to email, or the name
 //   delete  { id }                      remove one of the caller's saved searches
@@ -23,7 +23,7 @@ const whole = (v, min, max) => {
 
 // one saved search per person per target: saving the same target again does not make a second one
 export const alertId = (userId, c) =>
-  createHash('sha256').update([userId, c.make, c.model, c.subsection, c.yearFrom, c.yearTo, c.priceFrom, c.priceTo, c.county, ...(c.trims?.length ? [[...c.trims].map((t) => t.toLowerCase()).sort().join(',')] : [])].map((x) => String(x ?? '').toLowerCase()).join('|')).digest('hex').slice(0, 32);
+  createHash('sha256').update([userId, c.make, c.model, c.subsection, c.yearFrom, c.yearTo, c.priceFrom, c.priceTo, c.county, ...(c.trims?.length ? [[...c.trims].map((t) => t.toLowerCase()).sort().join(',')] : []), ...(c.mileageFrom !== '' && c.mileageFrom != null || c.mileageTo !== '' && c.mileageTo != null ? ['km:' + (c.mileageFrom ?? '') + '-' + (c.mileageTo ?? '')] : [])].map((x) => String(x ?? '').toLowerCase()).join('|')).digest('hex').slice(0, 32);
 
 export const alertName = (a) => {
   const what = [a.make, a.model].filter(Boolean).join(' ');
@@ -35,7 +35,7 @@ export const frequencyOf = (a) => (FREQUENCIES.includes(a.frequency) ? a.frequen
 
 const shape = (a) => ({
   id: a.id, name: a.name, make: a.make, model: a.model, trims: a.trims || [], subsection: a.subsection,
-  yearFrom: a.yearFrom ?? '', yearTo: a.yearTo ?? '', priceFrom: a.priceFrom ?? '', priceTo: a.priceTo ?? '', county: a.county || '',
+  yearFrom: a.yearFrom ?? '', yearTo: a.yearTo ?? '', priceFrom: a.priceFrom ?? '', priceTo: a.priceTo ?? '', mileageFrom: a.mileageFrom ?? '', mileageTo: a.mileageTo ?? '', county: a.county || '',
   frequency: frequencyOf(a), created_date: a.created_date,
 });
 
@@ -50,10 +50,12 @@ export function criteriaOf(body) {
     subsection: clean(body.subsection, 60),
     yearFrom: whole(body.yearFrom, 1900, 2100), yearTo: whole(body.yearTo, 1900, 2100),
     priceFrom: whole(body.priceFrom, 0, 10000000), priceTo: whole(body.priceTo, 0, 10000000),
+    mileageFrom: whole(body.mileageFrom, 0, 2000000), mileageTo: whole(body.mileageTo, 0, 2000000),
     county: clean(body.county, 40),
   };
   if (c.yearFrom !== '' && c.yearTo !== '' && c.yearFrom > c.yearTo) [c.yearFrom, c.yearTo] = [c.yearTo, c.yearFrom];
   if (c.priceFrom !== '' && c.priceTo !== '' && c.priceFrom > c.priceTo) [c.priceFrom, c.priceTo] = [c.priceTo, c.priceFrom];
+  if (c.mileageFrom !== '' && c.mileageTo !== '' && c.mileageFrom > c.mileageTo) [c.mileageFrom, c.mileageTo] = [c.mileageTo, c.mileageFrom];
   return c;
 }
 

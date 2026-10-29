@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { api } from '@/api/apiClient';
 import { IRISH_COUNTIES } from '@/lib/counties';
 import { priceOptions } from '@/lib/priceOptions';
+import { mileageOptions } from '@/lib/mileageOptions';
 import { FREQUENCY_LABELS, defaultName } from '@/lib/savedSearchTarget';
 import MobileSelect from './MobileSelect';
 import MakeSelector from './MakeSelector';
@@ -10,11 +11,13 @@ import ModelSelector from './ModelSelector';
 import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { categoryVehicles } from './categoryVehicles';
 
-// "New saved search" on the Notifications page: the person picks what to look for (section, make, model, year and price range,
+// "Create search" on the Notifications page: the person picks what to look for (section, make, model, year and price range,
 // county) instead of saving it from an ad. It is stored as the same card as a search saved from an ad.
 const SECTIONS = ['Cars', 'Electric & Hybrid Cars', 'Motorbikes', 'Quads', 'Scooters', 'Vintage Bikes', 'Commercials', 'Trucks', 'Coaches & Buses', 'Campers', 'Caravans', 'Trailers', 'Plant Machinery', 'Boats & Jet Skis'];
 const years = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => String(2026 - i));
 const euros = (v) => (v ? Number(String(v).replace(/[^0-9]/g, '')) : '');
+// '0 km' is the same as no lower limit
+const kms = (v) => euros(v) || '';
 
 export default function NewSavedSearchForm({ onClose, onSaved }) {
   const [subsection, setSubsection] = useState('Cars');
@@ -25,6 +28,8 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
   const [yearTo, setYearTo] = useState('');
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
+  const [mileageFrom, setMileageFrom] = useState('');
+  const [mileageTo, setMileageTo] = useState('');
   const [county, setCounty] = useState('');
   const [name, setName] = useState('');
   const [frequency, setFrequency] = useState('instant');
@@ -45,7 +50,7 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
     try {
       const res = await api.functions.invoke('searchAlerts', {
         action: 'create', name: shownName, frequency, ...target,
-        yearFrom: yearFrom || '', yearTo: yearTo || '', priceFrom: euros(priceFrom), priceTo: euros(priceTo), county,
+        yearFrom: yearFrom || '', yearTo: yearTo || '', priceFrom: euros(priceFrom), priceTo: euros(priceTo), mileageFrom: kms(mileageFrom), mileageTo: kms(mileageTo), county,
       });
       const alert = res?.data?.alert;
       if (!alert) throw new Error(res?.data?.error || 'Could not save the search.');
@@ -60,7 +65,7 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
   return (
     <div className="bg-card rounded-xl border border-border shadow-sm p-5 mb-5">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-lg font-semibold text-foreground">New saved search</h2>
+        <h2 className="text-lg font-semibold text-foreground">Create new search</h2>
         <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
       </div>
       <p className="text-sm text-muted-foreground mb-4">Choose what you are looking for. We email you when a new ad matches.</p>
@@ -96,9 +101,16 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
             <MobileSelect value={priceTo} onChange={setPriceTo} options={priceOptions} placeholder="To" />
           </div>
         </div>
-        <div className="sm:col-span-2">
+        <div>
+          <label className={label}>Mileage (km)</label>
+          <div className="grid grid-cols-2 gap-2">
+            <MobileSelect value={mileageFrom} onChange={setMileageFrom} options={mileageOptions} placeholder="From" />
+            <MobileSelect value={mileageTo} onChange={setMileageTo} options={mileageOptions} placeholder="To" />
+          </div>
+        </div>
+        <div>
           <label className={label}>Location</label>
-          <MobileSelect value={county} onChange={setCounty} options={IRISH_COUNTIES} placeholder="All Ireland" sizeClass="text-base" />
+          <MobileSelect value={county} onChange={setCounty} options={IRISH_COUNTIES} placeholder="All Ireland" />
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="new-search-name" className={label}>Name your saved search <span className="text-muted-foreground font-normal">(optional)</span></label>

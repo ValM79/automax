@@ -6,6 +6,7 @@ import ModelSelector from './ModelSelector';
 import BodyTypeSelector from './BodyTypeSelector';
 import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { priceOptions } from '@/lib/priceOptions';
+import { mileageOptions } from '@/lib/mileageOptions';
 import { categoryVehicles } from './categoryVehicles';
 
 const makes = ['All makes', 'Audi', 'BMW', 'Ford', 'Hyundai', 'Nissan', 'Renault', 'Toyota', 'Volkswagen'];
@@ -15,7 +16,6 @@ const years = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => String(2026 - i)
 const counties = ['All Ireland', 'Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare', 'Other'];
 
 const radii = ['+5km', '+10km', '+20km', '+50km', '+100km', 'Nationwide'];
-const mileageOptions = ['0 km', '5,000 km', '10,000 km', '20,000 km', '30,000 km', '40,000 km', '50,000 km', '60,000 km', '75,000 km', '100,000 km', '125,000 km', '150,000 km', '175,000 km', '200,000 km', '250,000 km', '300,000 km', '400,000 km'];
 const fuelTypes = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid', 'LPG', 'Other'];
 const transmissions = ['Manual', 'Automatic', 'Semi-Automatic'];
 const bodyTypeImages = {

@@ -6,7 +6,7 @@
 // A saved search matches an ad when the ad is live, went live after the search was last checked, belongs to someone else, and
 //   - the ad is in the search's section (all the car sections count as one), when it has one;
 //   - and, with a make, the ad has that make (and that model, if the search has one); with no make the search needs a section;
-//   - and, when the search has them, the ad's model type is one of its model types, its year and price are inside its range and the ad is in its county.
+//   - and, when the search has them, the ad's model type is one of its model types, its year, price and mileage (in km; miles are converted) are inside its range and the ad is in its county.
 // One email per person per run, listing the new ads under each search (an ad that fits two searches is listed once).
 // After a successful email every alert of that person is marked as checked up to the start of this run; if the email fails nothing
 // is marked, so the next run tries again. A renewed ad (it has more than one payment) is not "new" and is skipped.
@@ -30,6 +30,13 @@ const numberOf = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 const counted = (v) => v !== '' && v != null;
+
+// the mileage of an ad in km: "88,000 km" -> 88000, "12,000 miles" -> 19312; nothing usable -> null
+export const kmOf = (v) => {
+  const n = numberOf(v);
+  if (n == null) return null;
+  return /mile/i.test(String(v)) ? Math.round(n * 1.609344) : n;
+};
 
 // the sections that sell cars are one family: a search for Cars also finds an electric, modified, vintage or dealership car
 const CAR_SECTIONS = ['cars', 'electric & hybrid cars', 'modified cars', 'vintage cars', 'dealership cars'];
@@ -56,6 +63,10 @@ export function matches(alert, ad) {
   if (counted(alert.priceFrom) || counted(alert.priceTo)) {
     const p = numberOf(ad.price);
     if (p == null || (counted(alert.priceFrom) && p < alert.priceFrom) || (counted(alert.priceTo) && p > alert.priceTo)) return false;
+  }
+  if (counted(alert.mileageFrom) || counted(alert.mileageTo)) {
+    const km = kmOf(ad.mileage);
+    if (km == null || (counted(alert.mileageFrom) && km < alert.mileageFrom) || (counted(alert.mileageTo) && km > alert.mileageTo)) return false;
   }
   if (alert.county && lower(ad.county) !== lower(alert.county)) return false;
   if (Array.isArray(alert.trims) && alert.trims.length && !alert.trims.some((t) => lower(t) === lower(ad.vehicleTrim))) return false;
@@ -154,7 +165,7 @@ export const handler = async (event) => {
   const alerts = dueFor(await scanAll({ TableName: TABLES.SearchAlert }), mode);
   if (!alerts.length) { console.log(`Search alerts (${mode}): no saved searches`); return { mode, alerts: 0, emails: 0 }; }
   // every attribute is aliased (#name): several ad field names are DynamoDB reserved words (status, location...)
-  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'vehicleTrim', 'vehicleYear', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
+  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'vehicleTrim', 'vehicleYear', 'mileage', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
   // all live ads, not only recent ones: an ad is created long before it is paid for, and "new" means when it went live (liveSince)
   const ads = await scanAll({
     TableName: TABLES.UserAd,
