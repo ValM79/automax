@@ -116,7 +116,7 @@ export default function Notifications() {
         {user && !creating && searches !== null && (
           <button type="button" onClick={() => setCreating(true)}
             className="inline-flex items-center gap-2 mb-5 bg-primary text-primary-foreground font-semibold rounded-lg px-4 py-2.5 hover:bg-primary/90 transition-colors">
-            <Plus className="w-4 h-4" /> New saved search
+            <Plus className="w-4 h-4" /> Create search
           </button>
         )}
         {user && creating && (
@@ -137,7 +137,7 @@ export default function Notifications() {
           <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
             <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
             <p className="text-lg font-medium text-foreground mb-2">No saved searches yet</p>
-            <p className="text-sm text-muted-foreground">Press <span className="font-semibold">New saved search</span> above, or open an ad and press <span className="font-semibold">Save search</span> at the bottom, to hear about similar ads.</p>
+            <p className="text-sm text-muted-foreground">Press <span className="font-semibold">Create search</span> above, or open an ad and press <span className="font-semibold">Save search</span> at the bottom, to hear about similar ads.</p>
           </div>
         ) : (
           <>

@@ -11,7 +11,7 @@ import ModelSelector from './ModelSelector';
 import ModelTypeSelector, { trimsFor } from './ModelTypeSelector';
 import { categoryVehicles } from './categoryVehicles';
 
-// "New saved search" on the Notifications page: the person picks what to look for (section, make, model, year and price range,
+// "Create search" on the Notifications page: the person picks what to look for (section, make, model, year and price range,
 // county) instead of saving it from an ad. It is stored as the same card as a search saved from an ad.
 const SECTIONS = ['Cars', 'Electric & Hybrid Cars', 'Motorbikes', 'Quads', 'Scooters', 'Vintage Bikes', 'Commercials', 'Trucks', 'Coaches & Buses', 'Campers', 'Caravans', 'Trailers', 'Plant Machinery', 'Boats & Jet Skis'];
 const years = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => String(2026 - i));
