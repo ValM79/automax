@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, BellOff, BellRing, ChevronDown, Check } from 'lucide-react';
+import { Bell, BellOff, BellRing, ChevronDown, Check, Plus } from 'lucide-react';
 import BackButton from '../components/automarket/BackButton';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
 import { FREQUENCY_LABELS, criteriaLine } from '@/lib/savedSearchTarget';
+import NewSavedSearchForm from '../components/automarket/NewSavedSearchForm';
 
 // My Account > Notifications: the searches you saved, each a target (what to look for), not an ad. Each one has how often we email
 // you about new matching ads (instant, daily or none) and a Remove button.
@@ -49,6 +50,7 @@ export default function Notifications() {
   const [searches, setSearches] = useState(null); // null while loading
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState('');
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (isLoadingAuth || !user) { setSearches(null); return undefined; }
@@ -111,6 +113,18 @@ export default function Notifications() {
         <h1 className="text-xl font-bold text-foreground mb-1">Saved searches</h1>
         <p className="text-sm text-muted-foreground mb-5">We email you when a new ad matches one of your saved searches. Choose how often for each one, or remove it.</p>
 
+        {user && !creating && searches !== null && (
+          <button type="button" onClick={() => setCreating(true)}
+            className="inline-flex items-center gap-2 mb-5 bg-primary text-primary-foreground font-semibold rounded-lg px-4 py-2.5 hover:bg-primary/90 transition-colors">
+            <Plus className="w-4 h-4" /> New saved search
+          </button>
+        )}
+        {user && creating && (
+          <NewSavedSearchForm
+            onClose={() => setCreating(false)}
+            onSaved={(saved) => { setSearches((prev) => [saved, ...(prev || []).filter((x) => x.id !== saved.id)]); setCreating(false); }} />
+        )}
+
         {!isLoadingAuth && !user ? (
           <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
             <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
@@ -123,7 +137,7 @@ export default function Notifications() {
           <div className="bg-card rounded-xl border border-border shadow-sm p-12 text-center">
             <Bell className="w-14 h-14 text-muted-foreground opacity-30 mx-auto mb-4" strokeWidth={1.5} />
             <p className="text-lg font-medium text-foreground mb-2">No saved searches yet</p>
-            <p className="text-sm text-muted-foreground">Open an ad and press <span className="font-semibold">Save search</span> at the bottom to hear about similar ads.</p>
+            <p className="text-sm text-muted-foreground">Press <span className="font-semibold">New saved search</span> above, or open an ad and press <span className="font-semibold">Save search</span> at the bottom, to hear about similar ads.</p>
           </div>
         ) : (
           <>

@@ -4,8 +4,8 @@
 // A search saved with "No alerts" is never emailed.
 //
 // A saved search matches an ad when the ad is live, went live after the search was last checked, belongs to someone else, and
-//   - the search has a make: the ad has that make (and that model, if the search has one), in any category;
-//   - or, with no make, the ad is in the search's category;
+//   - the ad is in the search's section (all the car sections count as one), when it has one;
+//   - and, with a make, the ad has that make (and that model, if the search has one); with no make the search needs a section;
 //   - and, when the search has them, the ad's year and price are inside its range and the ad is in its county.
 // One email per person per run, listing the new ads under each search (an ad that fits two searches is listed once).
 // After a successful email every alert of that person is marked as checked up to the start of this run; if the email fails nothing
@@ -31,13 +31,22 @@ const numberOf = (v) => {
 };
 const counted = (v) => v !== '' && v != null;
 
+// the sections that sell cars are one family: a search for Cars also finds an electric, modified, vintage or dealership car
+const CAR_SECTIONS = ['cars', 'electric & hybrid cars', 'modified cars', 'vintage cars', 'dealership cars'];
+// a search with no section looks in all of them
+export const sameSection = (wanted, actual) => {
+  if (!lower(wanted)) return true;
+  return lower(wanted) === lower(actual) || (CAR_SECTIONS.includes(lower(wanted)) && CAR_SECTIONS.includes(lower(actual)));
+};
+
 export function matches(alert, ad) {
   if (ad.created_by_id === alert.user_id) return false;
   if (!(liveSince(ad) > alert.last_checked)) return false;
+  if (!sameSection(alert.subsection, ad.subsection)) return false;
   if (alert.make) {
     if (lower(ad.vehicleMake) !== lower(alert.make)) return false;
     if (alert.model && lower(ad.vehicleModel) !== lower(alert.model)) return false;
-  } else if (!alert.subsection || lower(ad.subsection) !== lower(alert.subsection)) {
+  } else if (!alert.subsection) {
     return false;
   }
   if (counted(alert.yearFrom) || counted(alert.yearTo)) {

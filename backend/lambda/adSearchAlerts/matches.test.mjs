@@ -58,3 +58,17 @@ test('one digest per person, an ad that fits two searches is listed once', () =>
   assert.equal(digest.alerts[0].ads.length, 1);
   assert.equal(digest.alerts[1].ads.length, 0);
 });
+
+test('a search for Cars also finds electric, modified, vintage and dealership cars, but not vans or bikes', () => {
+  assert.equal(matches(search, { ...ad, subsection: 'Electric & Hybrid Cars' }), true);
+  assert.equal(matches(search, { ...ad, subsection: 'Dealership Cars' }), true);
+  assert.equal(matches(search, { ...ad, subsection: 'Commercials' }), false);
+});
+test('a search for another section only finds that section', () => {
+  const quads = { ...search, make: 'Yamaha', model: '', subsection: 'Quads', yearFrom: '', yearTo: '', priceFrom: '', priceTo: '', county: '' };
+  assert.equal(matches(quads, { ...ad, vehicleMake: 'Yamaha', subsection: 'Quads' }), true);
+  assert.equal(matches(quads, { ...ad, vehicleMake: 'Yamaha', subsection: 'Motorbikes' }), false);
+});
+test('a search with a make and no section looks in every section', () => {
+  assert.equal(matches({ ...search, subsection: '' }, { ...ad, subsection: 'Commercials' }), true);
+});
