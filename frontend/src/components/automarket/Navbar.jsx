@@ -15,7 +15,7 @@ const userMenuItems = [
 { label: 'Messages', icon: MessageSquare },
 
 { label: 'Saved Ads', icon: Heart },
-{ label: 'Notifications', icon: Bell },
+{ label: 'Create search', icon: Bell },
 { label: 'Browsing History', icon: History },
 { divider: true },
 { label: 'Payment Records', icon: CreditCard },
@@ -190,7 +190,7 @@ export default function Navbar() {
                           <item.icon className="w-4 h-4 text-muted-foreground" />
                           {item.label}
                         </Link> :
-                item.label === 'Notifications' ?
+                item.label === 'Create search' ?
                 <Link
                   key={item.label}
                   to="/notifications"
