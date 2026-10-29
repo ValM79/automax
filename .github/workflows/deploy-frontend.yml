@@ -12,6 +12,10 @@ name: Deploy frontend
 on:
   workflow_dispatch: {}
 
+permissions:
+  id-token: write   # lets the job ask AWS for short-lived credentials (OIDC)
+  contents: read
+
 concurrency:
   group: deploy-frontend
   cancel-in-progress: false
@@ -57,13 +61,13 @@ jobs:
           test -f dist/index.html
 
       - name: Configure AWS credentials
-        # Static keys for now. Preferred upgrade: an IAM role assumed via GitHub
-        # OIDC (permissions: id-token: write) so there are no long-lived keys.
+        # No stored keys: the job assumes an IAM role through GitHub OIDC. The role
+        # (automax-github-deploy-frontend) trusts only this repo's main branch and can
+        # only write to the site bucket and invalidate the CloudFront distribution.
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::620893829175:role/automax-github-deploy-frontend
 
       - name: Sync to S3
         working-directory: frontend
