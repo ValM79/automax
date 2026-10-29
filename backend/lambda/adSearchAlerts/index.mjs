@@ -1,9 +1,13 @@
-// Scheduled (EventBridge, daily). Emails people who pressed "Notify me" on an ad about NEW ads that match their alert.
+// Scheduled (EventBridge). Emails people about NEW ads that match one of their saved searches. Two schedules call it:
+//   { mode: 'instant' }  every 15 minutes, for the searches saved with "Instant alerts"
+//   { mode: 'daily' }    once a day, for "Daily alerts" (and for older alerts, which had no frequency)
+// A search saved with "No alerts" is never emailed.
 //
-// An alert matches an ad when the ad is live, was placed after the alert was last checked, belongs to someone else, and
-//   - the alert has a make: the ad has that make (and that model, if the alert has one), in any category;
-//   - or, with no make, the ad is in the alert's category.
-// One email per person per run, listing the new ads under each alert (an ad that fits two alerts is listed once).
+// A saved search matches an ad when the ad is live, went live after the search was last checked, belongs to someone else, and
+//   - the search has a make: the ad has that make (and that model, if the search has one), in any category;
+//   - or, with no make, the ad is in the search's category;
+//   - and, when the search has them, the ad's year and price are inside its range and the ad is in its county.
+// One email per person per run, listing the new ads under each search (an ad that fits two searches is listed once).
 // After a successful email every alert of that person is marked as checked up to the start of this run; if the email fails nothing
 // is marked, so the next run tries again. A renewed ad (it has more than one payment) is not "new" and is skipped.
 import { ScanCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
@@ -13,15 +17,43 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const PER_ALERT = 5;
 const lower = (v) => String(v ?? '').trim().toLowerCase();
 
+const FREQUENCIES = ['instant', 'daily', 'off'];
+// an alert from before saved searches had a frequency was emailed once a day
+const frequencyOf = (a) => (FREQUENCIES.includes(a.frequency) ? a.frequency : 'daily');
+
+// when the ad went live: paid for (the first payment), else placed. A pending ad is created long before it is paid for.
+export const liveSince = (ad) => (Array.isArray(ad.paymentHistory) && ad.paymentHistory[0]?.date) || ad.created_date;
+
+// "6,500" -> 6500; "6500.50" -> 6500; nothing usable -> null
+const numberOf = (v) => {
+  const n = parseInt(String(v ?? '').split('.')[0].replace(/[^0-9]/g, ''), 10);
+  return Number.isFinite(n) ? n : null;
+};
+const counted = (v) => v !== '' && v != null;
+
 export function matches(alert, ad) {
   if (ad.created_by_id === alert.user_id) return false;
-  if (!(ad.created_date > alert.last_checked)) return false;
+  if (!(liveSince(ad) > alert.last_checked)) return false;
   if (alert.make) {
     if (lower(ad.vehicleMake) !== lower(alert.make)) return false;
-    return !alert.model || lower(ad.vehicleModel) === lower(alert.model);
+    if (alert.model && lower(ad.vehicleModel) !== lower(alert.model)) return false;
+  } else if (!alert.subsection || lower(ad.subsection) !== lower(alert.subsection)) {
+    return false;
   }
-  return !!alert.subsection && lower(ad.subsection) === lower(alert.subsection);
+  if (counted(alert.yearFrom) || counted(alert.yearTo)) {
+    const y = numberOf(ad.vehicleYear);
+    if (y == null || (counted(alert.yearFrom) && y < alert.yearFrom) || (counted(alert.yearTo) && y > alert.yearTo)) return false;
+  }
+  if (counted(alert.priceFrom) || counted(alert.priceTo)) {
+    const p = numberOf(ad.price);
+    if (p == null || (counted(alert.priceFrom) && p < alert.priceFrom) || (counted(alert.priceTo) && p > alert.priceTo)) return false;
+  }
+  if (alert.county && lower(ad.county) !== lower(alert.county)) return false;
+  return true;
 }
+
+// the searches a run looks at: the instant ones for the 15-minute run, the daily ones (and older alerts) for the daily run
+export const dueFor = (alerts, mode) => alerts.filter((a) => (mode === 'instant' ? frequencyOf(a) === 'instant' : frequencyOf(a) === 'daily'));
 
 const isLive = (ad, now) => {
   if (ad.status !== 'active') return false;
@@ -35,7 +67,7 @@ export function buildDigests(alerts, ads, now = Date.now()) {
   const live = ads.filter((a) => isLive(a, now));
   const byUser = new Map();
   for (const alert of alerts) {
-    const found = live.filter((ad) => matches(alert, ad)).sort((a, b) => (a.created_date < b.created_date ? 1 : -1));
+    const found = live.filter((ad) => matches(alert, ad)).sort((a, b) => (liveSince(a) < liveSince(b) ? 1 : -1));
     const entry = byUser.get(alert.user_id) || { userId: alert.user_id, alerts: [], seen: new Set() };
     const fresh = found.filter((ad) => !entry.seen.has(ad.id));
     fresh.forEach((ad) => entry.seen.add(ad.id));
@@ -63,16 +95,16 @@ export function buildEmail({ name, groups, origin }) {
     if (g.ads.length > PER_ALERT) lines.push(`  …and ${g.ads.length - PER_ALERT} more`);
     lines.push('');
   }
-  const subject = total === 1 ? `AutoMax: 1 new ad for your alert` : `AutoMax: ${total} new ads for your alerts`;
+  const subject = total === 1 ? `AutoMax: 1 new ad for your saved search` : `AutoMax: ${total} new ads for your saved searches`;
   const text = [
     `Hi ${sanitize(name, 60) || 'there'},`,
     '',
-    total === 1 ? 'A new ad was placed that matches an alert you set up:' : 'New ads were placed that match your alerts:',
+    total === 1 ? 'A new ad was placed that matches a search you saved:' : 'New ads were placed that match your saved searches:',
     '',
     ...lines,
-    `See your notifications, or switch one off: ${origin}/notifications`,
+    `Change how often we email you, or remove a saved search: ${origin}/notifications`,
     '',
-    'You get this email because you asked for an alert on an ad. Thank you for using AutoMax.',
+    'You get this email because you saved a search on AutoMax. Thank you for using AutoMax.',
   ].join('\n');
   return { subject, text };
 }
@@ -105,19 +137,20 @@ const markChecked = (alert, at) => ddb.send(new UpdateCommand({
   ExpressionAttributeValues: { ':t': at },
 })).catch((e) => { if (e.name !== 'ConditionalCheckFailedException') throw e; });
 
-export const handler = async () => {
+export const handler = async (event) => {
   const runStart = new Date().toISOString();
+  const mode = event?.mode === 'instant' ? 'instant' : 'daily';
   const origin = process.env.APP_ORIGIN || 'https://automax.ie';
-  const alerts = await scanAll({ TableName: TABLES.SearchAlert });
-  if (!alerts.length) { console.log('Search alerts: no alerts'); return { alerts: 0, emails: 0 }; }
-  const oldest = alerts.reduce((m, a) => (a.last_checked < m ? a.last_checked : m), runStart);
+  const alerts = dueFor(await scanAll({ TableName: TABLES.SearchAlert }), mode);
+  if (!alerts.length) { console.log(`Search alerts (${mode}): no saved searches`); return { mode, alerts: 0, emails: 0 }; }
   // every attribute is aliased (#name): several ad field names are DynamoDB reserved words (status, location...)
-  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
+  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'vehicleYear', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
+  // all live ads, not only recent ones: an ad is created long before it is paid for, and "new" means when it went live (liveSince)
   const ads = await scanAll({
     TableName: TABLES.UserAd,
-    FilterExpression: '#status = :active AND #created_date > :since',
+    FilterExpression: '#status = :active',
     ExpressionAttributeNames: Object.fromEntries(fields.map((x) => ['#' + x, x])),
-    ExpressionAttributeValues: { ':active': 'active', ':since': oldest },
+    ExpressionAttributeValues: { ':active': 'active' },
     ProjectionExpression: fields.map((x) => '#' + x).join(', '),
   });
   const digests = buildDigests(alerts, ads, Date.now());
@@ -140,6 +173,6 @@ export const handler = async () => {
       console.error(`Search alert email for ${d.userId} failed (will retry on the next run):`, err.message);
     }
   }
-  console.log(`Search alerts: ${alerts.length} alert(s), ${ads.length} new live ad(s); ${emails} email(s) sent, ${failed} failed, ${noAddress} without an address`);
-  return { alerts: alerts.length, ads: ads.length, emails, failed, noAddress };
+  console.log(`Search alerts (${mode}): ${alerts.length} saved search(es), ${ads.length} live ad(s); ${emails} email(s) sent, ${failed} failed, ${noAddress} without an address`);
+  return { mode, alerts: alerts.length, ads: ads.length, emails, failed, noAddress };
 };
