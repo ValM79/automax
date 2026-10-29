@@ -39,7 +39,7 @@ export default function SaveSearchModal({ criteria, onClose, onSaved }) {
         </div>
         <p className="text-sm text-muted-foreground mb-4">Set up alerts and be the first to know when a new ad is listed.</p>
 
-        <label htmlFor="saved-search-name" className="block text-sm text-muted-foreground mb-1.5">Name your saved search</label>
+        <label htmlFor="saved-search-name" className="block text-sm text-muted-foreground mb-1.5">Name your saved search <span className="text-foreground/60">(optional)</span></label>
         <input id="saved-search-name" value={name} maxLength={80} onChange={(e) => setName(e.target.value)}
           className="w-full border border-border rounded-lg px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
 
