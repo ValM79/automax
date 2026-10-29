@@ -6,7 +6,7 @@ import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { useAuth } from '@/lib/AuthContext';
 import { api } from '@/api/apiClient';
-import { FREQUENCY_LABELS, criteriaLine } from '@/lib/savedSearchTarget';
+import { FREQUENCY_LABELS, criteriaLines } from '@/lib/savedSearchTarget';
 import NewSavedSearchForm from '../components/automarket/NewSavedSearchForm';
 
 // My Account > Notifications: the searches you saved, each a target (what to look for), not an ad. Each one has how often we email
@@ -25,7 +25,7 @@ function FrequencyMenu({ value, disabled, onChange }) {
       {open && (
         <>
           <button type="button" aria-label="Close" className="fixed inset-0 z-10 cursor-default" onClick={() => setOpen(false)} />
-          <ul role="listbox" className="absolute right-0 bottom-full mb-2 z-20 w-52 bg-card border border-border rounded-lg shadow-lg py-2">
+          <ul role="listbox" className="absolute right-0 top-full mt-2 z-20 w-52 bg-card border border-border rounded-lg shadow-lg py-2">
             {Object.entries(FREQUENCY_LABELS).map(([key, label]) => {
               const ItemIcon = FREQUENCY_ICONS[key];
               return (
@@ -149,23 +149,28 @@ export default function Notifications() {
               </button>
             </div>
             <div className="flex flex-col gap-4">
-              {searches.map((s) => (
-                <div key={s.id} className="bg-card rounded-xl border border-border shadow-sm">
-                  <div className="px-5 pt-4 pb-3">
-                    <p className="font-bold text-foreground">{s.name}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">{criteriaLine(s)}</p>
-                  </div>
-                  <div className="flex items-stretch border-t border-border">
-                    <div className="flex-1 flex items-center justify-end px-5 py-3">
-                      <button type="button" onClick={() => remove(s.id)} disabled={busyId === s.id || busyId === 'all'}
+              {searches.map((s) => {
+                const { what, details } = criteriaLines(s);
+                const busy = busyId === s.id || busyId === 'all';
+                return (
+                  <div key={s.id} className="bg-card rounded-xl border border-border shadow-sm px-5 py-4 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-bold text-foreground">{s.name}</p>
+                      {what && <p className="text-sm text-muted-foreground mt-0.5">{what}</p>}
+                      {details.length > 0 && (
+                        <ul className="mt-2 flex flex-col gap-0.5">
+                          {details.map((d) => <li key={d} className="text-sm text-foreground">{d}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                    <div className="shrink-0 flex flex-col items-end gap-3">
+                      <FrequencyMenu value={s.frequency} disabled={busy} onChange={(f) => changeFrequency(s.id, f)} />
+                      <button type="button" onClick={() => remove(s.id)} disabled={busy}
                         className="text-sm font-semibold text-primary hover:underline disabled:opacity-60">Remove</button>
                     </div>
-                    <div className="border-l border-border px-5 py-3 flex items-center min-w-[11rem] justify-center">
-                      <FrequencyMenu value={s.frequency} disabled={busyId === s.id || busyId === 'all'} onChange={(f) => changeFrequency(s.id, f)} />
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

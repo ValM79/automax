@@ -24,3 +24,13 @@ test('a search without model types keeps the id it had before model types existe
   assert.notEqual(alertId('u1', { ...old, trims: ['Style'] }), same);
   assert.equal(alertId('u1', { ...old, trims: ['Style', 'Life'] }), alertId('u1', { ...old, trims: ['life', 'STYLE'] }));
 });
+
+test('mileage is read as whole km, put the right way round, and a search without it keeps its id', () => {
+  const c = criteriaOf({ make: 'A', model: 'B', mileageFrom: '50,000', mileageTo: 10000 });
+  assert.equal(c.mileageFrom, 10000);
+  assert.equal(c.mileageTo, 50000);
+  assert.equal(criteriaOf({ make: 'A' }).mileageFrom, '');
+  const base = { make: 'A', model: 'B', subsection: 'Cars', yearFrom: '', yearTo: '', priceFrom: '', priceTo: '', county: '' };
+  assert.equal(alertId('u1', { ...base, mileageFrom: '', mileageTo: '' }), alertId('u1', base));
+  assert.notEqual(alertId('u1', { ...base, mileageTo: 50000 }), alertId('u1', base));
+});

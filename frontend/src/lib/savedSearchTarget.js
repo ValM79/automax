@@ -5,6 +5,7 @@ export const FREQUENCY_LABELS = { instant: 'Instant alerts', daily: 'Daily alert
 
 const has = (v) => v !== '' && v != null;
 const euro = (n) => `€${Number(n).toLocaleString('en-IE')}`;
+const km = (n) => `${Number(n).toLocaleString('en-IE')} km`;
 const whole = (v) => {
   const n = parseInt(String(v ?? '').split('.')[0].replace(/[^0-9]/g, ''), 10);
   return Number.isFinite(n) ? n : null;
@@ -44,12 +45,19 @@ export function criteriaChips(c) {
   if (c.trims && c.trims.length) chips.push({ key: 'trims', label: c.trims.join(', ') });
   if (has(c.yearFrom) || has(c.yearTo)) chips.push({ key: 'year', label: has(c.yearFrom) && has(c.yearTo) ? `${c.yearFrom} - ${c.yearTo}` : has(c.yearFrom) ? `${c.yearFrom} or newer` : `Up to ${c.yearTo}` });
   if (has(c.priceFrom) || has(c.priceTo)) chips.push({ key: 'price', label: has(c.priceFrom) && has(c.priceTo) ? `${euro(c.priceFrom)} - ${euro(c.priceTo)}` : has(c.priceFrom) ? `From ${euro(c.priceFrom)}` : `Up to ${euro(c.priceTo)}` });
+  if (has(c.mileageFrom) || has(c.mileageTo)) chips.push({ key: 'mileage', label: has(c.mileageFrom) && has(c.mileageTo) ? `${km(c.mileageFrom)} - ${km(c.mileageTo)}` : has(c.mileageFrom) ? `From ${km(c.mileageFrom)}` : `Up to ${km(c.mileageTo)}` });
   if (c.county) chips.push({ key: 'county', label: `${c.county} (All Areas)` });
   return chips;
 }
 
-// the same labels on one line: "Cars • Volkswagen ID.4 • 2023 - 2025 • €26,300 - €35,600 • Dublin (All Areas)"
-export const criteriaLine = (c) => criteriaChips(c).map((x) => x.label).join(' • ');
+// the labels for a card: the first line is what is searched for ("Cars • Volkswagen ID.4 • Pro Plus"), then one line each for the
+// year, price, mileage and location that were set, in that order
+export function criteriaLines(c) {
+  const chips = criteriaChips(c);
+  const what = chips.filter((x) => ['subsection', 'vehicle', 'trims'].includes(x.key)).map((x) => x.label).join(' • ');
+  const details = ['year', 'price', 'mileage', 'county'].map((k) => chips.find((x) => x.key === k)?.label).filter(Boolean);
+  return { what, details };
+}
 
 // the target of a saved search is the same as this ad's (any year, price or county): used to say "you already saved this"
 export function sameTarget(saved, c) {

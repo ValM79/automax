@@ -4,7 +4,7 @@
 //   node --test adSearchAlerts/matches.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { matches, dueFor, liveSince, buildDigests } from './index.mjs';
+import { matches, dueFor, liveSince, buildDigests, kmOf } from './index.mjs';
 
 const search = { id: 's1', user_id: 'u1', make: 'Volkswagen', model: 'ID.4', subsection: 'Cars', yearFrom: 2023, yearTo: 2025, priceFrom: 26300, priceTo: 35600, county: 'Dublin', frequency: 'instant', last_checked: '2026-10-29T10:00:00.000Z', name: 'Volkswagen ID.4 in Cars' };
 const ad = { id: 'a1', created_by_id: 'u2', vehicleMake: 'Volkswagen', vehicleModel: 'ID.4', vehicleYear: '2024', price: '30,950', county: 'Dublin', subsection: 'Cars', status: 'active', created_date: '2026-10-29T10:30:00.000Z' };
@@ -82,4 +82,15 @@ test('a search with model types only matches ads of one of them, without case', 
 test('a search without model types (or an older one) ignores the ad model type', () => {
   assert.equal(matches({ ...search, trims: [] }, { ...ad, vehicleTrim: 'Life' }), true);
   assert.equal(matches(search, { ...ad, vehicleTrim: 'Life' }), true);
+});
+
+test('mileage is checked in km, and miles are converted', () => {
+  const under = { ...search, mileageFrom: '', mileageTo: 50000 };
+  assert.equal(matches(under, { ...ad, mileage: '20,000 km' }), true);
+  assert.equal(matches(under, { ...ad, mileage: '80,000 km' }), false);
+  assert.equal(matches(under, { ...ad, mileage: '20,000 miles' }), true);  // 32,187 km
+  assert.equal(matches(under, { ...ad, mileage: '40,000 miles' }), false); // 64,374 km
+  assert.equal(matches({ ...search, mileageFrom: 10000, mileageTo: 30000 }, { ...ad, mileage: '5,000 km' }), false);
+  assert.equal(matches(under, { ...ad, mileage: '' }), false);
+  assert.equal(kmOf('12,000 miles'), 19312);
 });
