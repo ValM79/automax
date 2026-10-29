@@ -44,7 +44,7 @@ Dealer Pages & Reviews
 • For each dealer page we keep simple daily totals (how many times it was opened and how many times its Phone, WhatsApp, Email and Website buttons were pressed). These totals contain no IP address, device identifier or account details, and the dealer cannot see who visited.
 
 Email Alerts
-• If you press Notify me on an ad, we keep the make, model or category you chose together with your account, and email you when new ads that match are placed. You can switch an alert off at any time under My Account > Notifications. Alerts are deleted when you turn them off or delete your account.
+• If you press Save search on an ad, we keep the search you chose (category, make, model, year and price range and county) together with your account, and email you when new ads that match are placed, instantly or once a day as you choose. You can change how often, or remove a saved search, at any time under My Account > Notifications. Saved searches are deleted when you remove them or delete your account.
 
 Cookie & Tracking Data
 • We currently use only essential cookies required for the site to function (e.g. keeping you signed in, remembering your cookie preferences). We do not currently run analytics or advertising trackers. If this changes, we will update this policy and our Cookie Policy first, and request consent before any such cookie is set.`

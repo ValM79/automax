@@ -152,7 +152,7 @@ export class AutomaxStack extends cdk.Stack {
       timeToLiveAttribute: 'ttl',
     });
 
-    // "Notify me" email alerts for new ads (lambda/searchAlerts, lambda/adSearchAlerts): one item per person per make / model / category.
+    // Saved searches with email alerts for new ads (lambda/searchAlerts, lambda/adSearchAlerts): one item per person per search target.
     const searchAlertTable = new dynamodb.Table(this, 'SearchAlertTable', {
       tableName: 'Automax-SearchAlert',
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
@@ -709,7 +709,7 @@ export class AutomaxStack extends cdk.Stack {
       targets: [new eventsTargets.LambdaFunction(adExpiryNoticeFn)],
     });
 
-    // "Notify me": the signed-in user's alerts (list / create / turn off), and the daily email of new matching ads (09:00 UTC).
+    // Saved searches: the signed-in user's searches (list / create / update / remove), and the emails of new matching ads (instant: every 15 min, daily: 09:00 UTC).
     const searchAlertsFn = new lambdaNode.NodejsFunction(this, 'SearchAlertsFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'searchAlerts', 'index.mjs'),
@@ -729,7 +729,12 @@ export class AutomaxStack extends cdk.Stack {
     appSecrets.grantRead(adSearchAlertsFn);
     new events.Rule(this, 'AdSearchAlertsSchedule', {
       schedule: events.Schedule.cron({ minute: '0', hour: '9' }),
-      targets: [new eventsTargets.LambdaFunction(adSearchAlertsFn)],
+      targets: [new eventsTargets.LambdaFunction(adSearchAlertsFn, { event: events.RuleTargetInput.fromObject({ mode: 'daily' }) })],
+    });
+    // saved searches set to "Instant alerts": looked at every 15 minutes
+    new events.Rule(this, 'AdSearchAlertsInstantSchedule', {
+      schedule: events.Schedule.rate(cdk.Duration.minutes(15)),
+      targets: [new eventsTargets.LambdaFunction(adSearchAlertsFn, { event: events.RuleTargetInput.fromObject({ mode: 'instant' }) })],
     });
 
     // Grant table access
