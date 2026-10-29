@@ -65,7 +65,7 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
   return (
     <div className="bg-card rounded-xl border border-border shadow-sm p-5 mb-5">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-lg font-semibold text-foreground">New saved search</h2>
+        <h2 className="text-lg font-semibold text-foreground">Create new search</h2>
         <button type="button" onClick={onClose} aria-label="Close" className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
       </div>
       <p className="text-sm text-muted-foreground mb-4">Choose what you are looking for. We email you when a new ad matches.</p>
