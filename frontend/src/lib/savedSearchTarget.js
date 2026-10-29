@@ -10,7 +10,7 @@ const whole = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
-// What an ad stands for as a search: the same category, make and model, a year either side of the ad's, a price 15% either side
+// What an ad stands for as a search: the same category, make, model and model type, a year either side of the ad's, a price 15% either side
 // (to the nearest 100), and the ad's county.
 export function criteriaFromAd(ad) {
   const raw = ad?._raw || ad || {};
@@ -21,6 +21,7 @@ export function criteriaFromAd(ad) {
     subsection: raw.subsection || ad?.subsection || '',
     make,
     model: make ? (raw.vehicleModel || ad?.vehicleModel || '') : '',
+    trims: make && (raw.vehicleModel || ad?.vehicleModel) && (raw.vehicleTrim || ad?.vehicleTrim) ? [raw.vehicleTrim || ad.vehicleTrim] : [],
     yearFrom: year && year >= 1900 ? year - 1 : '',
     yearTo: year && year >= 1900 ? year + 1 : '',
     priceFrom: price ? Math.round((price * 0.85) / 100) * 100 : '',
@@ -40,6 +41,7 @@ export function criteriaChips(c) {
   if (c.subsection) chips.push({ key: 'subsection', label: c.subsection });
   const what = [c.make, c.model].filter(Boolean).join(' ');
   if (what) chips.push({ key: 'vehicle', label: what });
+  if (c.trims && c.trims.length) chips.push({ key: 'trims', label: c.trims.join(', ') });
   if (has(c.yearFrom) || has(c.yearTo)) chips.push({ key: 'year', label: has(c.yearFrom) && has(c.yearTo) ? `${c.yearFrom} - ${c.yearTo}` : has(c.yearFrom) ? `${c.yearFrom} or newer` : `Up to ${c.yearTo}` });
   if (has(c.priceFrom) || has(c.priceTo)) chips.push({ key: 'price', label: has(c.priceFrom) && has(c.priceTo) ? `${euro(c.priceFrom)} - ${euro(c.priceTo)}` : has(c.priceFrom) ? `From ${euro(c.priceFrom)}` : `Up to ${euro(c.priceTo)}` });
   if (c.county) chips.push({ key: 'county', label: `${c.county} (All Areas)` });

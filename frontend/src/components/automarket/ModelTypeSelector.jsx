@@ -4,7 +4,7 @@ import { knownTrims, defaultCarTypes } from './trimsData';
 
 // "Model types": the trims / versions (Life, Pro Plus, Style ...) of the make and model picked above it, as a search box with a
 // tick list. `options` is [{ name, count }] taken from the ads that are for sale now; `value` is the list of ticked names.
-export default function ModelTypeSelector({ make, model, options = [], value = [], onChange }) {
+export default function ModelTypeSelector({ make, model, options = [], value = [], onChange, showCounts = true }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const boxRef = useRef(null);
@@ -54,7 +54,7 @@ export default function ModelTypeSelector({ make, model, options = [], value = [
                 <label key={o.name} className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-secondary">
                   <input type="checkbox" checked={value.includes(o.name)} onChange={() => toggle(o.name)} className="w-5 h-5 accent-primary" />
                   <span className="text-base text-foreground flex-1">{o.name}</span>
-                  <span className="text-sm text-muted-foreground">{o.count}</span>
+                  {showCounts && <span className="text-sm text-muted-foreground">{o.count}</span>}
                 </label>
               ))}
               {shown.length === 0 && <p className="px-4 py-3 text-sm text-muted-foreground">Nothing matches "{query}".</p>}

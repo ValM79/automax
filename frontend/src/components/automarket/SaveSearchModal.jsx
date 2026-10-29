@@ -4,8 +4,8 @@ import { api } from '@/api/apiClient';
 import { FREQUENCY_LABELS, criteriaChips, defaultName } from '@/lib/savedSearchTarget';
 
 // "Save your search": the target taken from the ad (category, make and model, year and price range, county), a name, and how often
-// to email. The year, price and county can be taken off to widen the search.
-const REMOVABLE = { year: ['yearFrom', 'yearTo'], price: ['priceFrom', 'priceTo'], county: ['county'] };
+// to email. The model type, year, price and county can be taken off to widen the search.
+const REMOVABLE = { trims: ['trims'], year: ['yearFrom', 'yearTo'], price: ['priceFrom', 'priceTo'], county: ['county'] };
 
 export default function SaveSearchModal({ criteria, onClose, onSaved }) {
   const [target, setTarget] = useState(criteria);
@@ -15,7 +15,7 @@ export default function SaveSearchModal({ criteria, onClose, onSaved }) {
   const [error, setError] = useState('');
 
   const chips = criteriaChips(target);
-  const takeOff = (key) => setTarget((t) => ({ ...t, ...Object.fromEntries(REMOVABLE[key].map((f) => [f, ''])) }));
+  const takeOff = (key) => setTarget((t) => ({ ...t, ...Object.fromEntries(REMOVABLE[key].map((f) => [f, f === 'trims' ? [] : ''])) }));
 
   const save = async () => {
     setBusy(true); setError('');

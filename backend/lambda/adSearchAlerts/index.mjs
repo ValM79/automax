@@ -6,7 +6,7 @@
 // A saved search matches an ad when the ad is live, went live after the search was last checked, belongs to someone else, and
 //   - the ad is in the search's section (all the car sections count as one), when it has one;
 //   - and, with a make, the ad has that make (and that model, if the search has one); with no make the search needs a section;
-//   - and, when the search has them, the ad's year and price are inside its range and the ad is in its county.
+//   - and, when the search has them, the ad's model type is one of its model types, its year and price are inside its range and the ad is in its county.
 // One email per person per run, listing the new ads under each search (an ad that fits two searches is listed once).
 // After a successful email every alert of that person is marked as checked up to the start of this run; if the email fails nothing
 // is marked, so the next run tries again. A renewed ad (it has more than one payment) is not "new" and is skipped.
@@ -58,6 +58,7 @@ export function matches(alert, ad) {
     if (p == null || (counted(alert.priceFrom) && p < alert.priceFrom) || (counted(alert.priceTo) && p > alert.priceTo)) return false;
   }
   if (alert.county && lower(ad.county) !== lower(alert.county)) return false;
+  if (Array.isArray(alert.trims) && alert.trims.length && !alert.trims.some((t) => lower(t) === lower(ad.vehicleTrim))) return false;
   return true;
 }
 
@@ -153,7 +154,7 @@ export const handler = async (event) => {
   const alerts = dueFor(await scanAll({ TableName: TABLES.SearchAlert }), mode);
   if (!alerts.length) { console.log(`Search alerts (${mode}): no saved searches`); return { mode, alerts: 0, emails: 0 }; }
   // every attribute is aliased (#name): several ad field names are DynamoDB reserved words (status, location...)
-  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'vehicleYear', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
+  const fields = ['id', 'title', 'price', 'currency', 'area', 'county', 'location', 'vehicleMake', 'vehicleModel', 'vehicleTrim', 'vehicleYear', 'subsection', 'created_by_id', 'created_date', 'listingDays', 'paymentHistory', 'status'];
   // all live ads, not only recent ones: an ad is created long before it is paid for, and "new" means when it went live (liveSince)
   const ads = await scanAll({
     TableName: TABLES.UserAd,
