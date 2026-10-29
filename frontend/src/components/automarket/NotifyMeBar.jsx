@@ -7,7 +7,7 @@ import { criteriaFromAd, sameTarget, FREQUENCY_LABELS } from '@/lib/savedSearchT
 import SaveSearchModal from './SaveSearchModal';
 
 // "Save search" at the bottom of an ad: opens the Save your search window, with the target (category, make and model, year and price
-// range, county) taken from the ad. The search is kept in My Account > Notifications, where its alerts can be changed or removed.
+// range, county) taken from the ad. The search is kept in My Account > Create search, where its alerts can be changed or removed.
 export default function NotifyMeBar({ ad }) {
   const { user } = useAuth();
   const navigate = useNavigate();
