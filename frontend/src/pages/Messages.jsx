@@ -181,7 +181,7 @@ export default function Messages() {
 
   if (isLoadingAuth || loading || !user) {
     return (
-      <div className="min-h-screen flex flex-col bg-muted">
+      <div className="min-h-screen flex flex-col bg-background">
         <Navbar />
         <div className="flex items-center justify-center h-[60vh]">
           <div className="w-8 h-8 border-4 border-border border-t-slate-800 rounded-full animate-spin" />
@@ -208,7 +208,7 @@ export default function Messages() {
     : null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-muted">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <PullToRefresh onRefresh={async () => { await queryClientInstance.invalidateQueries(); }}>
       <div className="max-w-4xl mx-auto px-4 py-4">
