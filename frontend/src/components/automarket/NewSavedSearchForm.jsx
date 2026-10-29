@@ -101,7 +101,7 @@ export default function NewSavedSearchForm({ onClose, onSaved }) {
           <MobileSelect value={county} onChange={setCounty} options={IRISH_COUNTIES} placeholder="All Ireland" sizeClass="text-base" />
         </div>
         <div className="sm:col-span-2">
-          <label htmlFor="new-search-name" className={label}>Name your saved search</label>
+          <label htmlFor="new-search-name" className={label}>Name your saved search <span className="text-muted-foreground font-normal">(optional)</span></label>
           <input id="new-search-name" value={name} maxLength={80} placeholder={shownName} onChange={(e) => setName(e.target.value)}
             className="w-full border border-border rounded-lg px-4 py-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
         </div>

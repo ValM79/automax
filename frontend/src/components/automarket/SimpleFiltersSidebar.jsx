@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import MobileSelect from './MobileSelect';
+import { priceOptions } from '@/lib/priceOptions';
 
 const counties = ['All Ireland', 'Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford', 'Kilkenny', 'Mayo', 'Kerry', 'Clare', 'Tipperary', 'Roscommon', 'Westmeath', 'Wexford', 'Wicklow', 'Meath', 'Kildare', 'Other'];
 
-const priceOptions = ['€100', '€500', '€1,000', '€2,000', '€3,000', '€4,000', '€5,000', '€6,000', '€7,000', '€8,000', '€9,000', '€10,000', '€12,000', '€15,000', '€18,000', '€20,000', '€25,000', '€30,000', '€35,000', '€40,000', '€50,000', '€60,000', '€70,000', '€80,000', '€100,000', '€150,000'];
 const years = Array.from({ length: 2026 - 1970 + 1 }, (_, i) => String(2026 - i));
 
 function Section({ title, defaultOpen = true, children, alwaysOpen = false }) {
