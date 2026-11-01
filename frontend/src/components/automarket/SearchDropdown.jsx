@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { isHiddenRoute } from '@/lib/hiddenCategories';
 import { Search, X, ArrowRight, Clock, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,7 +22,7 @@ function clearHistory() {
 }
 
 // Site pages / categories that can be matched by keyword
-const SITE_PAGES = [
+const ALL_SITE_PAGES = [
   { label: 'Cars for Sale', route: '/cars-for-sale', keywords: ['car', 'cars', 'saloon', 'sedan', 'hatchback', 'coupe', 'suv', 'auto', 'vehicle'] },
   { label: 'Used Cars', route: '/used-cars', keywords: ['used', 'second hand', 'secondhand', 'pre-owned'] },
   { label: 'Dealers Garages', route: '/dealers-garage', keywords: ['dealer', 'dealers', 'dealership', 'dealerships', 'garage', 'dealers garage', 'find a dealer'] },
@@ -53,6 +54,9 @@ const SITE_PAGES = [
   { label: 'History Check', route: '/history-checks', keywords: ['history check', 'car check', 'vehicle history', 'vin', 'hpi'] },
   { label: 'Find a Dealer', route: '/dealers', keywords: ['dealer', 'find dealer', 'showroom', 'car dealer'] },
 ];
+
+// pages that are built but not shown yet (see lib/hiddenCategories.js)
+const SITE_PAGES = ALL_SITE_PAGES.filter((p) => !isHiddenRoute(p.route));
 
 function scorePage(page, query) {
   const q = query.toLowerCase().trim();
