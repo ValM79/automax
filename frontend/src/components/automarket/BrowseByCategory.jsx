@@ -1,4 +1,5 @@
 import React from 'react';
+import { isVisibleCategory } from '@/lib/hiddenCategories';
 import { useNavigate } from 'react-router-dom';
 
 const IMG = {
@@ -36,7 +37,7 @@ const IMG = {
 // centred (x, y in px) so it fills the same 40 x 30 px box, keeping its proportions. Same rule for all of them.
 const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7},damaged:{s:1.29,x:-0.1,y:-0.8}};
 
-const categories = [
+const allCategories = [
 [
 { label: 'Cars', imgKey: 'newCar' },
 { label: 'Dealers Garages', imgKey: 'car' },
@@ -71,6 +72,9 @@ const categories = [
 { label: 'Rent a Car', imgKey: 'dealerCars' },
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true },
 ]];
+
+// categories that are built but not shown yet (see lib/hiddenCategories.js)
+const categories = allCategories.map((col) => col.filter((c) => isVisibleCategory(c.label)));
 
 function fitStyle(key) {
   const f = FIT[key];
