@@ -465,6 +465,38 @@ export class AutomaxStack extends cdk.Stack {
       ? acm.Certificate.fromCertificateArn(this, 'Cert', props.certificateArn)
       : undefined;
 
+    // Browser security headers on every page of the production site. No CSP yet: the site loads fonts and a few pictures from other
+    // hosts, so a policy needs its own testing. HSTS is without includeSubDomains/preload on purpose (mail and other subdomains).
+    const frontendHeaders = new cloudfront.ResponseHeadersPolicy(this, 'FrontendSecurityHeaders', {
+      securityHeadersBehavior: {
+        strictTransportSecurity: { accessControlMaxAge: cdk.Duration.days(365), includeSubdomains: false, preload: false, override: true },
+        contentTypeOptions: { override: true },
+        frameOptions: { frameOption: cloudfront.HeadersFrameOption.SAMEORIGIN, override: true },
+        referrerPolicy: { referrerPolicy: cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override: true },
+      },
+      customHeadersBehavior: {
+        customHeaders: [{ header: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()', override: true }],
+      },
+    });
+
+    // www.automax.ie -> automax.ie (same path and query string), so there is one address for each page
+    const wwwRedirect = props?.domainName
+      ? new cloudfront.Function(this, 'WwwToApexRedirect', {
+          code: cloudfront.FunctionCode.fromInline(
+            `function handler(event) {
+  var r = event.request;
+  var host = r.headers.host && r.headers.host.value;
+  if (host !== 'www.${props.domainName}') return r;
+  var parts = [];
+  for (var k in r.querystring) {
+    var q = r.querystring[k];
+    if (q.multiValue) { q.multiValue.forEach(function (m) { parts.push(k + '=' + m.value); }); } else { parts.push(k + (q.value === '' ? '' : '=' + q.value)); }
+  }
+  return { statusCode: 301, statusDescription: 'Moved Permanently', headers: { location: { value: 'https://${props.domainName}' + r.uri + (parts.length ? '?' + parts.join('&') : '') } } };
+}`),
+        })
+      : undefined;
+
     const frontendDistribution = new cloudfront.Distribution(this, 'FrontendDistribution', {
       defaultRootObject: 'index.html',
       domainNames: props?.domainName ? [props.domainName, `www.${props.domainName}`] : undefined,
@@ -473,6 +505,8 @@ export class AutomaxStack extends cdk.Stack {
         origin: new origins.S3Origin(frontendBucket, { originAccessIdentity: frontendOai }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        responseHeadersPolicy: frontendHeaders,
+        functionAssociations: wwwRedirect ? [{ function: wwwRedirect, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }] : [],
       },
       // SPA routing: unknown paths fall back to index.html for React Router
       errorResponses: [
