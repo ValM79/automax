@@ -3,6 +3,8 @@ import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Make logos are served from our own site (public/img/makes, see the README there). A make without a file there falls back to a letter.
+// The site lets browsers keep these files for a year under their file name, so bump LOGO_VERSION whenever a logo file is replaced.
+const LOGO_VERSION = 2;
 const MAKES = [
   { label: 'AC',            logo: '/img/makes/ac.png' },
   { label: 'Abarth',        logo: '/img/makes/abarth.png' },
@@ -110,7 +112,7 @@ function MakeRow({ label, logo }) {
             </div>
           ) : (
             <img
-              src={logo}
+              src={logo.startsWith('/img/makes/') ? `${logo}?v=${LOGO_VERSION}` : logo}
               alt={label}
               className="max-w-full max-h-full object-contain"
               onError={() => setImgError(true)}
