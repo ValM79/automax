@@ -1,0 +1,21 @@
+# AutoMax: let search engines read the public pages; keep account, payment and private pages out of results.
+User-agent: *
+Disallow: /profile
+Disallow: /my-ads
+Disallow: /messages
+Disallow: /notifications
+Disallow: /saved-searches
+Disallow: /browsing-history
+Disallow: /payment-history
+Disallow: /dealer-stats
+Disallow: /place-ad
+Disallow: /edit-ad/
+Disallow: /renew-ad/
+Disallow: /report-ad/
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /auth/
+Disallow: /manage-cookies
+
+Sitemap: https://automax.ie/sitemap.xml
