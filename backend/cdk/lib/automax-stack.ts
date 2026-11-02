@@ -149,6 +149,7 @@ export class AutomaxStack extends cdk.Stack {
       sortKey: { name: 'day', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
       timeToLiveAttribute: 'ttl',
     });
 
@@ -171,6 +172,7 @@ export class AutomaxStack extends cdk.Stack {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      pointInTimeRecovery: true,
     });
     reportAdTable.addGlobalSecondaryIndex({
       indexName: 'byOwner',

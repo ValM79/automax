@@ -11,3 +11,4 @@ backend/cdk/cdk.out/
 backend/lambda/node_modules/
 
 *.log
+frontend/public/sitemap.xml
