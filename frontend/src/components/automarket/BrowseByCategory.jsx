@@ -1,7 +1,6 @@
 import React from 'react';
 import { isVisibleCategory } from '@/lib/hiddenCategories';
 import { useNavigate } from 'react-router-dom';
-import { Wrench, Truck } from 'lucide-react';
 
 const IMG = {
   car: '/img/cffa66889_generated_image.jpg',
@@ -32,11 +31,13 @@ const IMG = {
   recovery: '/img/0babdc7b0_generated_image.jpg', // the banner on the Recovery Service page
   dealerCar: '/img/dealership-car-blue.jpg', // the Cars hatchback recoloured blue, for Dealership Cars
   damaged: '/img/e9b8cb542_generated_image.jpg', // the banner on the Breaking & Repairables page
+  hgvRepair: '/img/hgv-repair.jpg',
+  autoRepair: '/img/auto-repair.jpg',
 };
 
 // Every category picture is shown at one united size: the vehicle (or item) in each picture is measured and scaled (s) and
 // centred (x, y in px) so it fills the same 40 x 30 px box, keeping its proportions. Same rule for all of them.
-const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7},damaged:{s:1.29,x:-0.1,y:-0.8}};
+const FIT = {car:{s:1.24,x:0,y:-0.2},newCar:{s:1.32,x:0,y:-0.7},dealerCars:{s:1.38,x:0,y:0},vintageCar:{s:1.21,x:-1.3,y:-0.1},modifiedCar:{s:1.21,x:0,y:-1},truck:{s:1.58,x:-1.1,y:1.4},commercial:{s:1.37,x:0,y:-0.7},trailer:{s:1.23,x:0,y:-0.7},camper:{s:1.32,x:0,y:0.1},coachBus:{s:1.28,x:0.1,y:0.4},plant:{s:1.34,x:-0.3,y:1},motorbikeExtras:{s:1.03,x:0,y:-0.2},caravan:{s:1.27,x:0.5,y:0},motorbike:{s:1.37,x:-0.3,y:0.2},vintageBike:{s:1.29,x:0,y:0},scooter:{s:1.25,x:0,y:0.2},quad:{s:1.51,x:-0.1,y:-0.5},boatExtras:{s:0.85,x:0,y:0},electricCar:{s:1.28,x:0,y:-0.6},boat:{s:1.39,x:0.1,y:0},rallyCar:{s:1.36,x:0,y:0},carParts:{s:0.93,x:0.1,y:0},carExtras:{s:0.99,x:-0.1,y:-1},bicycle:{s:1.21,x:0.1,y:-0.6},otherItems:{s:1.29,x:0,y:0},recovery:{s:1.26,x:-0.4,y:0},dealerCar:{s:1.32,x:0,y:-0.7},damaged:{s:1.29,x:-0.1,y:-0.8},hgvRepair:{s:1.02,x:0,y:2.4},autoRepair:{s:1.06,x:0.1,y:0.9}};
 
 const allCategories = [
 [
@@ -72,8 +73,8 @@ const allCategories = [
 { label: 'Other items', isOther: true },
 { label: 'Rent a Car', imgKey: 'dealerCars' },
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true },
-{ label: 'HGV Repair & Servicing', icon: 'truck' },
-{ label: 'Auto Repair & Servicing', icon: 'wrench' },
+{ label: 'HGV Repair & Servicing', imgKey: 'hgvRepair', whiten: 1.02 },
+{ label: 'Auto Repair & Servicing', imgKey: 'autoRepair', whiten: 1.02 },
 ]];
 
 // categories that are built but not shown yet (see lib/hiddenCategories.js)
@@ -84,21 +85,11 @@ function fitStyle(key) {
   return f ? { transform: `translate(${f.x}px, ${f.y}px) scale(${f.s})` } : {};
 }
 
-// categories without a picture yet get a simple icon in the same box
-const ICONS = { truck: Truck, wrench: Wrench };
-
-function CategoryIcon({ imgKey, icon, isAllMotor, isOther, whiten }) {
+function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
         <span className="text-white font-bold text-lg">D</span>
-      </div>);
-  }
-  if (icon) {
-    const Icon = ICONS[icon];
-    return (
-      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
-        <Icon className="w-6 h-6 text-primary" strokeWidth={1.75} />
       </div>);
   }
   if (isOther) {
@@ -114,7 +105,7 @@ function CategoryIcon({ imgKey, icon, isAllMotor, isOther, whiten }) {
     </div>);
 }
 
-function CategoryRow({ label, imgKey, icon, highlight, isAllMotor, isOther, whiten }) {
+function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -153,7 +144,7 @@ function CategoryRow({ label, imgKey, icon, highlight, isAllMotor, isOther, whit
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} icon={icon} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
+        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
