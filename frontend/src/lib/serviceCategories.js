@@ -32,6 +32,17 @@ export const SERVICE_CATEGORIES = {
   },
 };
 
+// What a business pays for one listing: months and price in cents (EUR). Display copy only: the amounts that are charged are
+// in backend/lambda/_lib/serviceListing.mjs. One payment per period, no subscription; paying again adds months on.
+export const LISTING_PERIODS = [
+  { months: 1, cents: 2900 },
+  { months: 3, cents: 4900 },
+  { months: 6, cents: 7900 },
+  { months: 9, cents: 9900 },
+  { months: 12, cents: 10999 },
+];
+export const euro = (cents) => `€${(cents / 100).toFixed(cents % 100 ? 2 : 0)}`;
+
 // The "Show map" button on the directory pages. The map pictures come from OpenStreetMap (a third party), so they are only
 // requested after a visitor clicks the button. Set to false to take the map off the pages completely.
 export const SHOW_SERVICE_MAP = true;

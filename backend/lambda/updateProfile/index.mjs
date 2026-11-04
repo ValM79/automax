@@ -8,8 +8,9 @@
 // request body, so self-service profile editing can't be used to bypass
 // the same protection.
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb, TABLES, json, getUserFromEvent, sanitize } from '../_lib/common.mjs';
+import { ddb, TABLES, json, getUserFromEvent, getUserProfile, sanitize } from '../_lib/common.mjs';
 import { normalizeWebsite } from '../_lib/website.mjs';
+import { SERVICE_CATEGORIES, isCategory } from '../_lib/serviceListing.mjs';
 
 // Whitelist of fields a user may set on their own profile. `role` is
 // intentionally not here.
@@ -37,6 +38,10 @@ const EDITABLE_FIELDS = [
   'eircode',
   'website',
   'reviews_enabled',
+  // Service Business listing (listed_until and service_hidden are set by the payment webhook / the site owner, never here)
+  'service_category',
+  'service_list',
+  'open_24_7',
 ];
 
 export const handler = async (event) => {
@@ -100,9 +105,27 @@ export const handler = async (event) => {
     }
     if ('opening_hours' in body) body.opening_hours = String(body.opening_hours || '').slice(0, 200);
 
-    // The account type can only be one of the four kinds.
-    if ('seller_type' in body && !['private', 'trader', 'dealership', 'dealer'].includes(body.seller_type)) {
+    // The account type can only be one of the five kinds.
+    if ('seller_type' in body && !['private', 'trader', 'dealership', 'dealer', 'service'].includes(body.seller_type)) {
       return json(400, { error: 'Invalid account type' });
+    }
+
+    // Service Business listing: only a Service Business account may set these, the category is one of the four, and the
+    // services must come from that category's list (the category and its services are always saved together).
+    const serviceFields = ['service_category', 'service_list', 'open_24_7'].filter((f) => f in body);
+    if (serviceFields.length) {
+      const isService = body.seller_type === 'service' || (await getUserProfile(user.id))?.seller_type === 'service';
+      if (!isService) return json(400, { error: 'Only a Service Business account can set a business listing' });
+      if ('service_category' in body || 'service_list' in body) {
+        const category = body.service_category;
+        const services = Array.isArray(body.service_list) ? body.service_list : [];
+        if (!('service_category' in body) || !('service_list' in body)) return json(400, { error: 'Category and services are saved together' });
+        if (category && !isCategory(category)) return json(400, { error: 'Invalid category' });
+        if (!category && services.length) return json(400, { error: 'Choose a category first' });
+        if (!services.every((s) => typeof s === 'string' && SERVICE_CATEGORIES[category].includes(s))) return json(400, { error: 'Invalid service' });
+        body.service_list = [...new Set(services)];
+      }
+      if ('open_24_7' in body) body.open_24_7 = body.open_24_7 === true;
     }
 
     const names = {};
