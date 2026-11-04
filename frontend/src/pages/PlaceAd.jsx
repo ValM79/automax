@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { isVisibleCategory } from '@/lib/hiddenCategories';
+import { isPlaceAdCategory } from '@/lib/hiddenCategories';
 import { isBusinessType } from '@/lib/accountType';
 import { Link, useNavigate, useSearchParams, useNavigationType } from 'react-router-dom';
 import { Camera, ArrowLeft, Upload, X, User, Mail, Phone, MapPin, Tag, FileText, DollarSign, ChevronDown, Plus, Pencil, Car, Info, Star, RotateCw, Trash2, ShieldCheck } from 'lucide-react';
@@ -45,7 +45,7 @@ const sections = [
 },
 {
   label: 'Bikes & Boats',
-  subsections: ['Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Rent a Car', 'Recovery Service', 'Other items'].filter(isVisibleCategory)
+  subsections: ['Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis', 'Boat Extras', 'Rent a Car', 'Recovery Service', 'Other items'].filter(isPlaceAdCategory)
 }];
 
 
@@ -57,7 +57,7 @@ const browseCategories = [
 'Plant Machinery', 'Motorbike Extras', 'Caravans', 'Bikes & Bicycles',
 'Motorbikes', 'Vintage Bikes', 'Scooters', 'Quads', 'Boats & Jet Skis',
 'Boat Extras', 'Rent a Car', 'Recovery Service', 'Other items'].
-filter((c) => c !== 'Other items' && isVisibleCategory(c)).
+filter((c) => c !== 'Other items' && isPlaceAdCategory(c)).
 sort((a, b) => a.localeCompare(b)).
 concat('Other items');
 
