@@ -97,7 +97,7 @@ export default function ServiceDirectory({ category }) {
 
         {config.banner && (
           <div className="mb-6 rounded-xl overflow-hidden border border-border h-36 sm:h-44 bg-card">
-            <img src={config.banner} alt="" className="w-full h-full object-cover" />
+            <img src={config.banner} alt="" className="w-full h-full object-cover" style={config.bannerPosition ? { objectPosition: config.bannerPosition } : undefined} />
           </div>
         )}
 
