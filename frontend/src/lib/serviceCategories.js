@@ -18,14 +18,15 @@ export const SERVICE_CATEGORIES = {
   },
   'HGV Repair & Servicing': {
     path: '/hgv-repair-servicing',
-    banner: null,
+    banner: '/img/hgv-repair.jpg',
+    bannerPosition: '50% 80%', // the strip shows a band of the square picture: this one lands on the engine, wheels and fuel tank
     noun: 'HGV garages',
     placeholder: 'Search by garage name or town',
     services: ['Servicing', 'Brakes', 'Tachograph', 'Tyres', 'Diagnostics', 'Trailer repairs', 'Roadside repair'],
   },
   'Auto Repair & Servicing': {
     path: '/auto-repair-servicing',
-    banner: null,
+    banner: '/img/auto-repair.jpg',
     noun: 'garages',
     placeholder: 'Search by garage name or town',
     services: ['Servicing', 'Brakes', 'Tyres', 'Diagnostics', 'Clutch', 'Exhaust', 'Air conditioning', 'NCT preparation'],
