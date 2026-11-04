@@ -5,7 +5,9 @@ import BackButton from './BackButton';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import DealerLogo from './DealerLogo';
+import AreaSelect from './AreaSelect';
 import { IRISH_COUNTIES } from '@/lib/counties';
+import { IRISH_TOWNS } from '@/lib/irishTowns';
 import { openingStatus } from '@/lib/openingStatus';
 import { SERVICE_CATEGORIES, SHOW_SERVICE_MAP } from '@/lib/serviceCategories';
 import { useServiceProviders } from '@/hooks/useServiceProviders';
@@ -50,6 +52,7 @@ export default function ServiceDirectory({ category }) {
   const providers = useServiceProviders(category);
   const [text, setText] = useState('');
   const [county, setCounty] = useState('');
+  const [area, setArea] = useState('');
   const [picked, setPicked] = useState([]);
   const [openNow, setOpenNow] = useState(false);
   const [all24, setAll24] = useState(false);
@@ -58,8 +61,10 @@ export default function ServiceDirectory({ category }) {
 
   const touch = (fn) => (...args) => { fn(...args); setPage(1); };
   const toggleService = touch((s) => setPicked((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s])));
-  const anyFilter = !!(text || county || picked.length || openNow || all24);
-  const clear = touch(() => { setText(''); setCounty(''); setPicked([]); setOpenNow(false); setAll24(false); });
+  // A town belongs to one county, so choosing another county (also by clicking a map circle) empties the town box.
+  const pickCounty = touch((c) => { setCounty(c); setArea(''); });
+  const anyFilter = !!(text || county || area || picked.length || openNow || all24);
+  const clear = touch(() => { setText(''); setCounty(''); setArea(''); setPicked([]); setOpenNow(false); setAll24(false); });
 
   // Everything except the county: the map shows how many match per county, so picking a county must not empty the other circles.
   const beforeCounty = useMemo(() => {
@@ -73,7 +78,13 @@ export default function ServiceDirectory({ category }) {
   }, [providers, text, picked, openNow, all24]);
 
   const counts = useMemo(() => beforeCounty.reduce((acc, p) => { if (p.county) acc[p.county] = (acc[p.county] || 0) + 1; return acc; }, {}), [beforeCounty]);
-  const filtered = useMemo(() => beforeCounty.filter((p) => !county || p.county === county).sort((a, b) => a.name.localeCompare(b.name)), [beforeCounty, county]);
+  const filtered = useMemo(() => {
+    const a = area.trim().toLowerCase();
+    return beforeCounty
+      .filter((p) => (!county || p.county === county) && (!a || (p.area || '').toLowerCase().includes(a)))
+      .sort((x, y) => x.name.localeCompare(y.name));
+  }, [beforeCounty, county, area]);
+  const where = [area.trim(), county].filter(Boolean).join(', ') || 'All Ireland';
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, pages);
@@ -103,7 +114,7 @@ export default function ServiceDirectory({ category }) {
 
         {/* Search bar and filters */}
         <div className="bg-card border border-border rounded-lg p-4 mb-5">
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_14rem] gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_14rem_14rem] gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -114,10 +125,16 @@ export default function ServiceDirectory({ category }) {
                 aria-label="Search by name or town"
                 className={`${fieldClass} w-full pl-9`} />
             </div>
-            <select value={county} onChange={touch((e) => setCounty(e.target.value))} className={fieldClass} aria-label="County">
+            <select value={county} onChange={(e) => pickCounty(e.target.value)} className={fieldClass} aria-label="County">
               <option value="">All Ireland</option>
               {IRISH_COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
+            <AreaSelect
+              value={area}
+              onChange={touch(setArea)}
+              options={IRISH_TOWNS[county] || []}
+              listDisabled={!county}
+              placeholder="Area / Town" />
           </div>
 
           <div className="mt-4">
@@ -170,7 +187,7 @@ export default function ServiceDirectory({ category }) {
           <>
             <div className="flex items-center justify-between gap-3 mb-4">
               <p className="text-sm font-semibold text-foreground">
-                {filtered.length} {filtered.length === 1 ? 'result' : 'results'} in {county || 'All Ireland'}
+                {filtered.length} {filtered.length === 1 ? 'result' : 'results'} in {where}
               </p>
               {SHOW_SERVICE_MAP && (
                 <button type="button" onClick={() => setShowMap((v) => !v)} className="flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-card text-sm text-foreground hover:bg-secondary">
@@ -204,7 +221,7 @@ export default function ServiceDirectory({ category }) {
               {SHOW_SERVICE_MAP && showMap && (
                 <div className="lg:sticky lg:top-20 order-first lg:order-none">
                   <Suspense fallback={<div className="h-72 lg:h-[26rem] flex items-center justify-center text-sm text-muted-foreground">Loading map…</div>}>
-                    <ServiceMap counts={counts} county={county} onPick={touch(setCounty)} />
+                    <ServiceMap counts={counts} county={county} onPick={pickCounty} />
                   </Suspense>
                   <p className="text-xs text-muted-foreground mt-2">Circles show how many match in each county. Click one to filter the list.</p>
                 </div>
