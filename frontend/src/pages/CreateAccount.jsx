@@ -44,7 +44,7 @@ export default function CreateAccount() {
     password: '',
     confirmPassword: '',
     fullName: '',
-    accountType: 'private', // 'private' | 'trader' | 'dealership' | 'dealer' (see lib/accountType.js)
+    accountType: 'private', // 'private' | 'trader' | 'dealership' | 'dealer' | 'service' (see lib/accountType.js)
   });
   const [step, setStep] = useState('form'); // 'form' | 'confirm'
   const [code, setCode] = useState('');
@@ -52,7 +52,7 @@ export default function CreateAccount() {
   const [error, setError] = useState('');
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
-  const isTrader = form.accountType !== 'private'; // Trader, Dealership and Dealer are all business accounts
+  const isTrader = form.accountType !== 'private'; // Trader, Dealership, Dealer and Service Business are all business accounts
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -216,6 +216,8 @@ export default function CreateAccount() {
                 <SelectItem value="trader">Trader</SelectItem>
                 <SelectItem value="dealership">Dealership</SelectItem>
                 <SelectItem value="dealer">Dealer</SelectItem>
+                {/* The paid listing needs Apple's in-app purchase on the iPhone, which does not exist yet: not offered there */}
+                {Capacitor.getPlatform() !== 'ios' && <SelectItem value="service">Service Business</SelectItem>}
               </SelectContent>
             </Select>
           </div>

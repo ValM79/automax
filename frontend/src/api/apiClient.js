@@ -380,6 +380,7 @@ const functions = {
   getSellerStats: makeFunctionClient('getSellerStats'),
   listDealers: makeFunctionClient('listDealers'),
   listServiceProviders: makeFunctionClient('listServiceProviders'),
+  createServiceCheckout: makeFunctionClient('createServiceCheckout'),
   dealerReviews: makeFunctionClient('dealerReviews'),
   dealerStats: makeFunctionClient('dealerStats'),
   searchAlerts: makeFunctionClient('searchAlerts'),

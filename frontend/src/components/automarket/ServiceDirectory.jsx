@@ -19,11 +19,11 @@ const fieldClass = 'h-11 rounded-lg border border-border bg-card px-3 text-sm te
 const isOpenNow = (p) => !!p.open_24_7 || !!openingStatus(p.opening_times)?.open;
 
 function ServiceCard({ provider }) {
-  const { name, county, area, services = [], open_24_7: all, opening_times: times, avatar_url: avatar } = provider;
+  const { id, name, county, area, services = [], open_24_7: all, opening_times: times, avatar_url: avatar } = provider;
   const place = [area, county].filter(Boolean).join(', ');
   const status = openingStatus(times);
   return (
-    <div className="w-full rounded-lg bg-card border border-border shadow-sm p-5 flex gap-4 items-start">
+    <Link to={`/service-business/${id}`} className="w-full rounded-lg bg-card border border-border shadow-sm p-5 flex gap-4 items-start hover:border-primary/50 hover:shadow-md transition">
       <div className="flex-1 min-w-0">
         <h2 className="text-lg font-semibold text-foreground">{name}</h2>
         {place && <p className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1"><MapPin className="w-4 h-4 shrink-0" /> {place}</p>}
@@ -39,7 +39,7 @@ function ServiceCard({ provider }) {
         )}
       </div>
       {avatar && <div className="shrink-0"><DealerLogo url={avatar} /></div>}
-    </div>
+    </Link>
   );
 }
 

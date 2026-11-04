@@ -685,6 +685,19 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'listDealers', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Public directory of one service category (Rent a Car, Recovery, HGV / Auto Repair): Service Business accounts that are
+    // complete, paid up and not hidden. Read-only.
+    const listServiceProvidersFn = new lambdaNode.NodejsFunction(this, 'ListServiceProvidersFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'listServiceProviders', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
+    // Starts the Stripe payment for a Service Business listing; the paid months are added by stripeWebhook.
+    const createServiceCheckoutFn = new lambdaNode.NodejsFunction(this, 'CreateServiceCheckoutFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'createServiceCheckout', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     // Reviews of a Dealer: public list, and write / reply / report for signed-in users (checked inside the function).
     const dealerReviewsFn = new lambdaNode.NodejsFunction(this, 'DealerReviewsFn', {
       ...nodeFnDefaults,
@@ -810,6 +823,11 @@ export class AutomaxStack extends cdk.Stack {
     // listDealers only reads ads (to find live ones) and the public bits of seller profiles.
     userAdTable.grantReadData(listDealersFn);
     userProfileTable.grantReadData(listDealersFn);
+    // listServiceProviders reads the public bits of Service Business profiles; createServiceCheckout reads the caller's
+    // profile (is it a complete Service Business?) and the Stripe key.
+    userProfileTable.grantReadData(listServiceProvidersFn);
+    userProfileTable.grantReadData(createServiceCheckoutFn);
+    appSecrets.grantRead(createServiceCheckoutFn);
     // Counters: each only touches the ad table (counts) and, to know who is calling / what they saved, the profile table.
     userAdTable.grantReadData(getAdStatusesFn);
     userAdTable.grantReadWriteData(recordAdViewFn);
@@ -886,6 +904,9 @@ export class AutomaxStack extends cdk.Stack {
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);
     route('/functions/getSellerStats', apigw.HttpMethod.POST, getSellerStatsFn, false);
     route('/functions/listDealers', apigw.HttpMethod.POST, listDealersFn, false);
+    route('/functions/listServiceProviders', apigw.HttpMethod.POST, listServiceProvidersFn, false);
+    // Auth enforced inside the Lambda (getUserFromEvent), same as createCheckoutSession
+    route('/functions/createServiceCheckout', apigw.HttpMethod.POST, createServiceCheckoutFn, false);
     route('/functions/dealerReviews', apigw.HttpMethod.POST, dealerReviewsFn, false);
     // Auth enforced inside the Lambda (getUserFromEvent): alerts belong to the signed-in user
     route('/functions/searchAlerts', apigw.HttpMethod.POST, searchAlertsFn, false);

@@ -21,6 +21,7 @@ import AreaSelect from '../components/automarket/AreaSelect';
 import { IRISH_TOWNS } from '@/lib/irishTowns';
 import { squareImage, coverImage } from '@/lib/avatar';
 import AvatarBadge from '../components/automarket/AvatarBadge';
+import ServiceListingPanel from '../components/automarket/ServiceListingPanel';
 
 export default function Profile() {
   const { user, isLoadingAuth, refreshUser } = useAuth();
@@ -413,6 +414,12 @@ export default function Profile() {
           </div>
         )}
 
+        {user.seller_type === 'service' && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 mb-6 text-sm text-foreground">
+            <p>Your business is listed in its category on AutoMax once the details below are complete and a listing period is paid for.</p>
+          </div>
+        )}
+
         {requestSent && (
           <div className="mb-6 bg-primary/10 border border-primary/30 rounded-lg px-4 py-3 text-sm text-primary">
             Your delete request has been sent to our support team. We will contact you by email to confirm.
@@ -514,6 +521,9 @@ export default function Profile() {
               </div>
             </section>
           )}
+
+          {/* A Service Business: what its directory listing says, and the paid listing period */}
+          {user.seller_type === 'service' && <ServiceListingPanel user={user} refreshUser={refreshUser} />}
 
           {/* Trader fields */}
           {isTrader && (
