@@ -1,6 +1,7 @@
 import React from 'react';
 import { isVisibleCategory } from '@/lib/hiddenCategories';
 import { useNavigate } from 'react-router-dom';
+import { Wrench, Truck } from 'lucide-react';
 
 const IMG = {
   car: '/img/cffa66889_generated_image.jpg',
@@ -71,6 +72,8 @@ const allCategories = [
 { label: 'Other items', isOther: true },
 { label: 'Rent a Car', imgKey: 'dealerCars' },
 { label: 'Recovery Service', imgKey: 'recovery', whiten: true },
+{ label: 'HGV Repair & Servicing', icon: 'truck' },
+{ label: 'Auto Repair & Servicing', icon: 'wrench' },
 ]];
 
 // categories that are built but not shown yet (see lib/hiddenCategories.js)
@@ -81,11 +84,21 @@ function fitStyle(key) {
   return f ? { transform: `translate(${f.x}px, ${f.y}px) scale(${f.s})` } : {};
 }
 
-function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
+// categories without a picture yet get a simple icon in the same box
+const ICONS = { truck: Truck, wrench: Wrench };
+
+function CategoryIcon({ imgKey, icon, isAllMotor, isOther, whiten }) {
   if (isAllMotor) {
     return (
       <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
         <span className="text-white font-bold text-lg">D</span>
+      </div>);
+  }
+  if (icon) {
+    const Icon = ICONS[icon];
+    return (
+      <div className="w-12 h-9 flex items-center justify-center flex-shrink-0 bg-card rounded overflow-hidden">
+        <Icon className="w-6 h-6 text-primary" strokeWidth={1.75} />
       </div>);
   }
   if (isOther) {
@@ -101,7 +114,7 @@ function CategoryIcon({ imgKey, isAllMotor, isOther, whiten }) {
     </div>);
 }
 
-function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) {
+function CategoryRow({ label, imgKey, icon, highlight, isAllMotor, isOther, whiten }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -133,12 +146,14 @@ function CategoryRow({ label, imgKey, highlight, isAllMotor, isOther, whiten }) 
     if (label === 'Bikes & Bicycles') navigate('/bikes-bicycles');
     if (label === 'Rent a Car') navigate('/car-rent');
     if (label === 'Recovery Service') navigate('/recovery-service');
+    if (label === 'HGV Repair & Servicing') navigate('/hgv-repair-servicing');
+    if (label === 'Auto Repair & Servicing') navigate('/auto-repair-servicing');
   };
 
   return (
     <button onClick={handleClick} className="flex items-center justify-between w-full py-2.5 border-b border-border last:border-0 hover:bg-secondary/40 px-2 rounded transition-colors group">
       <div className="flex items-center gap-3">
-        <CategoryIcon imgKey={imgKey} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
+        <CategoryIcon imgKey={imgKey} icon={icon} isAllMotor={isAllMotor} isOther={isOther} whiten={whiten} />
         <span className="text-[hsl(var(--foreground))] text-sm font-medium">
           {label}
         </span>
