@@ -186,13 +186,13 @@ export default function ImageGallery({ images = [], title = '' }) {
   return (
     <>
       <div className="block">
-      <div className="lg:flex lg:gap-2">
+      <div className="lg:flex lg:gap-0.5">
       {/* Desktop thumbnail column -- placed before the main photo in both DOM
           and visual order (lg:flex default), so it renders on the left, the
           mirror of the usual main-left / thumbs-right arrangement, so our
           layout has a look of its own. */}
       {photos.length > 1 && (
-        <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-2 flex-shrink-0">
+        <div className="hidden lg:flex lg:flex-col lg:w-[220px] lg:h-[420px] gap-0.5 flex-shrink-0">
           {Array.from({ length: thumbSlots }).map((_, i) => {
             const photoIndex = i + 1;
             const isOverlayTile = showOverlay && i === thumbSlots - 1;
