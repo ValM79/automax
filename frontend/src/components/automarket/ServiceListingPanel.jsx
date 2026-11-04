@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { AlertCircle, CheckCircle2, Clock, Store } from 'lucide-react';
 import { api } from '@/api/apiClient';
 import { DAY_KEYS, normalizeTime } from '@/lib/openingHours';
+import { normalizeWebsite } from '@/lib/website';
 import { SERVICE_CATEGORIES, LISTING_PERIODS, euro } from '@/lib/serviceCategories';
 
 const hasCategory = (c) => Object.prototype.hasOwnProperty.call(SERVICE_CATEGORIES, c);
@@ -20,6 +21,7 @@ export default function ServiceListingPanel({ user, refreshUser }) {
     all24: user.open_24_7 === true,
     times: user.opening_times && typeof user.opening_times === 'object' ? user.opening_times : {},
     about: user.about || '',
+    website: user.website || '',
   };
   const snapshot = JSON.stringify(saved);
   const [form, setForm] = useState(saved);
@@ -76,6 +78,11 @@ export default function ServiceListingPanel({ user, refreshUser }) {
       setSaveMsg({ ok: false, text: 'Opening hours: write each time like 09:00 - 18:00, or type Closed.' });
       return;
     }
+    const website = normalizeWebsite(form.website);
+    if (website === null) {
+      setSaveMsg({ ok: false, text: 'Website: please enter your website address, for example www.yourcompany.ie.' });
+      return;
+    }
     setSaving(true);
     try {
       await api.auth.updateMe({
@@ -84,6 +91,7 @@ export default function ServiceListingPanel({ user, refreshUser }) {
         open_24_7: form.all24,
         opening_times: times,
         about: form.about,
+        website,
       });
       await refreshUser();
       setSaveMsg({ ok: true, text: 'Listing details saved.' });
@@ -234,6 +242,22 @@ export default function ServiceListingPanel({ user, refreshUser }) {
             placeholder="What you do, areas you cover, how long you have been in business"
             className={`${inputClass} py-2 resize-y`} />
           <p className="text-xs text-muted-foreground">{form.about.length}/500. Your county, area, phone and logo are in Business Details below.</p>
+        </div>
+
+        {/* Website */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-foreground" htmlFor="service-website">Link your Website (optional)</label>
+          <input
+            id="service-website"
+            type="text"
+            inputMode="url"
+            value={form.website}
+            onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+            onBlur={() => { const n = normalizeWebsite(form.website); if (n) setForm((f) => ({ ...f, website: n })); }}
+            maxLength={200}
+            placeholder="www.yourcompany.ie"
+            className={`${inputClass} h-10 ${normalizeWebsite(form.website) === null ? 'border-red-500' : ''}`} />
+          <p className="text-xs text-muted-foreground">Shown as a View Website link on your business page.</p>
         </div>
 
         {saveMsg && (
