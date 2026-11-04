@@ -13,6 +13,7 @@ const Home = lazy(() => import('./pages/Home'));
 const CreateAccount = lazy(() => import('./pages/CreateAccount'));
 const CarRent = lazy(() => import('./pages/CarRent'));
 const CarInsurance = lazy(() => import('./pages/CarInsurance'));
+const RepairServices = lazy(() => import('./pages/RepairServices'));
 const Dealers = lazy(() => import('./pages/Dealers'));
 const PlaceAd = lazy(() => import('./pages/PlaceAd'));
 const CarsForSale = lazy(() => import('./pages/CarsForSale'));
@@ -101,6 +102,8 @@ const AnimatedRoutes = () => {
       <Route path="/create-account" element={<CreateAccount />} />
       <Route path="/car-rent" element={isHiddenRoute('/car-rent') ? <PageNotFound /> : <CarRent />} />
       <Route path="/recovery-service" element={isHiddenRoute('/recovery-service') ? <PageNotFound /> : <CarInsurance />} />
+      <Route path="/hgv-repair-servicing" element={<RepairServices category="HGV Repair & Servicing" />} />
+      <Route path="/auto-repair-servicing" element={<RepairServices category="Auto Repair & Servicing" />} />
       <Route path="/dealers-garage" element={<Dealers />} />
       <Route path="/dealers" element={<Navigate to="/dealers-garage" replace />} />
       <Route path="/place-ad" element={<PlaceAd />} />

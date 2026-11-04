@@ -39,6 +39,8 @@ const routeSeo = {
   '/dealers': { title: 'Find Car Dealers in Ireland | AutoMax', description: 'Search trusted car dealers across Ireland. Browse dealership inventories and find your next vehicle on AutoMax.' },
   '/car-rent': { title: 'Car Rental in Ireland | AutoMax', description: 'Find car rental options across Ireland on AutoMax.' },
   '/recovery-service': { title: 'Vehicle Recovery Service | AutoMax', description: 'Find vehicle recovery services across Ireland on AutoMax.' },
+  '/hgv-repair-servicing': { title: 'HGV Repair & Servicing | AutoMax', description: 'Find HGV repair and servicing across Ireland on AutoMax.' },
+  '/auto-repair-servicing': { title: 'Auto Repair & Servicing | AutoMax', description: 'Find car repair and servicing across Ireland on AutoMax.' },
   '/buying-tips': { title: 'Car Buying Tips & Guides | AutoMax', description: 'Expert tips and guides for buying a car in Ireland. Learn how to inspect, negotiate and buy safely on AutoMax.' },
   '/selling-tips': { title: 'Car Selling Tips & Guides | AutoMax', description: 'Learn how to sell your car fast and safely on AutoMax. Expert tips for creating great ads and closing deals.' },
   '/how-to-sell-my-car': { title: 'How To Sell My Car | AutoMax', description: 'Step-by-step guide to selling your car on AutoMax. List your vehicle, reach buyers and complete the sale safely.' },

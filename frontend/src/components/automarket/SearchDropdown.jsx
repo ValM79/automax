@@ -50,6 +50,8 @@ const ALL_SITE_PAGES = [
   { label: 'Plant & Machinery', route: '/plant-machinery', keywords: ['plant', 'machinery', 'digger', 'jcb', 'tractor', 'forklift', 'excavator'] },
   { label: 'Coaches & Buses', route: '/coaches-buses', keywords: ['bus', 'coach', 'minibus', 'school bus'] },
   { label: 'Car Rent', route: '/car-rent', keywords: ['rent', 'hire', 'rental', 'lease'] },
+  { label: 'HGV Repair & Servicing', route: '/hgv-repair-servicing', keywords: ['hgv repair', 'truck repair', 'lorry repair', 'hgv service', 'hgv servicing', 'truck servicing'] },
+  { label: 'Auto Repair & Servicing', route: '/auto-repair-servicing', keywords: ['car repair', 'auto repair', 'garage', 'mechanic', 'car service', 'servicing', 'nct'] },
   { label: 'Car Insurance', route: '/car-insurance', keywords: ['insurance', 'insure', 'cover', 'policy'] },
   { label: 'History Check', route: '/history-checks', keywords: ['history check', 'car check', 'vehicle history', 'vin', 'hpi'] },
   { label: 'Find a Dealer', route: '/dealers', keywords: ['dealer', 'find dealer', 'showroom', 'car dealer'] },
