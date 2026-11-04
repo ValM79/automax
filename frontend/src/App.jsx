@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { isHiddenRoute } from '@/lib/hiddenCategories';
+import { isHiddenRoute, isServiceDirectoryHidden } from '@/lib/hiddenCategories';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -103,9 +103,9 @@ const AnimatedRoutes = () => {
       <Route path="/create-account" element={<CreateAccount />} />
       <Route path="/car-rent" element={isHiddenRoute('/car-rent') ? <PageNotFound /> : <CarRent />} />
       <Route path="/recovery-service" element={isHiddenRoute('/recovery-service') ? <PageNotFound /> : <CarInsurance />} />
-      <Route path="/service-business/:id" element={<ServiceBusiness />} />
-      <Route path="/hgv-repair-servicing" element={<RepairServices category="HGV Repair & Servicing" />} />
-      <Route path="/auto-repair-servicing" element={<RepairServices category="Auto Repair & Servicing" />} />
+      <Route path="/service-business/:id" element={isServiceDirectoryHidden() ? <PageNotFound /> : <ServiceBusiness />} />
+      <Route path="/hgv-repair-servicing" element={isHiddenRoute('/hgv-repair-servicing') ? <PageNotFound /> : <RepairServices category="HGV Repair & Servicing" />} />
+      <Route path="/auto-repair-servicing" element={isHiddenRoute('/auto-repair-servicing') ? <PageNotFound /> : <RepairServices category="Auto Repair & Servicing" />} />
       <Route path="/dealers-garage" element={<Dealers />} />
       <Route path="/dealers" element={<Navigate to="/dealers-garage" replace />} />
       <Route path="/place-ad" element={<PlaceAd />} />
