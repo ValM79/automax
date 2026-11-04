@@ -3,6 +3,7 @@ import { Mail, Lock, User, Building2, Eye, EyeOff, ArrowLeft, AlertCircle, KeyRo
 import { Link, useNavigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { api } from '@/api/apiClient';
+import { isServiceDirectoryHidden } from '@/lib/hiddenCategories';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function PasswordInput({ id, label, placeholder, value, onChange, hint }) {
@@ -217,7 +218,7 @@ export default function CreateAccount() {
                 <SelectItem value="dealership">Dealership</SelectItem>
                 <SelectItem value="dealer">Dealer</SelectItem>
                 {/* The paid listing needs Apple's in-app purchase on the iPhone, which does not exist yet: not offered there */}
-                {Capacitor.getPlatform() !== 'ios' && <SelectItem value="service">Service Business</SelectItem>}
+                {Capacitor.getPlatform() !== 'ios' && !isServiceDirectoryHidden() && <SelectItem value="service">Service Business</SelectItem>}
               </SelectContent>
             </Select>
           </div>
