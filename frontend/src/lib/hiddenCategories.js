@@ -3,6 +3,11 @@
 export const HIDDEN_CATEGORIES = [];
 export const HIDDEN_ROUTES = [];
 
+// Categories where businesses are listed in a directory (components/automarket/ServiceDirectory.jsx), not through Place Ad:
+// an ad placed there would never be shown on the directory page.
+export const DIRECTORY_CATEGORIES = ['Rent a Car', 'Recovery Service', 'HGV Repair & Servicing', 'Auto Repair & Servicing'];
+
 export const isHiddenCategory = (name) => HIDDEN_CATEGORIES.includes(name);
 export const isVisibleCategory = (name) => !isHiddenCategory(name);
+export const isPlaceAdCategory = (name) => isVisibleCategory(name) && !DIRECTORY_CATEGORIES.includes(name);
 export const isHiddenRoute = (path) => HIDDEN_ROUTES.includes(path);
