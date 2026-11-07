@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import { FREE_LISTINGS } from '@/lib/freeListings';
 
 export default function TermsAndConditions() {
   return (
@@ -47,6 +48,9 @@ export default function TermsAndConditions() {
           </Section>
 
           <Section title="4. Ad Packages and Payments">
+            {FREE_LISTINGS && (
+              <p className="mb-3"><strong>Free launch offer:</strong> for now, ads are free. A free ad runs for 60 days (30 days in the bike, parts and extras categories), with up to 12 photos and no bumps or Spotlight, and each account may have a limited number of free ads live at once. AutoMax may end or change this offer at any time. Ads already published stay live until their listing period ends, and the paid packages below apply whenever you choose one.</p>
+            )}
             <p>AutoMax offers paid advertising packages (Basic, Standard, and Premium). By selecting a package and completing payment, you agree to the following:</p>
             <ul className="list-disc ml-5 mt-3 space-y-1.5 text-muted-foreground">
               <li><strong>Basic (€1):</strong> 60-day listing, up to 12 photos.</li>

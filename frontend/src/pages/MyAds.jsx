@@ -3,6 +3,7 @@ import BackButton from '../components/automarket/BackButton';
 import { Plus, Megaphone, Camera, EllipsisVertical, Eye, RotateCcw, SquarePen, CircleCheck, Undo2, Trash2, Lock, Clock } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { adDaysLeft } from '@/lib/adTimeLeft';
+import { FREE_LISTINGS } from '@/lib/freeListings';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { api } from '@/api/apiClient';
@@ -140,7 +141,7 @@ export default function MyAds() {
 
         {justRenewed &&
           <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            Payment received. Your ad is being uploaded again with a fresh countdown. If it still shows the old time, give it a few seconds.
+            {FREE_LISTINGS ? 'Your ad has been uploaded again with a fresh countdown.' : 'Payment received. Your ad is being uploaded again with a fresh countdown. If it still shows the old time, give it a few seconds.'}
           </div>
         }
 

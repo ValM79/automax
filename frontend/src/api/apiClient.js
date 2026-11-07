@@ -373,6 +373,7 @@ function makeFunctionClient(fnName) {
 const functions = {
   contactSeller: makeFunctionClient('contactSeller'),
   createCheckoutSession: makeFunctionClient('createCheckoutSession'),
+  publishFreeAd: makeFunctionClient('publishFreeAd'),
   deleteAccount: makeFunctionClient('deleteAccount'),
   getVehicleDetails: makeFunctionClient('getVehicleDetails'),
   sendVerificationCode: makeFunctionClient('sendVerificationCode'),

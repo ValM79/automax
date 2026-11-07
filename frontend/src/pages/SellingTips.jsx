@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Lightbulb } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import { FREE_LISTINGS } from '@/lib/freeListings';
 
 const tips = [
   {
@@ -34,10 +35,10 @@ const tips = [
     title: 'Accept Secure Payment',
     description: 'Bank transfer is the safest payment method. Avoid accepting cheques or unusual payment arrangements. Confirm funds have cleared before releasing the vehicle.'
   },
-  {
+  ...(FREE_LISTINGS ? [] : [{
     title: 'Use a Premium Ad Package',
     description: 'Spotlight and premium packages give your listing greater visibility, helping it appear at the top of search results and sell up to 3x faster.'
-  },
+  }]),
 ];
 
 export default function SellingTips() {
