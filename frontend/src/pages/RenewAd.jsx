@@ -8,6 +8,8 @@ import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import { IAPPlugin, isIOSApp } from '@/lib/iap';
 import { adDaysLeft } from '@/lib/adTimeLeft';
+import FreeListingCard from '../components/automarket/FreeListingCard';
+import { FREE_LISTINGS, freePackageFor } from '@/lib/freeListings';
 
 // "Upload your Ad": re-list an existing ad by buying a package for it. The live
 // ad is untouched until payment succeeds; the backend (stripeWebhook /
@@ -46,6 +48,24 @@ export default function RenewAd() {
 
   const handleUpload = async () => {
     if (busy) return;
+    if (FREE_LISTINGS) {
+      // Free launch offer: no package to choose. The server makes the ad live again, within the free limit.
+      const days = freePackageFor(isBikeCategory).listingDays;
+      if (stillLive && !window.confirm(`This ad is still live with ${daysLeft} day${daysLeft === 1 ? '' : 's'} left. Uploading it again starts a new ${days}-day countdown and replaces the remaining time. Continue?`)) {
+        return;
+      }
+      setBusy(true);
+      setError('');
+      try {
+        await api.functions.invoke('publishFreeAd', { adId: ad.id });
+        navigate('/my-ads?renewed=1');
+      } catch (e) {
+        setError(e?.message || 'Could not upload the ad. Please try again.');
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (!selectedPackage) {
       setError('Please select a package first.');
       return;
@@ -148,14 +168,18 @@ export default function RenewAd() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Choose a package and pay to put this ad back at the top of the listings with a brand-new countdown, starting as soon as your payment goes through.
+              {FREE_LISTINGS
+                ? 'Upload this ad again for free to put it back at the top of the listings with a brand-new countdown.'
+                : 'Choose a package and pay to put this ad back at the top of the listings with a brand-new countdown, starting as soon as your payment goes through.'}
             </p>
 
+            {FREE_LISTINGS ?
+            <FreeListingCard isBikeCategory={isBikeCategory} sellerType={user?.seller_type} /> :
             <AdPackageSelector
               isBikeCategory={isBikeCategory}
               selectedPackage={selectedPackage}
               onPackageSelected={setSelectedPackage}
-              actionLabel="Upload now" />
+              actionLabel="Upload now" />}
 
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
@@ -163,7 +187,7 @@ export default function RenewAd() {
               onClick={handleUpload}
               disabled={busy}
               className="w-full bg-foreground text-background font-bold py-4 rounded-xl text-base hover:opacity-90 transition-opacity disabled:opacity-60">
-              {busy ? (isIOSApp ? 'Completing purchase...' : 'Redirecting to payment...') : 'Upload now'}
+              {busy ? (FREE_LISTINGS ? 'Uploading...' : isIOSApp ? 'Completing purchase...' : 'Redirecting to payment...') : 'Upload now'}
             </button>
             <Link to="/my-ads" className="w-full text-center border border-foreground text-foreground font-semibold py-3 rounded-xl hover:bg-secondary transition-colors text-sm">
               Cancel

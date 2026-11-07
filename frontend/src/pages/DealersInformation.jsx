@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
 import { Link } from 'react-router-dom';
+import { FREE_LISTINGS } from '@/lib/freeListings';
 
 // How a Dealer account works, step by step. Plain text only: it describes what the site does today.
 function Section({ title, children }) {
@@ -64,11 +65,16 @@ export default function DealersInformation() {
             <li>Add your photos (up to 12), then fill in the title, description, price and the vehicle details.</li>
             <li>Check your contact details and business details. They are filled in from your Profile.</li>
             <li>Under <strong>Dealer Extras</strong>, tick <strong>Warranty</strong>, <strong>History</strong> and <strong>Delivery</strong> for what you offer with the vehicle, and add a short detail if you like (for example <em>12 months parts and labour</em>). They are shown on your ad. You can change them later with <strong>Edit</strong>.</li>
-            <li>Choose an ad package (Basic, Standard or Premium). They differ in how long the ad runs and in extras such as bumps to the top. The price is shown before you pay.</li>
-            <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
+            {FREE_LISTINGS ? <>
+              <li>Press <strong>Post Ad for Free</strong>. During our free launch offer there is nothing to pay.</li>
+              <li>You are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
+            </> : <>
+              <li>Choose an ad package (Basic, Standard or Premium). They differ in how long the ad runs and in extras such as bumps to the top. The price is shown before you pay.</li>
+              <li>Pay. After paying you are taken to your dealer page, where the ad now appears under <strong>Our Stock</strong>.</li>
+            </>}
           </ol>
           <p className="text-muted-foreground mt-3">
-            Each ad is paid for when you place it. Your ad appears on your dealer page and in the category you chose, so buyers can find it in the category lists and through your card in Dealers Garages.
+            {FREE_LISTINGS ? 'Ads are free during our launch offer. ' : 'Each ad is paid for when you place it. '}Your ad appears on your dealer page and in the category you chose, so buyers can find it in the category lists and through your card in Dealers Garages.
           </p>
         </Section>
 
@@ -76,12 +82,12 @@ export default function DealersInformation() {
           <p className="text-foreground mb-3">Open <strong>My Account</strong>, then <strong>My Ads</strong>. Each ad shows its price, how many times it was viewed and saved, and how many days it has left. Press the three dots on an ad to:</p>
           <ul className={bullets}>
             <li><strong>View</strong>: see the ad as a buyer sees it.</li>
-            <li><strong>Renew my Ad</strong>: run the ad again for another period. You choose a package and pay, as when placing it.</li>
+            <li><strong>Renew my Ad</strong>: run the ad again for another period. {FREE_LISTINGS ? 'It is free during our launch offer.' : 'You choose a package and pay, as when placing it.'}</li>
             <li><strong>Edit</strong>: change the photos, price, description or any other detail. Change the price here when you reduce it.</li>
             <li><strong>Mark as Sold</strong>: take a sold vehicle off your page. Do this as soon as a vehicle is sold so buyers do not ask about it.</li>
             <li><strong>Delete</strong>: remove the ad for good. This cannot be undone.</li>
           </ul>
-          <p className="text-muted-foreground mt-3">An ad ends by itself when the days of its package run out. Use <strong>Renew my Ad</strong> if you want to keep it listed.</p>
+          <p className="text-muted-foreground mt-3">An ad ends by itself when its listing days run out. Use <strong>Renew my Ad</strong> if you want to keep it listed.</p>
         </Section>
 
         <Section title="5. Answer buyers">

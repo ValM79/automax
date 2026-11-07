@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Car, Camera, FileText, Tag, CreditCard, CheckCircle } from 'lucide-react';
 import Navbar from '../components/automarket/Navbar';
 import Footer from '../components/automarket/Footer';
+import { FREE_LISTINGS } from '@/lib/freeListings';
 
 const steps = [
   {
@@ -28,8 +29,10 @@ const steps = [
   },
   {
     icon: CreditCard,
-    title: 'Choose Your Ad Package',
-    description: 'Select from our range of ad packages — from a basic listing to spotlight and premium options that give your ad more visibility and help it stand out from the crowd.'
+    title: FREE_LISTINGS ? 'Post It for Free' : 'Choose Your Ad Package',
+    description: FREE_LISTINGS
+      ? 'During our free launch offer there is nothing to pay: check your details, press Post Ad for Free, and your ad goes live.'
+      : 'Select from our range of ad packages — from a basic listing to spotlight and premium options that give your ad more visibility and help it stand out from the crowd.'
   },
   {
     icon: CheckCircle,

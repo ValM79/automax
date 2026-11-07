@@ -9,6 +9,8 @@ import Footer from '../components/automarket/Footer';
 import ImageViewer from '../components/automarket/ImageViewer';
 import AdPackageSelector, { packages, isBikePackageSubsection } from '../components/automarket/AdPackageSelector';
 import AdPreview from '../components/automarket/AdPreview';
+import FreeListingCard from '../components/automarket/FreeListingCard';
+import { FREE_LISTINGS, freePackageFor } from '@/lib/freeListings';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import keywordToCategory from '@/lib/keywordToCategory';
@@ -264,6 +266,14 @@ export default function PlaceAd() {
   }, [isLoadingAuth, user]);
 
   const isBikeCategory = isBikePackageSubsection(form.subsection);
+
+  // Free launch offer: there is no package to choose, so the free one is always the selected one (and follows the category).
+  useEffect(() => {
+    if (!FREE_LISTINGS) return;
+    const pkg = freePackageFor(isBikeCategory);
+    setSelectedPackage(pkg);
+    setPackageLimits({ listingDays: pkg.listingDays, maxPhotos: pkg.maxPhotos });
+  }, [isBikeCategory]);
 
   const vehicleDetailsCategories = ['Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);
@@ -1119,7 +1129,7 @@ export default function PlaceAd() {
               {/* Trader details */}
               {isTraderAd &&
               <div className="flex flex-col gap-4 border border-border rounded-xl p-4 bg-secondary/30">
-                  <p className="text-xs text-muted-foreground">This information will be used on your invoice.</p>
+                    <p className="text-xs text-muted-foreground">{FREE_LISTINGS ? 'Tell us about your business.' : 'This information will be used on your invoice.'}</p>
                   <div id="field-businessName">
                     <label className="block text-sm font-medium text-foreground mb-1.5">Business Name <span className="text-destructive">*</span></label>
                     <input
@@ -1154,13 +1164,15 @@ export default function PlaceAd() {
           </Section>
 
           {/* Ad Package / Payment */}
+          {FREE_LISTINGS ?
+          <FreeListingCard isBikeCategory={isBikeCategory} sellerType={user?.seller_type} /> :
           <AdPackageSelector
             isBikeCategory={isBikeCategory}
             selectedPackage={selectedPackage}
             onPackageSelected={(pkg) => {
               setSelectedPackage(pkg);
               setPackageLimits({ listingDays: pkg.listingDays, maxPhotos: pkg.maxPhotos });
-            }} />
+            }} />}
           
 
           {/* Actions */}
@@ -1191,12 +1203,12 @@ export default function PlaceAd() {
                   setSellError('Please select an ad package before proceeding.');
                   return;
                 }
-                if (!isIOSApp && window.self !== window.top) {
+                if (!FREE_LISTINGS && !isIOSApp && window.self !== window.top) {
                   submittingRef.current = false;
                   setSellError('Checkout is only available from the published app, not the preview.');
                   return;
                 }
-                if (isIOSApp && !selectedPackage.iosProductId) {
+                if (!FREE_LISTINGS && isIOSApp && !selectedPackage.iosProductId) {
                   submittingRef.current = false;
                   setSellError('This package is not available for purchase on iOS yet.');
                   return;
@@ -1269,6 +1281,14 @@ export default function PlaceAd() {
                     createdAd = await api.entities.UserAd.create(adData);
                   }
 
+                  if (FREE_LISTINGS) {
+                    // Free launch offer: the server checks the ad is yours and within the free limit, then makes it live.
+                    await api.functions.invoke('publishFreeAd', { adId: createdAd.id });
+                    localStorage.removeItem('pendingAd');
+                    navigate(user?.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
+                    return;
+                  }
+
                   if (isIOSApp) {
                     // On-device purchase via StoreKit (see IAPPlugin.swift). This
                     // only tells us the purchase happened on-device -- it is not
@@ -1333,10 +1353,10 @@ export default function PlaceAd() {
               }}
               disabled={checkoutLoading}
               className="w-full bg-foreground text-background font-bold py-4 rounded-xl text-base hover:opacity-90 transition-opacity disabled:opacity-60">
-              {checkoutLoading ? photos.length > 0 ? 'Uploading photos...' : isIOSApp ? 'Completing purchase...' : 'Redirecting to payment...' : 'Sell Now'}
+              {checkoutLoading ? photos.length > 0 ? 'Uploading photos...' : FREE_LISTINGS ? 'Publishing your ad...' : isIOSApp ? 'Completing purchase...' : 'Redirecting to payment...' : FREE_LISTINGS ? 'Post Ad for Free' : 'Sell Now'}
             </button>
             <p className="text-xs text-muted-foreground text-center">
-              By clicking "Sell Now", you agree to the AutoMax{' '}
+              By clicking "{FREE_LISTINGS ? 'Post Ad for Free' : 'Sell Now'}", you agree to the AutoMax{' '}
               <Link to="/terms-and-conditions" className="text-primary hover:underline">Terms & Conditions</Link>.
             </p>
             <button onClick={handleReset} className="w-full border border-foreground text-foreground font-semibold py-3 rounded-xl hover:bg-secondary transition-colors text-sm">

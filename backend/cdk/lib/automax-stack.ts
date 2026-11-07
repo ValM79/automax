@@ -618,6 +618,12 @@ export class AutomaxStack extends cdk.Stack {
       entry: path.join(entryDir, 'createCheckoutSession', 'index.mjs'),
     } as lambdaNode.NodejsFunctionProps);
 
+    // Free launch offer: makes an ad live without payment (limits and on/off switch in _lib/freeListing.mjs).
+    const publishFreeAdFn = new lambdaNode.NodejsFunction(this, 'PublishFreeAdFn', {
+      ...nodeFnDefaults,
+      entry: path.join(entryDir, 'publishFreeAd', 'index.mjs'),
+    } as lambdaNode.NodejsFunctionProps);
+
     const deleteAccountFn = new lambdaNode.NodejsFunction(this, 'DeleteAccountFn', {
       ...nodeFnDefaults,
       entry: path.join(entryDir, 'deleteAccount', 'index.mjs'),
@@ -790,7 +796,7 @@ export class AutomaxStack extends cdk.Stack {
     for (const fn of [
       entityApiFn, contactSellerFn, createCheckoutSessionFn, deleteAccountFn,
       downloadReceiptFn, sendVerificationCodeFn, stripeWebhookFn, verifyCodeFn, presignUploadFn,
-      submitContactFormFn, getVehicleDetailsFn, updateProfileFn, verifyAppleTransactionFn,
+      submitContactFormFn, getVehicleDetailsFn, updateProfileFn, verifyAppleTransactionFn, publishFreeAdFn,
     ]) {
       userAdTable.grantReadWriteData(fn);
       messageTable.grantReadWriteData(fn);
@@ -899,6 +905,8 @@ export class AutomaxStack extends cdk.Stack {
 
     route('/functions/contactSeller', apigw.HttpMethod.POST, contactSellerFn, false);
     route('/functions/createCheckoutSession', apigw.HttpMethod.POST, createCheckoutSessionFn, false);
+    // Auth enforced inside the Lambda (getUserFromEvent): it checks the caller owns the ad before making it live
+    route('/functions/publishFreeAd', apigw.HttpMethod.POST, publishFreeAdFn, false);
     route('/functions/deleteAccount', apigw.HttpMethod.POST, deleteAccountFn, false);
     route('/functions/downloadReceipt', apigw.HttpMethod.POST, downloadReceiptFn, false);
     route('/functions/getVehicleDetails', apigw.HttpMethod.POST, getVehicleDetailsFn, false);

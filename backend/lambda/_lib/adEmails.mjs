@@ -10,7 +10,7 @@ const formatDate = (d) =>
  * Best effort: it never throws, because a failed email must not fail the payment
  * webhook (Stripe would retry and the payment is already recorded).
  */
-export async function sendAdLiveEmail({ to, ad, packageName, listingDays, amountCents, paidAt, renewal }) {
+export async function sendAdLiveEmail({ to, ad, packageName, listingDays, amountCents, paidAt, renewal, free }) {
   try {
     if (!to) return false;
     const title = sanitize(ad?.title, 120) || 'your ad';
@@ -23,7 +23,9 @@ export async function sendAdLiveEmail({ to, ad, packageName, listingDays, amount
       '',
       renewal
         ? 'Your ad has been uploaded again and is live with a fresh countdown.'
-        : 'Thank you for your payment. Your ad is now live on AutoMax.',
+        : free
+          ? 'Your ad is now live on AutoMax, free during our launch offer.'
+          : 'Thank you for your payment. Your ad is now live on AutoMax.',
       '',
       `Ad: ${title}`,
       `Package: ${packageName} (${listingDays} days)`,
@@ -31,7 +33,7 @@ export async function sendAdLiveEmail({ to, ad, packageName, listingDays, amount
       `Live until: ${liveUntil}`,
       '',
       `Manage your ads: ${origin}/my-ads`,
-      `Payment records and receipts: ${origin}/payment-history`,
+      ...(free ? [] : [`Payment records and receipts: ${origin}/payment-history`]),
       '',
       'Thank you for using AutoMax.',
     ];

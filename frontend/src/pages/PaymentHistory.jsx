@@ -30,7 +30,7 @@ function paymentsFromAd(ad) {
   const history = Array.isArray(ad.paymentHistory) ? ad.paymentHistory : [];
   const entries = history.length > 0
     ? history.map((entry, index) => ({ entry, index }))
-    : (ad.paymentAmount > 0 || ad.appleTransactionId)
+    : ((ad.paymentAmount > 0 || ad.appleTransactionId) && ad.packageName !== 'Free') // free-launch ads are not payments
       ? [{ entry: { date: ad.created_date, packageName: ad.packageName }, index: null }]
       : [];
   return entries.map(({ entry, index }) => ({
