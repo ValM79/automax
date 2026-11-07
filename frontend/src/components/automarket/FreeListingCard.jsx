@@ -1,10 +1,9 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { freePackageFor, freeLimitText } from '@/lib/freeListings';
+import { FREE_PACKAGE as pkg, freeLimitText } from '@/lib/freeListings';
 
 // Shown instead of the Basic / Standard / Premium choice while the free launch offer is on (lib/freeListings.js).
-export default function FreeListingCard({ isBikeCategory, sellerType }) {
-  const pkg = freePackageFor(isBikeCategory);
+export default function FreeListingCard({ sellerType }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">

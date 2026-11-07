@@ -49,9 +49,9 @@ const call = (adId, who = 'u1') => handler({ headers: who ? { authorization: `Be
 const parse = (r) => JSON.parse(r.body);
 const seed = (ad) => db.set(ad.id, structuredClone(ad));
 const pending = (over = {}) => ({ id: 'a1', created_by_id: 'u1', status: 'pending', subsection: 'Cars', created_date: daysAgo(3), ...over });
-const liveFree = (id, over = {}) => ({ id, created_by_id: 'u1', status: 'active', packageName: 'Free', listingDays: 60, created_date: daysAgo(5), subsection: 'Cars', ...over });
+const liveFree = (id, over = {}) => ({ id, created_by_id: 'u1', status: 'active', packageName: 'Free', listingDays: 30, created_date: daysAgo(5), subsection: 'Cars', ...over });
 
-test('a pending car ad goes live for 60 days with the Free package, no bumps or spotlight', async () => {
+test('a pending car ad goes live for 30 days with the Free package, no bumps or spotlight', async () => {
   db.clear(); emails.length = 0;
   seed(pending());
   const res = await call('a1');
@@ -59,18 +59,20 @@ test('a pending car ad goes live for 60 days with the Free package, no bumps or 
   const ad = db.get('a1');
   assert.equal(ad.status, 'active');
   assert.equal(ad.packageName, 'Free');
-  assert.equal(ad.listingDays, 60);
+  assert.equal(ad.listingDays, 30);
   assert.equal(ad.spotlight, false);
   assert.ok(Date.now() - Date.parse(ad.created_date) < 5000, 'countdown starts now, not when the draft was saved');
   assert.equal(emails.length, 1);
   assert.equal(emails[0].free, true);
 });
 
-test('bike-priced sections get 30 days', async () => {
-  db.clear();
-  seed(pending({ subsection: 'Car Parts' }));
-  await call('a1');
-  assert.equal(db.get('a1').listingDays, 30);
+test('every category gets the same 30 days', async () => {
+  for (const subsection of ['Cars', 'Car Parts', 'Motorbikes', 'Trucks', 'Other items']) {
+    db.clear();
+    seed(pending({ subsection }));
+    await call('a1');
+    assert.equal(db.get('a1').listingDays, 30, subsection);
+  }
 });
 
 test('signed out -> 401, someone else\'s ad -> 403, unknown ad -> 404, nothing changes', async () => {

@@ -3,7 +3,7 @@
 import { GetCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { ddb, TABLES, json, getUserFromEvent, getUserProfile } from '../_lib/common.mjs';
 import { sendAdLiveEmail } from '../_lib/adEmails.mjs';
-import { FREE_LISTINGS, FREE_PACKAGE_NAME, freeListingDays, freeLimitFor, isLiveFreeAd } from '../_lib/freeListing.mjs';
+import { FREE_LISTINGS, FREE_PACKAGE_NAME, FREE_LISTING_DAYS, freeLimitFor, isLiveFreeAd } from '../_lib/freeListing.mjs';
 
 async function countLiveFreeAds(userId, exceptAdId) {
   let count = 0;
@@ -53,7 +53,7 @@ export const handler = async (event) => {
       }
     }
 
-    const listingDays = freeListingDays(ad.subsection);
+    const listingDays = FREE_LISTING_DAYS;
     const paidAt = new Date().toISOString();
     let updated;
     try {
