@@ -10,7 +10,7 @@ import ImageViewer from '../components/automarket/ImageViewer';
 import AdPackageSelector, { packages, isBikePackageSubsection } from '../components/automarket/AdPackageSelector';
 import AdPreview from '../components/automarket/AdPreview';
 import FreeListingCard from '../components/automarket/FreeListingCard';
-import { FREE_LISTINGS, freePackageFor } from '@/lib/freeListings';
+import { FREE_LISTINGS, FREE_PACKAGE } from '@/lib/freeListings';
 import { api } from '@/api/apiClient';
 import { useAuth } from '@/lib/AuthContext';
 import keywordToCategory from '@/lib/keywordToCategory';
@@ -267,13 +267,12 @@ export default function PlaceAd() {
 
   const isBikeCategory = isBikePackageSubsection(form.subsection);
 
-  // Free launch offer: there is no package to choose, so the free one is always the selected one (and follows the category).
+  // Free launch offer: there is no package to choose, so the free one is always the selected one.
   useEffect(() => {
     if (!FREE_LISTINGS) return;
-    const pkg = freePackageFor(isBikeCategory);
-    setSelectedPackage(pkg);
-    setPackageLimits({ listingDays: pkg.listingDays, maxPhotos: pkg.maxPhotos });
-  }, [isBikeCategory]);
+    setSelectedPackage(FREE_PACKAGE);
+    setPackageLimits({ listingDays: FREE_PACKAGE.listingDays, maxPhotos: FREE_PACKAGE.maxPhotos });
+  }, []);
 
   const vehicleDetailsCategories = ['Cars', 'Electric & Hybrid Cars', 'Trucks', 'Motorbikes', 'Coaches & Buses', 'Commercials'];
   const showVehicleDetails = vehicleDetailsCategories.includes(form.subsection);
@@ -1165,7 +1164,7 @@ export default function PlaceAd() {
 
           {/* Ad Package / Payment */}
           {FREE_LISTINGS ?
-          <FreeListingCard isBikeCategory={isBikeCategory} sellerType={user?.seller_type} /> :
+          <FreeListingCard sellerType={user?.seller_type} /> :
           <AdPackageSelector
             isBikeCategory={isBikeCategory}
             selectedPackage={selectedPackage}

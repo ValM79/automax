@@ -7,11 +7,9 @@ export const FREE_LISTINGS = true;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Free ads run for what the Basic package gave: 60 days for cars and everything else, 30 days for the bike-priced sections.
-// Keep BIKE_SUBSECTIONS in step with createCheckoutSession and frontend/src/components/automarket/AdPackageSelector.jsx.
-const BIKE_SUBSECTIONS = ['Bikes & Bicycles', 'Car Extras', 'Car Parts', 'Boat Extras', 'Other items', 'Motorbike Extras'];
+// A free ad runs for 30 days in every category. Keep in step with FREE_PACKAGE in frontend/src/lib/freeListings.js (display only).
 export const FREE_PACKAGE_NAME = 'Free';
-export const freeListingDays = (subsection) => (BIKE_SUBSECTIONS.includes(subsection) ? 30 : 60);
+export const FREE_LISTING_DAYS = 30;
 
 // Live free ads one account may have at a time: private sellers 3, business accounts (Trader, Dealership, Dealer) 20.
 export const FREE_LIMIT_PRIVATE = 3;

@@ -9,7 +9,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { IAPPlugin, isIOSApp } from '@/lib/iap';
 import { adDaysLeft } from '@/lib/adTimeLeft';
 import FreeListingCard from '../components/automarket/FreeListingCard';
-import { FREE_LISTINGS, freePackageFor } from '@/lib/freeListings';
+import { FREE_LISTINGS, FREE_PACKAGE } from '@/lib/freeListings';
 
 // "Upload your Ad": re-list an existing ad by buying a package for it. The live
 // ad is untouched until payment succeeds; the backend (stripeWebhook /
@@ -50,7 +50,7 @@ export default function RenewAd() {
     if (busy) return;
     if (FREE_LISTINGS) {
       // Free launch offer: no package to choose. The server makes the ad live again, within the free limit.
-      const days = freePackageFor(isBikeCategory).listingDays;
+      const days = FREE_PACKAGE.listingDays;
       if (stillLive && !window.confirm(`This ad is still live with ${daysLeft} day${daysLeft === 1 ? '' : 's'} left. Uploading it again starts a new ${days}-day countdown and replaces the remaining time. Continue?`)) {
         return;
       }
@@ -174,7 +174,7 @@ export default function RenewAd() {
             </p>
 
             {FREE_LISTINGS ?
-            <FreeListingCard isBikeCategory={isBikeCategory} sellerType={user?.seller_type} /> :
+            <FreeListingCard sellerType={user?.seller_type} /> :
             <AdPackageSelector
               isBikeCategory={isBikeCategory}
               selectedPackage={selectedPackage}
