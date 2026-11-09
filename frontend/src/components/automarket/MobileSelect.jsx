@@ -1,10 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
 export default function MobileSelect({ value, onChange, options, placeholder, className = '', disabled = false, sizeClass = 'text-sm' }) {
   const [open, setOpen] = useState(false);
   const displayValue = value || placeholder || 'Select...';
+  const touchStart = useRef(null);
+  const openedAt = useRef(0);
+
+  const openSheet = () => {
+    if (disabled) return;
+    document.activeElement?.blur?.(); // close the on-screen keyboard if a text box was being typed in
+    openedAt.current = Date.now();
+    setOpen(true);
+  };
+  const closeFromOverlay = () => {
+    if (Date.now() - openedAt.current < 400) return; // ignore the tail of the tap that opened the list
+    setOpen(false);
+  };
 
   // While the list is open, stop the page behind it from scrolling (overflow only: no position:fixed trick, which made the
   // page jump to the top in the Android app) and let Escape close it.
@@ -15,6 +28,19 @@ export default function MobileSelect({ value, onChange, options, placeholder, cl
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('keydown', onKey);
     return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  // The phone's Back button closes the list instead of leaving the page (and losing the form behind it).
+  useEffect(() => {
+    if (!open) return undefined;
+    window.history.pushState({ ...(window.history.state || {}), __mobileSelect: true }, '');
+    let popped = false;
+    const onPop = () => { popped = true; setOpen(false); };
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      if (!popped && window.history.state?.__mobileSelect) window.history.back();
+    };
   }, [open]);
 
   return (
@@ -37,7 +63,16 @@ export default function MobileSelect({ value, onChange, options, placeholder, cl
       <button
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setOpen(true)}
+        onClick={openSheet}
+        // Open on touch-end too: on Android a tap that lands while the keyboard is closing or the page is still gliding to a stop
+        // can lose its click, which made the first tap on a list do nothing.
+        onTouchStart={(e) => { const t = e.touches[0]; touchStart.current = { x: t.clientX, y: t.clientY, time: Date.now() }; }}
+        onTouchEnd={(e) => {
+          const st = touchStart.current; touchStart.current = null;
+          if (!st || disabled) return;
+          const t = e.changedTouches[0];
+          if (Math.abs(t.clientX - st.x) < 10 && Math.abs(t.clientY - st.y) < 10 && Date.now() - st.time < 600) { e.preventDefault(); openSheet(); }
+        }}
         className={`md:hidden w-full h-11 flex items-center justify-between border border-border rounded-md px-3 ${sizeClass} bg-card text-foreground transition-colors ${className} ${disabled ? 'cursor-not-allowed text-muted-foreground' : ''}`}
       >
         <span className={value ? '' : 'text-muted-foreground'}>{displayValue}</span>
@@ -47,7 +82,7 @@ export default function MobileSelect({ value, onChange, options, placeholder, cl
       {open && createPortal(
         <div className="md:hidden fixed inset-0 z-[90]" role="dialog" aria-modal="true">
           {/* Dim background: tap to close */}
-          <div className="absolute inset-0 bg-black/60 animate-in fade-in-0 duration-150" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 animate-in fade-in-0 duration-150" onClick={closeFromOverlay} />
           {/* Sheet sits above the bottom tab bar (z-70), so the whole list stays visible */}
           <div
             className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-[10px] border bg-background animate-in slide-in-from-bottom duration-200"

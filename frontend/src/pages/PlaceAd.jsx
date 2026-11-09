@@ -155,6 +155,10 @@ const emptyForm = {
   bikeSubsection: ''
 };
 
+// A half-filled ad is kept here (outside the component) so it survives leaving the page, for example with the phone's Back
+// button, and is put back when the seller returns. It is cleared when the ad is posted or the form is reset.
+let savedDraft = null;
+
 export default function PlaceAd() {
   const { user, isLoadingAuth, navigateToLogin, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -178,6 +182,21 @@ export default function PlaceAd() {
     email: user?.email || ''
   });
   const profilePrefilled = useRef(false);
+  const draftRestored = useRef(false);
+  const draftDone = useRef(false);
+  const finishDraft = () => { draftDone.current = true; savedDraft = null; };
+  // Must stay above the profile-prefill effect so a restored draft is not overwritten by the profile details.
+  useEffect(() => {
+    if (!user?.id || draftRestored.current) return;
+    draftRestored.current = true;
+    if (savedDraft && savedDraft.userId === user.id && new URLSearchParams(window.location.search).get('payment') !== 'success') {
+      profilePrefilled.current = true;
+      setForm(savedDraft.form);
+      setPhotos(savedDraft.photos);
+      setCategoryStarted(savedDraft.categoryStarted);
+    }
+  }, [user]);
+
   const isDealer = user?.seller_type === 'dealer'; // a Dealer has no personal name on their ads: the business name is used
   const isTraderAd = isDealer || form.isTrader; // a Dealer is always a trader, so they are not asked
 
@@ -203,6 +222,10 @@ export default function PlaceAd() {
   const [dragOver, setDragOver] = useState(false);
   const [step, setStep] = useState('form'); // 'form' | 'preview'
   const [categoryStarted, setCategoryStarted] = useState(false);
+  useEffect(() => {
+    if (!user?.id || !draftRestored.current || draftDone.current) return;
+    savedDraft = { userId: user.id, form, photos, categoryStarted };
+  }, [form, photos, categoryStarted, user]);
   const [viewerIndex, setViewerIndex] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -262,6 +285,7 @@ export default function PlaceAd() {
     if (adSavedRef.current) return;
     adSavedRef.current = true;
     localStorage.removeItem('pendingAd');
+    finishDraft();
     navigate(user.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
   }, [isLoadingAuth, user]);
 
@@ -361,6 +385,7 @@ export default function PlaceAd() {
   const areas = areasByCounty[form.county] || areasByCounty.default;
 
   const handleReset = () => {
+    savedDraft = null;
     setForm({
       ...emptyForm,
       fullName: user?.full_name || '',
@@ -1284,6 +1309,7 @@ export default function PlaceAd() {
                     // Free launch offer: the server checks the ad is yours and within the free limit, then makes it live.
                     await api.functions.invoke('publishFreeAd', { adId: createdAd.id });
                     localStorage.removeItem('pendingAd');
+                    finishDraft();
                     navigate(user?.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
                     return;
                   }
@@ -1320,6 +1346,7 @@ export default function PlaceAd() {
                       // StoreKit redelivers the transaction next launch instead
                       // of losing the purchase.
                       await IAPPlugin.finishTransaction({ transactionId: purchase.transactionId });
+                      finishDraft();
                       navigate(user?.seller_type === 'dealer' ? `/seller-ads/${user.id}` : '/my-ads');
                       return;
                     } catch (verifyErr) {
