@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 
 export default function MobileSelect({ value, onChange, options, placeholder, className = '', disabled = false, sizeClass = 'text-sm' }) {
   const [open, setOpen] = useState(false);
   const displayValue = value || placeholder || 'Select...';
+
+  // While the list is open, stop the page behind it from scrolling (overflow only: no position:fixed trick, which made the
+  // page jump to the top in the Android app) and let Escape close it.
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey); };
+  }, [open]);
 
   return (
     <>
@@ -33,38 +44,45 @@ export default function MobileSelect({ value, onChange, options, placeholder, cl
         <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
       </button>
 
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="max-h-[70vh]">
-          <DrawerHeader className="cursor-pointer" onClick={() => setOpen(false)}>
-            <DrawerTitle className="flex flex-col items-center gap-0.5 text-foreground">
+      {open && createPortal(
+        <div className="md:hidden fixed inset-0 z-[90]" role="dialog" aria-modal="true">
+          {/* Dim background: tap to close */}
+          <div className="absolute inset-0 bg-black/60 animate-in fade-in-0 duration-150" onClick={() => setOpen(false)} />
+          {/* Sheet sits above the bottom tab bar (z-70), so the whole list stays visible */}
+          <div
+            className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-[10px] border bg-background animate-in slide-in-from-bottom duration-200"
+            style={{ maxHeight: '75dvh' }}
+          >
+            <button type="button" className="flex flex-col items-center gap-0.5 pt-3 pb-2 text-base font-semibold text-foreground" onClick={() => setOpen(false)}>
               Close
               <ChevronDown className="w-4 h-4" />
-            </DrawerTitle>
-          </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-6">
-            {placeholder && (
-              <button
-                type="button"
-                onClick={() => { onChange(''); setOpen(false); }}
-                className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors mb-1 ${!value ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary text-foreground'}`}
-              >
-                {placeholder}
-              </button>
-            )}
-            {options.map((o) => (
-              <button
-                key={o}
-                type="button"
-                onClick={() => { onChange(o); setOpen(false); }}
-                className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors flex items-center justify-between mb-1 ${value === o ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary text-foreground'}`}
-              >
-                {o}
-                {value === o && <Check className="w-4 h-4" />}
-              </button>
-            ))}
+            </button>
+            <div className="overflow-y-auto overscroll-contain px-4" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}>
+              {placeholder && (
+                <button
+                  type="button"
+                  onClick={() => { onChange(''); setOpen(false); }}
+                  className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors mb-1 ${!value ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary text-foreground'}`}
+                >
+                  {placeholder}
+                </button>
+              )}
+              {options.map((o) => (
+                <button
+                  key={o}
+                  type="button"
+                  onClick={() => { onChange(o); setOpen(false); }}
+                  className={`w-full text-left px-4 py-3 rounded-lg text-base transition-colors flex items-center justify-between mb-1 ${value === o ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-secondary text-foreground'}`}
+                >
+                  {o}
+                  {value === o && <Check className="w-4 h-4" />}
+                </button>
+              ))}
+            </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
