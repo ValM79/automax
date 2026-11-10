@@ -634,18 +634,19 @@ export default function PlaceAd() {
               onDragOver={(e) => {e.preventDefault();setDragOver(true);}}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragOver ? 'border-primary bg-primary/5' : 'border-border'}`}>
-              
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <label className="cursor-pointer">
+              className={`border-2 border-dashed rounded-xl p-3 text-center transition-colors ${dragOver ? 'border-primary bg-primary/5' : 'border-border'}`}>
+
+                {/* The whole box is the button, so a tap anywhere in it opens the photo picker (it used to be only the words "Add Photos"). */}
+                <label className="block cursor-pointer p-5 rounded-lg" style={{ touchAction: 'manipulation' }}>
+                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                   <span className="text-primary font-semibold hover:underline">Add Photos</span>
+                  <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                  <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
                   <input key="initial" type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                 </label>
-                <span className="text-muted-foreground text-sm"> or drag and drop</span>
-                <p className="text-xs text-muted-foreground mt-2">Up to {packageLimits.maxPhotos} images · .jpg, .png and .gif files</p>
                 {canTakePhoto &&
-                <div className="mt-4">
-                  <label className="inline-flex items-center gap-2 cursor-pointer border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
+                <div className="pb-2">
+                  <label className="inline-flex items-center gap-2 cursor-pointer border border-primary text-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors" style={{ touchAction: 'manipulation' }}>
                     <Camera className="w-4 h-4" /> Take Photo
                     <input key="camera-initial" type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
                   </label>
