@@ -19,7 +19,7 @@ export default function FreeListingCard({ sellerType }) {
         </ul>
       </div>
       <p className="text-xs text-muted-foreground mt-3">
-        No payment needed. Each account can have up to {freeLimitText(sellerType)} free ads live at a time.
+        No payment needed.{freeLimitText(sellerType) ? ` Each account can have up to ${freeLimitText(sellerType)} free ads live at a time.` : ''}
       </p>
     </div>
   );

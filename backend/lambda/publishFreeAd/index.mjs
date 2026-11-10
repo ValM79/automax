@@ -48,7 +48,7 @@ export const handler = async (event) => {
     if (user.role !== 'admin') {
       const profile = await getUserProfile(user.id);
       const limit = freeLimitFor(profile?.seller_type);
-      if ((await countLiveFreeAds(user.id, adId)) >= limit) {
+      if (Number.isFinite(limit) && (await countLiveFreeAds(user.id, adId)) >= limit) {
         return json(409, { error: `You already have ${limit} live free ads, which is the most one account can have. When one ends or is marked as sold, you can post another.` });
       }
     }

@@ -7,13 +7,14 @@ export const FREE_LISTINGS = true;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// A free ad runs for 30 days in every category. Keep in step with FREE_PACKAGE in frontend/src/lib/freeListings.js (display only).
+// A free ad runs for 60 days in every category. Keep in step with FREE_PACKAGE in frontend/src/lib/freeListings.js (display only).
 export const FREE_PACKAGE_NAME = 'Free';
-export const FREE_LISTING_DAYS = 30;
+export const FREE_LISTING_DAYS = 60;
 
-// Live free ads one account may have at a time: private sellers 3, business accounts (Trader, Dealership, Dealer) 20.
-export const FREE_LIMIT_PRIVATE = 3;
-export const FREE_LIMIT_BUSINESS = 20;
+// Live free ads one account may have at a time. No limit for now (user decision 2026-11-10); to bring a cap back, set these to numbers
+// (they were 3 for private sellers and 20 for business accounts) and keep freeLimitText in frontend/src/lib/freeListings.js in step.
+export const FREE_LIMIT_PRIVATE = Infinity;
+export const FREE_LIMIT_BUSINESS = Infinity;
 const BUSINESS_TYPES = ['trader', 'dealership', 'dealer'];
 export const freeLimitFor = (sellerType) => (BUSINESS_TYPES.includes(sellerType) ? FREE_LIMIT_BUSINESS : FREE_LIMIT_PRIVATE);
 
