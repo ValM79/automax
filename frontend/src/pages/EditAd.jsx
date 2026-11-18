@@ -375,14 +375,17 @@ export default function EditAd() {
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragOver ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <button onClick={() => fileInputRef.current?.click()} className="text-primary font-semibold hover:underline">Add Photos</button>
-                <span className="text-muted-foreground text-sm"> or drag and drop</span>
-                <p className="text-xs text-muted-foreground mt-2">Up to {MAX_PHOTOS} images</p>
+                className={`border-2 border-dashed rounded-xl p-3 text-center transition-colors ${dragOver ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                {/* The whole box is the button, so a tap anywhere in it opens the photo picker (it used to be only the words "Add Photos"). */}
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="block w-full p-5 rounded-lg" style={{ touchAction: 'manipulation' }}>
+                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <span className="text-primary font-semibold hover:underline">Add Photos</span>
+                  <span className="text-muted-foreground text-sm"> or drag and drop</span>
+                  <span className="block text-xs text-muted-foreground mt-2">Up to {MAX_PHOTOS} images</span>
+                </button>
                 {canTakePhoto && (
-                  <div className="mt-4">
-                    <button onClick={() => cameraInputRef.current?.click()} className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors">
+                  <div className="pb-2">
+                    <button type="button" onClick={() => cameraInputRef.current?.click()} className="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/5 transition-colors" style={{ touchAction: 'manipulation' }}>
                       <Camera className="w-4 h-4" /> Take Photo
                     </button>
                   </div>
