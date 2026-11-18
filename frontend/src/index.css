@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* The Inter font is loaded without blocking from index.html. An @import here made the whole app wait for Google Fonts, so on a slow or blocked network it stayed a blank white screen. */
 
 @tailwind base;
 @tailwind components;
