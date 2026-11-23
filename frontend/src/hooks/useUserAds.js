@@ -6,12 +6,24 @@ import { api } from '@/api/apiClient';
  * Fetches active user ads whose title or vehicleMake matches the given make keyword.
  * e.g. make = 'bmw' will match ads with 'BMW' anywhere in title or vehicleMake.
  */
+// Lower-case, drop accents (Citroën = Citroen) and treat any punctuation as a space, so the
+// page address "mercedes-benz" matches an ad saved as "Mercedes-Benz" (before this the address
+// became "mercedes benz" and never matched the hyphenated name, so those ads never showed).
+export function normalizeForMatch(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
 export function useUserAdsByMake(make) {
   const [userAds, setUserAds] = useState([]);
 
   useEffect(() => {
     if (!make) return;
-    const keyword = make.replace('-', ' ').toLowerCase();
+    const keyword = normalizeForMatch(make);
     api.entities.UserAd.filter({ status: 'active' }, '-created_date', 3000000)
       .then(ads => {
         const now = Date.now();
@@ -20,9 +32,9 @@ export function useUserAdsByMake(make) {
             const expiresAt = new Date(ad.created_date).getTime() + ad.listingDays * 24 * 60 * 60 * 1000;
             if (now > expiresAt) return false;
           }
-          const titleMatch = ad.title && ad.title.toLowerCase().includes(keyword);
-          const makeMatch = ad.vehicleMake && ad.vehicleMake.toLowerCase().includes(keyword);
-          const modelMatch = ad.vehicleModel && ad.vehicleModel.toLowerCase().includes(keyword);
+          const titleMatch = ad.title && normalizeForMatch(ad.title).includes(keyword);
+          const makeMatch = ad.vehicleMake && normalizeForMatch(ad.vehicleMake).includes(keyword);
+          const modelMatch = ad.vehicleModel && normalizeForMatch(ad.vehicleModel).includes(keyword);
           return titleMatch || makeMatch || modelMatch;
         });
         setUserAds(matched);
