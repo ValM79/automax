@@ -10,6 +10,7 @@ import FiltersSidebar from '../components/automarket/FiltersSidebar';
 import ListingCard from '../components/automarket/ListingCard';
 import Pagination from '../components/automarket/Pagination';
 import MobileCategoryFilters from '../components/automarket/MobileCategoryFilters';
+import { MAKES } from '../components/automarket/CarListings';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -23,7 +24,10 @@ export default function CarsByMake() {
 
   const parsePrice = (str) => str ? parseInt(str.replace(/[€,]/g, ''), 10) : null;
 
-  const makeDisplay = make?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Cars';
+  // Use the real make name from the Browse by Make list ("Mercedes-Benz", "Rolls-Royce"); fall back to the address text.
+  const makeDisplay = MAKES.find(m => m.label.toLowerCase().replace(/\s+/g, '-') === make)?.label
+    || make?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    || 'Cars';
   const staticListings = carsByMake[make] || [];
 
   const rawUserAds = useUserAdsByMake(make);
