@@ -55,7 +55,7 @@ export default function SellerCard({ seller, onSendMessage, onViewAllAds, onRepo
         <button type="button" onClick={onMessage} className={buttonClass}>
           <MessageSquare className="w-4 h-4" /> Send message
         </button>
-        <button type="button" onClick={onViewAllAds} className={buttonClass}>
+        <button type="button" onClick={onViewAllAds} className="w-full h-11 border border-black bg-black text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-black/85 transition-colors">
           <User className="w-4 h-4" /> Show this seller's ads
         </button>
       </div>
