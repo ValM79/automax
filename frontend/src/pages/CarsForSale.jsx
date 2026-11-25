@@ -110,6 +110,8 @@ export default function CarsForSale() {
   const normalizedUserAds = userAds.map((ad) => ({
     id: ad.id,
     isUserAd: true,
+    // The posted date: without it the card's "X days" falls back to a per-browser "first seen" clock and always reads "Just now".
+    created_date: ad.created_date,
     title: ad.title,
     year: parseInt(ad.vehicleYear) || null,
     fuel: ad.vehicleFuel,
